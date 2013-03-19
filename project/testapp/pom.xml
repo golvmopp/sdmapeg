@@ -7,9 +7,7 @@
 		<artifactId>project</artifactId>
 		<version>1.0-SNAPSHOT</version>
 	</parent>
-	<groupId>se.chalmers.sdmapeg</groupId>
 	<artifactId>testapp</artifactId>
-	<version>1.0-SNAPSHOT</version>
 	<name>testapp</name>
 	<url>http://maven.apache.org</url>
 	<properties>
@@ -21,6 +19,11 @@
 			<artifactId>junit</artifactId>
 			<version>3.8.1</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>14.0.1</version>
 		</dependency>
 	</dependencies>
 </project>
