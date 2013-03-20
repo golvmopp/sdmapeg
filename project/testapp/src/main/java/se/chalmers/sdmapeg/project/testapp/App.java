@@ -13,7 +13,6 @@ public class App {
 	    .newBuilder().maximumSize(1).build(new Loader());
 
     public static void main(String[] args) {
-	System.out.println("Hej jag heter golvmopp, ändrat");
 	System.out.println("Hej jag heter Trivoc");
 	System.out.println("Hej du heter Rascal");
 
@@ -22,6 +21,8 @@ public class App {
 	    System.out.println(CACHE.getUnchecked("Hello World!"));
 	    i++;
 	}
+
+	System.out.println("Hej jag heter golvmopp, ändrat");
     }
 
     private static class Loader extends CacheLoader<String, String> {
