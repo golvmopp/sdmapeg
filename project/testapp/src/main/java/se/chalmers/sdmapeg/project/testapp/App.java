@@ -15,6 +15,7 @@ public class App {
 	public static void main(String[] args) {
 		System.out.println("Hej jag heter golvmopp");
 	    System.out.println("Hej jag heter Trivoc");
+	    System.out.println("Hej du heter Rascal");
 
 		int i = 0;
 		while (i < 10) {
