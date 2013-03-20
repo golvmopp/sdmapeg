@@ -9,27 +9,26 @@ import com.google.common.cache.LoadingCache;
  *
  */
 public class App {
-	private static final LoadingCache<String, String> CACHE = CacheBuilder.newBuilder().maximumSize(1).build(new Loader());
-	
+	private static final LoadingCache<String, String> CACHE = CacheBuilder
+			.newBuilder().maximumSize(1).build(new Loader());
+
 	public static void main(String[] args) {
-	    System.out.println("Hej jag heter golvmopp");
-	    
-	    int i = 0;
-	    while(i < 10) {
-		System.out.println(CACHE.getUnchecked("Hello World!"));
-		i++;
-	    }
+		System.out.println("Hej jag heter golvmopp");
+
+		int i = 0;
+		while (i < 10) {
+			System.out.println(CACHE.getUnchecked("Hello World!"));
+			i++;
+		}
 	}
-	
+
 	private static class Loader extends CacheLoader<String, String> {
+		public Loader() {
+		}
 
-	    public Loader() {
-	    }
-
-	    @Override
-	    public String load(String arg0) {
-		return arg0.toLowerCase();
-	    }
-	    
+		@Override
+		public String load(String arg0) {
+			return arg0.toLowerCase();
+		}
 	}
 }
