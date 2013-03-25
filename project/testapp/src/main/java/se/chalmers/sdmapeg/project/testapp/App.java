@@ -7,5 +7,6 @@ package se.chalmers.sdmapeg.project.testapp;
 public class App {
 	public static void main(String[] args) {
 		ClientServerInteractionDemo.interact();
+		PythonDemo.runInterpreter();
 	}
 }
