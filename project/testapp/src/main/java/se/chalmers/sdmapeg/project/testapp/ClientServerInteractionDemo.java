@@ -16,7 +16,8 @@ public class ClientServerInteractionDemo {
 
 	public static void interact() {
 		try {
-			ServerDemo server = new ServerDemo(PORT, new ConnectionHandler());
+			ServerDemo server = new ServerDemo(PORT, new ThreadedConnectionHandler(
+					new ConnectionCallback()));
 			ClientDemo client = new ClientDemo();
 			try (Connection<ClientMessage, ServerMessage> connection =
 									  client.connectTo(new InetSocketAddress(
@@ -65,8 +66,7 @@ public class ClientServerInteractionDemo {
 		}
 	}
 
-	private static class ConnectionHandler implements
-			ServerDemo.ConnectionHandler {
+	private static class SimpleConnectionHandler implements ConnectionHandler {
 		private final ExecutorService executors =
 									  Executors.newCachedThreadPool();
 		private final Set<Connection<ServerMessage, ClientMessage>> connections =
@@ -115,6 +115,42 @@ public class ClientServerInteractionDemo {
 				catch (IOException ex) {
 				}
 			}
+		}
+	}
+
+	private static class ConnectionCallback implements ThreadedConnectionHandler.ConnectionCallback {
+		@Override
+		public MessageHandler connectionOpened(Connection<ServerMessage, ClientMessage> connection) {
+			return new MessageHandler(connection);
+		}
+
+		@Override
+		public void connectionClosed(Connection<ServerMessage, ClientMessage> connection) {
+			//Nothing to do here
+		}
+
+		private static class MessageHandler implements ThreadedConnectionHandler.MessageHandler {
+			private final Connection<ServerMessage, ClientMessage> connection;
+
+			public MessageHandler(Connection<ServerMessage, ClientMessage> connection) {
+				this.connection = connection;
+			}
+
+			@Override
+			public void handle(ClientMessage message) {
+				try {
+					if (message instanceof Ping) {
+						Ping ping = (Ping) message;
+						System.out.println("Server: The client said: "
+										   + ping);
+						connection.sendMessage(new Pong(ping.toString()));
+					}
+				}
+				catch (IOException ex) {
+					throw new AssertionError(ex);
+				}
+			}
+
 		}
 	}
 

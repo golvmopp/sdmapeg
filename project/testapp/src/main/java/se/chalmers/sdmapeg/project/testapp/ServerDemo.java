@@ -51,11 +51,6 @@ public class ServerDemo {
 		connectionListenerExecutor.shutdown();
 	}
 
-	public interface ConnectionHandler {
-		void handle(Connection<ServerMessage, ClientMessage> connection);
-		void serverShutdown();
-	}
-
 	private static class ConnectionAcceptor implements Runnable {
 		private final ServerSocket serverSocket;
 		private final ConnectionHandler connectionHandler;
