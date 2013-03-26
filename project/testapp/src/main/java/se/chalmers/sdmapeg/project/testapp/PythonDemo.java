@@ -27,6 +27,8 @@ import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
+import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.python.core.PyDictionary;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
@@ -56,7 +58,8 @@ public class PythonDemo {
 		frame.setLayout(new BorderLayout());
 		Box mainContainer = new Box(BoxLayout.PAGE_AXIS);
 		frame.add(mainContainer);
-		final JTextArea textArea = new JTextArea();
+		final JTextArea textArea = new RSyntaxTextArea(
+				new RSyntaxDocument(RSyntaxDocument.SYNTAX_STYLE_PYTHON));
 		textArea.setFont(Font.decode("Monospaced"));
 		frame.add(new JScrollPane(textArea), BorderLayout.CENTER);
 		Box box = new Box(BoxLayout.LINE_AXIS);
