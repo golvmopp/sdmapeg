@@ -30,6 +30,7 @@ import javax.swing.SwingUtilities;
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.python.core.PyDictionary;
+import org.python.core.PyObject;
 import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 
@@ -94,20 +95,20 @@ public class PythonDemo {
 						pythonInterpreter.exec("from org.python.modules import"
 								+ " math, cmath, itertools");
 						final String script = textArea.getText();
-						FutureTask<String> task =
-										   new FutureTask<>(new Callable<String>() {
+						FutureTask<PyObject> task =
+										   new FutureTask<>(new Callable<PyObject>() {
 							@Override
-							public String call() {
+							public PyObject call() {
 								pythonInterpreter.exec(script);
-								return Objects.toString(pythonInterpreter.get(
-										"value"));
+								return pythonInterpreter.get(
+										"value");
 							}
 						});
 						Thread interpreterThread = new JythonSandbox(task,
 								"Sandbox");
 						interpreterThread.start();
 						try {
-							final String result = task.get(1, TimeUnit.MINUTES);
+							final String result = Objects.toString(task.get(1, TimeUnit.MINUTES), "None");
 							SwingUtilities.invokeLater(new Runnable() {
 								@Override
 								public void run() {
