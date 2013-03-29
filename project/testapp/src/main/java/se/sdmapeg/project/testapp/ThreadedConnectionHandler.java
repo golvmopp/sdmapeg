@@ -1,8 +1,7 @@
-package se.chalmers.sdmapeg.project.testapp;
+package se.sdmapeg.project.testapp;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
