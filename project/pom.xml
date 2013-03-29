@@ -11,5 +11,8 @@
 		<module>common</module>
 		<module>server-client</module>
 		<module>server-worker</module>
-	</modules>
+    <module>client</module>
+    <module>server</module>
+    <module>worker</module>
+  </modules>
 </project>
