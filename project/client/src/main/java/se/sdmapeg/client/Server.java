@@ -19,14 +19,16 @@ public interface Server {
 	/**
 	 * Sends a message from the client to the server.
 	 * @param message message to send
+	 * @exception IOException if an error occurred
 	 */
 	void send(ClientToServerMessage message) throws IOException;
 
 	/**
 	 * Receives a message from the server. This method blocks until a message has been received.
 	 * @return received message.
+	 * @exception IOException if an error occurred
 	 */
-	ServerToClientMessage receive() throws InterruptedException, IOException;
+	ServerToClientMessage receive() throws IOException;
 
 	/**
 	 * Disconnects from the server. If no connection is open, no action is performed.

@@ -1,10 +1,9 @@
 package se.sdmapeg.server;
 
-import se.sdmapeg.serverworker.ServerToWorkerMessage;
-import se.sdmapeg.serverworker.WorkerToServerMessage;
-
 import java.io.IOException;
 import java.net.InetAddress;
+import se.sdmapeg.serverworker.ServerToWorkerMessage;
+import se.sdmapeg.serverworker.WorkerToServerMessage;
 
 /**
  * Represents the client. Handles communication between Server and Client.
@@ -19,14 +18,16 @@ public interface Worker {
 	/**
 	 * Sends a message from server to worker.
 	 * @param message message to send
+	 * @exception IOException if an error occurred
 	 */
 	void send(ServerToWorkerMessage message) throws IOException;
 
 	/**
-	 * Receives a message from the worker. This method blocks until a message has been received.
-	 * @return received message.
+	 * Receives a message from the worker. This method blocks until a message has been received
+	 * @return received message
+	 * @exception IOException if an error occurred
 	 */
-	WorkerToServerMessage receive();
+	WorkerToServerMessage receive() throws IOException;
 
 	/**
 	 * Disconnects the worker.
