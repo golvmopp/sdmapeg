@@ -8,7 +8,11 @@
 	<name>project</name>
 	<modules>
 		<module>testapp</module>
-    <module>common</module>
-    <module>server-client</module>
+		<module>common</module>
+		<module>server-client</module>
+		<module>server-worker</module>
+    <module>client</module>
+    <module>server</module>
+    <module>worker</module>
   </modules>
 </project>
