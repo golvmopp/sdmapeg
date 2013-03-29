@@ -1,16 +1,13 @@
-package se.chalmers.sdmapeg.project.testapp;
+package se.sdmapeg.project.testapp;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import com.google.common.cache.Cache;
-
 /**
  * Unit test for simple App.
  */
-public class AppTest
-		extends TestCase {
+public class AppTest extends TestCase {
 	/**
 	 * Create the test case
 	 *
@@ -30,7 +27,7 @@ public class AppTest
 	/**
 	 * Rigourous Test :-)
 	 */
-	public void testApp() {
+	public void testApp() { 
 		assertTrue(true);
 	}
 }

@@ -1,4 +1,4 @@
-package se.chalmers.sdmapeg.project.testapp;
+package se.sdmapeg.project.testapp;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
