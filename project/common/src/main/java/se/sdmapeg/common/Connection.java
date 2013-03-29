@@ -8,6 +8,5 @@ public interface Connection<S extends Message, R extends Message> extends Closea
 	InetAddress getAddress();
 	void send(S message);
 	R receive();
-	void close() throws IOException;
 	boolean isOpen();
 }
