@@ -4,9 +4,39 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetAddress;
 
+/**
+ * Interface representing a network connection. The connection supports full
+ * duplex communication, allowing sending and receiving messages at the same
+ * time.
+ *
+ * @param <S> the type of messages which can be sent.
+ * @param <R> the type of messages which can be received.
+ */
 public interface Connection<S extends Message, R extends Message> extends Closeable {
+	/**
+	 * Returns the address of the machine on the other end of this connection.
+	 * @return the remote address
+	 */
 	InetAddress getAddress();
-	void send(S message);
-	R receive();
+
+	/**
+	 * Sends a message over this connection.
+	 * @param message the message to be sent.
+	 * @throws IOException if an error occurs.
+	 */
+	void send(S message) throws IOException;
+
+	/**
+	 * Receives a message from the other end of this connection. This method
+	 * blocks until a message has been received. 
+	 * @return the received message.
+	 * @throws IOException if an error occurs.
+	 */
+	R receive() throws IOException;
+
+	/**
+	 * Returns whether this connection is open. 
+	 * @return whether this connection is open.
+	 */
 	boolean isOpen();
 }
