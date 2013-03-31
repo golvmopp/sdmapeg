@@ -25,5 +25,6 @@ nb-configuration.xml
 .DS_Store
 log/
 target/
+bin/
 
 dependency-reduced-pom.xml
