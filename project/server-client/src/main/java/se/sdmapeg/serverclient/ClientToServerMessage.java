@@ -2,6 +2,7 @@ package se.sdmapeg.serverclient;
 
 import se.sdmapeg.common.communication.Message;
 
+
 /**
  * A representation of a message from a Client to the Server.
  * 
