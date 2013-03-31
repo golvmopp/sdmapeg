@@ -27,4 +27,19 @@ public interface ClientManager {
 	 * @param clientAddress Address to the client.
 	 */
 	void disconnectClient(InetAddress clientAddress);
+	
+	/**
+	 * Starts the Client Manager.
+	 */
+	void start();
+	
+	/**
+	 * Checks whether the Client Manager is running.
+	 */
+	boolean isRunning();
+	
+	/**
+	 * Returns true if the Client Manager has been started at least once.
+	 */
+	boolean isStarted();
 }

@@ -27,4 +27,19 @@ public interface WorkerCoordinator {
 	 * @param workerAddress Address to the worker.
 	 */
 	void disconnectWorker(InetAddress workerAddress);
+	
+	/**
+	 * Starts the Worker Coordinator.
+	 */
+	void start();
+	
+	/**
+	 * Checks whether the Worker Coordinator is running.
+	 */
+	boolean isRunning();
+	
+	/**
+	 * Returns true if the Worker Coordinator has been started at least once.
+	 */
+	boolean isStarted();
 }
