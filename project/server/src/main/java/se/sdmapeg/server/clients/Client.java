@@ -1,4 +1,4 @@
-package se.sdmapeg.server;
+package se.sdmapeg.server.clients;
 
 import java.io.IOException;
 import java.net.InetAddress;
