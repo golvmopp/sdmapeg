@@ -6,6 +6,7 @@ package se.sdmapeg.serverclient.communication;
 public final class ClientVerificationResponse implements ClientToServerMessage {
     private static final long serialVersionUID = 0;
 
+    @Override
     public <T> T accept(Visitor<T> visitor) {
 	return visitor.visit(this);
     }

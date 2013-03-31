@@ -42,6 +42,11 @@ public final class ServerImpl implements Server {
 		}
 	}
 
+	/**
+	 * Creates a new Server with the specified connection.
+	 * @param connection A connection to a Server.
+	 * @return the Server.
+	 */
 	public static Server newServer(Connection<WorkerToServerMessage, ServerToWorkerMessage> connection) {
 		return new ServerImpl(connection);
 	}

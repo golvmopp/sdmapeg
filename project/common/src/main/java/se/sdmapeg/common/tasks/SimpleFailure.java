@@ -21,6 +21,7 @@ public final class SimpleFailure<R> implements Result<R> {
 	return "Failure [exception=" + exception + "]";
     }
 
+    @Override
     public R get() throws ExecutionException {
 	throw exception;
     }

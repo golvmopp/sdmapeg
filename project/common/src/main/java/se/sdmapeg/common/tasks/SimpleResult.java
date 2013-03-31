@@ -16,6 +16,7 @@ public final class SimpleResult<R extends Serializable> implements Result<R> {
 	this.result = result;
     }
     
+    @Override
     public R get() {
 	return result;
     }

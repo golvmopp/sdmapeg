@@ -15,24 +15,23 @@ public final class WorkerImpl implements Worker {
 	    WorkerToServerMessage> connection) {
 	this.connection = connection;
     }
-    
-    public static WorkerImpl newWorker(Connection<ServerToWorkerMessage, 
-	    WorkerToServerMessage> connection){
-		return new WorkerImpl (connection);	
-    }
-    
+   
+    @Override
     public InetAddress getAddress() {
 	return connection.getAddress();
     }
 
+    @Override
     public void send(ServerToWorkerMessage message) throws IOException {
 	connection.send(message);
     }
 
+    @Override
     public WorkerToServerMessage receive() throws IOException {
 	return connection.receive();
     }
 
+    @Override
     public void disconnect() {
 	try {
 	    connection.close();
@@ -41,8 +40,19 @@ public final class WorkerImpl implements Worker {
 	}
     }
 
+    @Override
     public int getParallellWorkCapacity() {
 	throw new UnsupportedOperationException("Not yet implemented");
+    }
+    
+    /**
+     * Creates a new Worker with the specified connection.
+     * @param connection A connection to a Worker.
+     * @return the Worker.
+     */
+    public static WorkerImpl newWorker(Connection<ServerToWorkerMessage, 
+	    WorkerToServerMessage> connection){
+		return new WorkerImpl (connection);	
     }
 
 }

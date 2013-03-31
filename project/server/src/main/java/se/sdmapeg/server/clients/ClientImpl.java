@@ -17,23 +17,22 @@ public final class ClientImpl implements Client {
 	this.connection = connection;
     }
     
-    public static Client newClient(Connection<ServerToClientMessage, 
-	    	ClientToServerMessage> connection) {
-	return new ClientImpl(connection);
-    }
-    
+    @Override
     public InetAddress getAddress() {
 	return connection.getAddress();
     }
 
+    @Override
     public void send(ServerToClientMessage message) throws IOException {
 	connection.send(message);
     }
 
+    @Override
     public ClientToServerMessage receive() throws IOException {
 	return connection.receive();
     }
 
+    @Override
     public void disconnect() {
 	try {
 	    connection.close();
@@ -42,5 +41,15 @@ public final class ClientImpl implements Client {
 	    throw new AssertionError(e);
 	}
     }
+    
+    /**
+     * Creates a new Client with the specified connection.
+     * @param connection A connection to a Client.
+     * @return the Client.
+     */
+    public static Client newClient(Connection<ServerToClientMessage, 
+	    	ClientToServerMessage> connection) {
+	return new ClientImpl(connection);
+}
 
 }
