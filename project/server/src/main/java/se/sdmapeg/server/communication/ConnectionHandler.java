@@ -4,8 +4,8 @@ import se.sdmapeg.common.communication.Connection;
 import se.sdmapeg.common.communication.Message;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.net.SocketException;
+import se.sdmapeg.common.communication.CommunicationException;
 
 /**
  * Interface for classes handling connections.
@@ -16,10 +16,10 @@ public interface ConnectionHandler<S extends Message, R extends Message> extends
 	/**
 	 * Accepts a new connection. This method blocks until a connection has been received.
 	 * @return The accepted connection
-	 * @throws IOException If an error occurred
+	 * @throws CommunicationException If an error occurred
 	 * @throws SocketException If the socket was closed while waiting for a connection
 	 */
-	Connection<S, R> accept() throws IOException, SocketException;
+	Connection<S, R> accept() throws CommunicationException, SocketException;
 
 	/**
 	 * Returns whether or not the connection is open.

@@ -1,7 +1,6 @@
 package se.sdmapeg.common.communication;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.net.InetAddress;
 
 /**

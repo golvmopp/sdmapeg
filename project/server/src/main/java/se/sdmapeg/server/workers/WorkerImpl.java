@@ -2,6 +2,7 @@ package se.sdmapeg.server.workers;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import se.sdmapeg.common.communication.CommunicationException;
 
 import se.sdmapeg.common.communication.Connection;
 import se.sdmapeg.serverworker.ServerToWorkerMessage;
@@ -22,12 +23,12 @@ public final class WorkerImpl implements Worker {
     }
 
     @Override
-    public void send(ServerToWorkerMessage message) throws IOException {
+    public void send(ServerToWorkerMessage message) throws CommunicationException {
 	connection.send(message);
     }
 
     @Override
-    public WorkerToServerMessage receive() throws IOException {
+    public WorkerToServerMessage receive() throws CommunicationException {
 	return connection.receive();
     }
 

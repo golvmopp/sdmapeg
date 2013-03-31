@@ -1,7 +1,7 @@
 package se.sdmapeg.client;
 
-import java.io.IOException;
 import java.net.InetAddress;
+import se.sdmapeg.common.communication.CommunicationException;
 
 import se.sdmapeg.serverclient.communication.ClientToServerMessage;
 import se.sdmapeg.serverclient.communication.ServerToClientMessage;
@@ -21,14 +21,14 @@ public interface Server {
 	 * @param message message to send
 	 * @exception IOException if an error occurred
 	 */
-	void send(ClientToServerMessage message) throws IOException;
+	void send(ClientToServerMessage message) throws CommunicationException;
 
 	/**
 	 * Receives a message from the server. This method blocks until a message has been received.
 	 * @return received message.
 	 * @exception IOException if an error occurred
 	 */
-	ServerToClientMessage receive() throws IOException;
+	ServerToClientMessage receive() throws CommunicationException;
 
 	/**
 	 * Disconnects from the server. If no connection is open, no action is performed.

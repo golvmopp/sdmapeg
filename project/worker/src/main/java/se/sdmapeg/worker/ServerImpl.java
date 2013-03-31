@@ -6,6 +6,7 @@ import se.sdmapeg.serverworker.WorkerToServerMessage;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import se.sdmapeg.common.communication.CommunicationException;
 
 /**
  * Implementation of Server interface.
@@ -23,12 +24,12 @@ public final class ServerImpl implements Server {
 	}
 
 	@Override
-	public void send(WorkerToServerMessage message) throws IOException {
+	public void send(WorkerToServerMessage message) throws CommunicationException {
 		connection.send(message);
 	}
 
 	@Override
-	public ServerToWorkerMessage receive() throws IOException {
+	public ServerToWorkerMessage receive() throws CommunicationException {
 		return connection.receive();
 	}
 

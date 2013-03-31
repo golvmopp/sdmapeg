@@ -2,6 +2,7 @@ package se.sdmapeg.server.workers;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import se.sdmapeg.common.communication.CommunicationException;
 import se.sdmapeg.serverworker.ServerToWorkerMessage;
 import se.sdmapeg.serverworker.WorkerToServerMessage;
 
@@ -20,14 +21,14 @@ public interface Worker {
 	 * @param message message to send
 	 * @exception IOException if an error occurred
 	 */
-	void send(ServerToWorkerMessage message) throws IOException;
+	void send(ServerToWorkerMessage message) throws CommunicationException;
 
 	/**
 	 * Receives a message from the worker. This method blocks until a message has been received
 	 * @return received message
 	 * @exception IOException if an error occurred
 	 */
-	WorkerToServerMessage receive() throws IOException;
+	WorkerToServerMessage receive() throws CommunicationException;
 
 	/**
 	 * Disconnects the worker.

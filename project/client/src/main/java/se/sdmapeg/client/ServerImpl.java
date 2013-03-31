@@ -2,6 +2,7 @@ package se.sdmapeg.client;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import se.sdmapeg.common.communication.CommunicationException;
 
 import se.sdmapeg.common.communication.Connection;
 import se.sdmapeg.serverclient.communication.ClientToServerMessage;
@@ -22,12 +23,12 @@ public final class ServerImpl implements Server {
     }
 
     @Override
-    public void send(ClientToServerMessage message) throws IOException {
+    public void send(ClientToServerMessage message) throws CommunicationException {
 	connection.send(message);
     }
 
     @Override
-    public ServerToClientMessage receive() throws IOException {
+    public ServerToClientMessage receive() throws CommunicationException {
 	return connection.receive();
     }
 
