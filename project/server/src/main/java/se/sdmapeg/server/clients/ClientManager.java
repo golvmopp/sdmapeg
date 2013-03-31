@@ -1,4 +1,4 @@
-package se.sdmapeg.server;
+package se.sdmapeg.server.clients;
 
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.serverworker.TaskId;
