@@ -1,4 +1,4 @@
-package se.sdmapeg.common;
+package se.sdmapeg.common.tasks;
 
 import java.io.Serializable;
 import java.util.concurrent.ExecutionException;

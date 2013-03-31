@@ -1,6 +1,6 @@
 package se.sdmapeg.server;
 
-import se.sdmapeg.common.Result;
+import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.serverworker.TaskId;
 
 import java.net.InetAddress;

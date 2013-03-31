@@ -2,7 +2,7 @@ package se.sdmapeg.worker;
 
 import java.util.concurrent.ExecutionException;
 
-import se.sdmapeg.common.Task;
+import se.sdmapeg.common.tasks.Task;
 
 /**
  * Interface for classes capable of performing a particular task.

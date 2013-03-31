@@ -1,6 +1,6 @@
 package se.sdmapeg.server;
 
-import se.sdmapeg.common.Task;
+import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.serverworker.TaskId;
 
 /**
