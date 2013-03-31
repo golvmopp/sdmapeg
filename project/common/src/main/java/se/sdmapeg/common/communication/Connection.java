@@ -22,17 +22,17 @@ public interface Connection<S extends Message, R extends Message> extends Closea
 	/**
 	 * Sends a message over this connection.
 	 * @param message the message to be sent.
-	 * @throws IOException if an error occurs.
+	 * @throws CommunicationException if an error occurs.
 	 */
-	void send(S message) throws IOException;
+	void send(S message) throws CommunicationException;
 
 	/**
 	 * Receives a message from the other end of this connection. This method
 	 * blocks until a message has been received. 
 	 * @return the received message.
-	 * @throws IOException if an error occurs.
+	 * @throws CommunicationException if an error occurs.
 	 */
-	R receive() throws IOException;
+	R receive() throws CommunicationException;
 
 	/**
 	 * Returns whether this connection is open. 

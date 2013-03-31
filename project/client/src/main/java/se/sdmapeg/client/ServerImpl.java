@@ -10,23 +10,28 @@ import se.sdmapeg.serverclient.communication.ServerToClientMessage;
 public final class ServerImpl implements Server {
     private final Connection<ClientToServerMessage, ServerToClientMessage> connection;
     
+    
     private ServerImpl(
 	    Connection<ClientToServerMessage, ServerToClientMessage> connection) {
 	this.connection = connection;
     }
     
+    @Override
     public InetAddress getAddress() {
 	return connection.getAddress();
     }
 
+    @Override
     public void send(ClientToServerMessage message) throws IOException {
 	connection.send(message);
     }
 
+    @Override
     public ServerToClientMessage receive() throws IOException {
 	return connection.receive();
     }
 
+    @Override
     public void disconnect() {
 	try {
 	    connection.close();
@@ -36,6 +41,11 @@ public final class ServerImpl implements Server {
 	}
     }
     
+    /**
+     * Creates a new Server with the specified connection.
+     * @param connection A connection to a Server.
+     * @return the new Server.
+     */
     public static Server newServer(Connection<ClientToServerMessage, ServerToClientMessage> connection) {
 	return new ServerImpl(connection);
 	
