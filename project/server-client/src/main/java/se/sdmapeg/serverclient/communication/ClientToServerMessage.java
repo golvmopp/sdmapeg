@@ -1,4 +1,4 @@
-package se.sdmapeg.serverclient;
+package se.sdmapeg.serverclient.communication;
 
 import se.sdmapeg.common.communication.Message;
 
@@ -18,6 +18,6 @@ public interface ClientToServerMessage extends Message {
 	 * A visitor for messages from Server to Worker.
 	 */
 	interface Visitor<T> {
-
+	    T visit(ClientVerificationResponse message);
 	}
 }
