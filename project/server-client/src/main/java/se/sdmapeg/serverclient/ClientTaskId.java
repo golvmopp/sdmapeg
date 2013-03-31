@@ -32,6 +32,9 @@ public final class ClientTaskId implements Id {
 	return true;
     }
     
+    /**
+     * Returns an ID matching the specified underlying long id.
+     */
     public static ClientTaskId getId(long id) {
 	return new ClientTaskId(id);
     }

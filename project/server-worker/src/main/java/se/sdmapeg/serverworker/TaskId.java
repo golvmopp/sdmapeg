@@ -33,6 +33,9 @@ public final class TaskId implements Id {
 	return true;
     }
     
+    /**
+     * Returns an ID matching the specified underlying long id.
+     */
     public static TaskId getId(long id) {
 	return new TaskId(id);
     }
