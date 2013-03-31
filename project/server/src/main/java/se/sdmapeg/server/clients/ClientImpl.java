@@ -3,11 +3,11 @@ package se.sdmapeg.server.clients;
 import java.io.IOException;
 import java.net.InetAddress;
 
-import se.sdmapeg.common.Connection;
+import se.sdmapeg.common.communication.Connection;
 import se.sdmapeg.serverclient.ClientToServerMessage;
 import se.sdmapeg.serverclient.ServerToClientMessage;
 
-public class ClientImpl implements Client {
+public final class ClientImpl implements Client {
 
     private final Connection<ServerToClientMessage, 
     	ClientToServerMessage> connection;

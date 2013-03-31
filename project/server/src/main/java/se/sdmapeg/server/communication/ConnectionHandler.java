@@ -1,7 +1,7 @@
 package se.sdmapeg.server.communication;
 
-import se.sdmapeg.common.Connection;
-import se.sdmapeg.common.Message;
+import se.sdmapeg.common.communication.Connection;
+import se.sdmapeg.common.communication.Message;
 
 import java.io.Closeable;
 import java.io.IOException;
