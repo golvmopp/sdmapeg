@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.net.InetAddress;
 
 import se.sdmapeg.common.communication.Connection;
-import se.sdmapeg.serverclient.ClientToServerMessage;
-import se.sdmapeg.serverclient.ServerToClientMessage;
+import se.sdmapeg.serverclient.communication.ClientToServerMessage;
+import se.sdmapeg.serverclient.communication.ServerToClientMessage;
 
 public final class ServerImpl implements Server {
     private final Connection<ClientToServerMessage, ServerToClientMessage> connection;

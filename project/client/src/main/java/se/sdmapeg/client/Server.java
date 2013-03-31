@@ -3,8 +3,8 @@ package se.sdmapeg.client;
 import java.io.IOException;
 import java.net.InetAddress;
 
-import se.sdmapeg.serverclient.ClientToServerMessage;
-import se.sdmapeg.serverclient.ServerToClientMessage;
+import se.sdmapeg.serverclient.communication.ClientToServerMessage;
+import se.sdmapeg.serverclient.communication.ServerToClientMessage;
 
 /**
  * Represents the server. Handles communication between Client and Server.
