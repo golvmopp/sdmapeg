@@ -1,4 +1,4 @@
-package se.sdmapeg.common;
+package se.sdmapeg.common.communication;
 
 import java.io.Serializable;
 

@@ -1,6 +1,6 @@
 package se.sdmapeg.serverworker;
 
-import se.sdmapeg.common.Message;
+import se.sdmapeg.common.communication.Message;
 
 /**
  * A representation of a message from a Worker to the Server.
