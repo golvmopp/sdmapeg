@@ -10,24 +10,43 @@ import java.net.SocketException;
 /**
  * Implementation of a connection.
  */
-public final class ConnectionImpl<S extends Message, R extends Message> implements Connection<S, R> {
+public final class ConnectionImpl<S extends Message, R extends Message>
+		implements Connection<S, R> {
 	private final Socket socket;
 	private final ObjectOutputStream output;
 	private final ObjectInputStream input;
 
 	private ConnectionImpl(Socket socket) throws CommunicationException {
 		if (socket.isClosed() || !socket.isConnected()) {
-			throw new CommunicationException("Socket must be open and connected.");
+			throw new CommunicationException(
+					"Socket must be open and connected.");
 		}
 		this.socket = socket;
-		// To avoid deadlock, input and output must be initialized in this order.
 		try {
+			/*
+			 * During construction, ObjectOutputStream writes a serialization
+			 * header to the underlying output stream, which is then read in the
+			 * constructor of ObjectInputStream.
+			 * 
+			 * Since reading from the stream blocks if no data is available, and
+			 * this class might be used on both ends of the connection, it is
+			 * important that the ObjectOutputStream is initialised before the
+			 * ObjectInputStream, or we will find ourselves in a deadlock with
+			 * both ends waiting for each other to send the serialization header
+			 * before proceeding to send their own.
+			 */
+			// First construct the output stream
 			this.output = new ObjectOutputStream(socket.getOutputStream());
+			// Flush the stream, to ensure that the header is indeed sent
+			output.flush();
+			// Then construct the input stream, after the header has been sent
 			this.input = new ObjectInputStream(socket.getInputStream());
-		} catch (IOException e) {
+		}
+		catch (IOException e) {
 			try {
 				socket.close();
-			} catch (IOException ex) {
+			}
+			catch (IOException ex) {
 				// TODO: log this
 				// Nothing to do here, http://fc06.deviantart.net/fs70/f/2011/288/3/c/nothing_to_do_here_by_rober_raik-d4cxltj.png
 			}
@@ -42,29 +61,43 @@ public final class ConnectionImpl<S extends Message, R extends Message> implemen
 
 	@Override
 	public void send(S message) throws CommunicationException,
-			ConnectionClosedException {
-		synchronized (output) {
-			try {
+									   ConnectionClosedException {
+		try {
+			synchronized (output) {
 				output.writeObject(message);
-			} catch (SocketException ex) {
+			}
+		}
+		catch (SocketException ex) {
+			throw new ConnectionClosedException(ex);
+		}
+		catch (IOException ex) {
+			if (!isOpen()) {
 				throw new ConnectionClosedException(ex);
 			}
-			catch (IOException e) {
-				throw new CommunicationException(e);
+			else {
+				throw new CommunicationException(ex);
 			}
 		}
 	}
 
 	@Override
-	public R receive() throws CommunicationException {
-		synchronized (input) {
-			try {
+	public R receive() throws CommunicationException,
+			ConnectionClosedException {
+		try {
+			synchronized (input) {
 				return (R) input.readObject();
-			} catch (SocketException ex) {
-				throw new ConnectionClosedException(ex);
-			} catch (IOException | ClassNotFoundException e) {
-				throw new CommunicationException(e);
 			}
+		}
+		catch (IOException ex) {
+			if (!isOpen()) {
+				throw new ConnectionClosedException(ex);
+			}
+			else {
+				throw new CommunicationException(ex);
+			}
+		}
+		catch (ClassNotFoundException e) {
+			throw new CommunicationException(e);
 		}
 	}
 
@@ -79,13 +112,16 @@ public final class ConnectionImpl<S extends Message, R extends Message> implemen
 	}
 
 	/**
-	 * Creates a new connection communicating over the specified socket. The socket must be connected and open.
+	 * Creates a new connection communicating over the specified socket. The
+	 * socket must be connected and open.
 	 *
 	 * @param socket The socket to communicate over.
 	 * @return The new connection
-	 * @throws CommunicationException if socket is not open and connected or an error occurs during initialisation.
+	 * @throws CommunicationException	if socket is not open and connected or
+	 *									an error occurs during initialisation.
 	 */
-	public static Connection newConnection(Socket socket) throws CommunicationException {
+	public static Connection newConnection(Socket socket)
+			throws CommunicationException {
 		return new ConnectionImpl(socket);
 	}
 }
