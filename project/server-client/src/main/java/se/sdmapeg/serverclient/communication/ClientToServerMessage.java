@@ -18,5 +18,7 @@ public interface ClientToServerMessage extends Message {
 	 */
 	interface Visitor<T> {
 		T visit(ClientVerificationResponse message);
+
+		T visit(TaskMessage message);
 	}
 }
