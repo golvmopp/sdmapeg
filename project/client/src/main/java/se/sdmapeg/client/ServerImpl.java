@@ -6,6 +6,7 @@ import java.net.InetAddress;
 import se.sdmapeg.common.communication.CommunicationException;
 
 import se.sdmapeg.common.communication.Connection;
+import se.sdmapeg.common.communication.ConnectionClosedException;
 import se.sdmapeg.serverclient.communication.ClientToServerMessage;
 import se.sdmapeg.serverclient.communication.ServerToClientMessage;
 
@@ -24,12 +25,14 @@ public final class ServerImpl implements Server {
 	}
 
 	@Override
-	public void send(ClientToServerMessage message) throws CommunicationException {
+	public void send(ClientToServerMessage message)
+			throws CommunicationException, ConnectionClosedException {
 		connection.send(message);
 	}
 
 	@Override
-	public ServerToClientMessage receive() throws CommunicationException {
+	public ServerToClientMessage receive() throws CommunicationException,
+			ConnectionClosedException {
 		return connection.receive();
 	}
 

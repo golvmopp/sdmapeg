@@ -6,6 +6,7 @@ import java.net.InetAddress;
 import se.sdmapeg.common.communication.CommunicationException;
 
 import se.sdmapeg.common.communication.Connection;
+import se.sdmapeg.common.communication.ConnectionClosedException;
 import se.sdmapeg.serverworker.ServerToWorkerMessage;
 import se.sdmapeg.serverworker.WorkerToServerMessage;
 
@@ -24,12 +25,14 @@ public final class WorkerImpl implements Worker {
 	}
 
 	@Override
-	public void send(ServerToWorkerMessage message) throws CommunicationException {
+	public void send(ServerToWorkerMessage message)
+			throws CommunicationException, ConnectionClosedException {
 		connection.send(message);
 	}
 
 	@Override
-	public WorkerToServerMessage receive() throws CommunicationException {
+	public WorkerToServerMessage receive() throws CommunicationException,
+			ConnectionClosedException {
 		return connection.receive();
 	}
 
@@ -53,7 +56,7 @@ public final class WorkerImpl implements Worker {
 	 * @param connection A connection to a Worker.
 	 * @return the Worker.
 	 */
-	public static WorkerImpl newWorker(Connection<ServerToWorkerMessage,
+	public static Worker newWorker(Connection<ServerToWorkerMessage,
 			WorkerToServerMessage> connection) {
 		return new WorkerImpl(connection);
 	}

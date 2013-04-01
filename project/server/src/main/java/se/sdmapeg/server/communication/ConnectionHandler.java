@@ -25,9 +25,9 @@ public interface ConnectionHandler<S extends Message, R extends Message> extends
 	Connection<S, R> accept() throws CommunicationException, SocketException;
 
 	/**
-	 * Returns whether or not the connection is open.
+	 * Returns whether underlying socket is open and ready to accept connections.
 	 *
-	 * @return whether or not the connection is open
+	 * @return whether underlying socket is open and ready to accept connections.
 	 */
 	boolean isOpen();
 }

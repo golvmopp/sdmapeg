@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 
 import se.sdmapeg.common.communication.CommunicationException;
+import se.sdmapeg.common.communication.ConnectionClosedException;
 
 /**
  * Implementation of Server interface.
@@ -15,7 +16,8 @@ import se.sdmapeg.common.communication.CommunicationException;
 public final class ServerImpl implements Server {
 	private final Connection<WorkerToServerMessage, ServerToWorkerMessage> connection;
 
-	private ServerImpl(Connection<WorkerToServerMessage, ServerToWorkerMessage> connection) {
+	private ServerImpl(Connection<WorkerToServerMessage,
+			ServerToWorkerMessage> connection) {
 		this.connection = connection;
 	}
 
@@ -25,12 +27,14 @@ public final class ServerImpl implements Server {
 	}
 
 	@Override
-	public void send(WorkerToServerMessage message) throws CommunicationException {
+	public void send(WorkerToServerMessage message)
+			throws CommunicationException, ConnectionClosedException {
 		connection.send(message);
 	}
 
 	@Override
-	public ServerToWorkerMessage receive() throws CommunicationException {
+	public ServerToWorkerMessage receive() throws CommunicationException,
+			ConnectionClosedException {
 		return connection.receive();
 	}
 
@@ -50,7 +54,8 @@ public final class ServerImpl implements Server {
 	 * @param connection A connection to a Server.
 	 * @return the Server.
 	 */
-	public static Server newServer(Connection<WorkerToServerMessage, ServerToWorkerMessage> connection) {
+	public static Server newServer(Connection<WorkerToServerMessage,
+			ServerToWorkerMessage> connection) {
 		return new ServerImpl(connection);
 	}
 }
