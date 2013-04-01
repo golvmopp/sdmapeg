@@ -36,12 +36,25 @@ public interface ClientManager {
 	void start();
 
 	/**
-	 * Checks whether the Client Manager is running.
+	 * Returns the current state of this client manager.
 	 */
-	boolean isRunning();
+	State getState();
 
 	/**
-	 * Returns true if the Client Manager has been started at least once.
+	 * Enum representing the state of a client manager.
 	 */
-	boolean isStarted();
+	public enum State {
+		/**
+		 * Indicates that a client manager has been created but not yet started.
+		 */
+		CREATED,
+		/**
+		 * Indicates that a client manager has been created and started.
+		 */
+		STARTED,
+		/**
+		 * Indicates that a client manager has been stopped.
+		 */
+		STOPPED;
+	}
 }
