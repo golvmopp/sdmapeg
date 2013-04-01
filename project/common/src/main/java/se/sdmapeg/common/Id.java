@@ -11,6 +11,7 @@ import java.io.Serializable;
 public interface Id extends Serializable {
 	@Override
 	boolean equals(Object o);
+
 	@Override
 	int hashCode();
 }

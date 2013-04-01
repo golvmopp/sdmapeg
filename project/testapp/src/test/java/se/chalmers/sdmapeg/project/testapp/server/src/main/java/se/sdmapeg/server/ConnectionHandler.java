@@ -9,5 +9,6 @@ import java.net.SocketException;
 
 public interface ConnectionHandler<S extends Message, R extends Message> extends Closeable {
 	Connection<S, R> accept() throws IOException, SocketException;
+
 	boolean isOpen();
 }

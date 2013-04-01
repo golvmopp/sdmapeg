@@ -1,7 +1,6 @@
 package se.sdmapeg.project.testapp;
 
 /**
- *
  * @author niclas
  */
 public interface ConnectionHandler {

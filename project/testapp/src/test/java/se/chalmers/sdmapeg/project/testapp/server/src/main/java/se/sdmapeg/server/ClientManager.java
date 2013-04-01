@@ -7,6 +7,8 @@ import java.net.InetAddress;
 
 public interface ClientManager {
 	void handleResult(TaskId taskId, Result<?> result);
+
 	void shutDown();
+
 	void disconnectClient(InetAddress clientAddress);
 }

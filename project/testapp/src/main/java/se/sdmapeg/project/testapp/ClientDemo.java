@@ -5,7 +5,6 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 /**
- *
  * @author niclas
  */
 public class ClientDemo {

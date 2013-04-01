@@ -8,16 +8,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- *
  * @author niclas
  */
 public final class ThreadedConnectionHandler implements ConnectionHandler {
 	private final ExecutorService connectionThreadPool =
-		Executors.newCachedThreadPool();
+			Executors.newCachedThreadPool();
 	private final Set<Connection<ServerMessage, ClientMessage>>
-		connections = Collections.newSetFromMap(
+			connections = Collections.newSetFromMap(
 			new ConcurrentHashMap<Connection<ServerMessage, ClientMessage>,
-				Boolean>());
+					Boolean>());
 	private final ConnectionCallback connectionCallback;
 
 	public ThreadedConnectionHandler(ConnectionCallback connectionCallback) {
@@ -34,8 +33,7 @@ public final class ThreadedConnectionHandler implements ConnectionHandler {
 		for (Connection<ServerMessage, ClientMessage> connection : connections) {
 			try {
 				connection.close();
-			}
-			catch (IOException ex) {
+			} catch (IOException ex) {
 				//TODO: Log this
 			}
 		}
@@ -49,6 +47,7 @@ public final class ThreadedConnectionHandler implements ConnectionHandler {
 	public interface ConnectionCallback {
 		MessageHandler connectionOpened(
 				Connection<ServerMessage, ClientMessage> connection);
+
 		void connectionClosed(
 				Connection<ServerMessage, ClientMessage> connection);
 	}
@@ -70,11 +69,9 @@ public final class ThreadedConnectionHandler implements ConnectionHandler {
 				while (!Thread.currentThread().isInterrupted()) {
 					messageHandler.handle(connection.receiveMessage());
 				}
-			}
-			catch (IOException ex) {
+			} catch (IOException ex) {
 				//TODO: Log this
-			}
-			finally {
+			} finally {
 				close();
 			}
 		}
@@ -82,8 +79,7 @@ public final class ThreadedConnectionHandler implements ConnectionHandler {
 		private void close() {
 			try {
 				connection.close();
-			}
-			catch (IOException ex) {
+			} catch (IOException ex) {
 				//TODO: Log this
 			}
 			connections.remove(connection);

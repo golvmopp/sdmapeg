@@ -73,6 +73,7 @@ public final class ConnectionImpl<S extends Message, R extends Message> implemen
 
 	/**
 	 * Creates a new connection communicating over the specified socket. The socket must be connected and open.
+	 *
 	 * @param socket The socket to communicate over.
 	 * @return The new connection
 	 * @throws CommunicationException if socket is not open and connected or an error occurs during initialisation.

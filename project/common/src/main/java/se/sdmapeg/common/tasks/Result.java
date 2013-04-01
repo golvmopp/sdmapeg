@@ -11,6 +11,7 @@ public interface Result<R> extends Serializable {
 	/**
 	 * Returns the result if the task was performed successfully, or throws an
 	 * exception if an error occurred while performing the task.
+	 *
 	 * @return the result of the task.
 	 * @throws ExecutionException if performing the task failed for some reason.
 	 */

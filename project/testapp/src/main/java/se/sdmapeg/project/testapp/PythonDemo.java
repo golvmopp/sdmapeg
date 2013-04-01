@@ -38,7 +38,6 @@ import org.python.core.PySystemState;
 import org.python.util.PythonInterpreter;
 
 /**
- *
  * @author niclas
  */
 public class PythonDemo {
@@ -48,7 +47,7 @@ public class PythonDemo {
 
 	public static void runInterpreter() {
 		final ExecutorService codeExecutorService =
-							  Executors.newSingleThreadExecutor();
+				Executors.newSingleThreadExecutor();
 		final JFrame frame = new JFrame("Jython Interpreter") {
 			private static final long serialVersionUID = 1L;
 
@@ -70,12 +69,12 @@ public class PythonDemo {
 		final JLabel resultLabel = new JLabel("value = null");
 		resultLabel.setFont(Font.decode("Monospaced-bold"));
 		JScrollPane resultScrollPane = new JScrollPane(resultLabel,
-				JScrollPane.VERTICAL_SCROLLBAR_NEVER,
-				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		                                               JScrollPane.VERTICAL_SCROLLBAR_NEVER,
+		                                               JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		resultScrollPane.setBorder(null);
 		box.add(resultScrollPane);
 		box.add(new Box.Filler(new Dimension(0, 35), new Dimension(0, 35),
-							   new Dimension(0, 35)));
+		                       new Dimension(0, 35)));
 		JButton confirmButton = new JButton("Compile and run");
 		box.add(confirmButton);
 		frame.add(box, BorderLayout.SOUTH);
@@ -93,22 +92,22 @@ public class PythonDemo {
 						pySystemState.setClassLoader(
 								new RestrictedClassLoader());
 						final PythonInterpreter pythonInterpreter =
-							new PythonInterpreter(
-								new PyDictionary(), pySystemState);
+								new PythonInterpreter(
+										new PyDictionary(), pySystemState);
 						pythonInterpreter.exec("from org.python.modules import"
-								+ " math, cmath, itertools");
+								                       + " math, cmath, itertools");
 						final String script = textArea.getText();
 						FutureTask<PyObject> task =
-										   new FutureTask<>(new Callable<PyObject>() {
-							@Override
-							public PyObject call() {
-								pythonInterpreter.exec(script);
-								return pythonInterpreter.get(
-										"value");
-							}
-						});
+								new FutureTask<>(new Callable<PyObject>() {
+									@Override
+									public PyObject call() {
+										pythonInterpreter.exec(script);
+										return pythonInterpreter.get(
+												"value");
+									}
+								});
 						Thread interpreterThread = new JythonSandbox(task,
-								"Sandbox");
+						                                             "Sandbox");
 						interpreterThread.start();
 						try {
 							final String result = Objects.toString(task.get(1, TimeUnit.MINUTES), "None");
@@ -118,8 +117,7 @@ public class PythonDemo {
 									resultLabel.setText("value = " + result);
 								}
 							});
-						}
-						catch (TimeoutException | InterruptedException ex) {
+						} catch (TimeoutException | InterruptedException ex) {
 							SwingUtilities.invokeLater(new Runnable() {
 								@Override
 								public void run() {
@@ -132,18 +130,15 @@ public class PythonDemo {
 							try {
 								// Give the task some time to terminate normally.
 								interpreterThread.join(1000);
-							}
-							catch (InterruptedException interruptedException) {
+							} catch (InterruptedException interruptedException) {
 								Thread.currentThread().interrupt();
-							}
-							finally {
+							} finally {
 								if (interpreterThread.isAlive()) {
 									// All right, we gave you a fair chance...
 									killUninterruptibleThread(interpreterThread);
 								}
 							}
-						}
-						catch (final ExecutionException ex) {
+						} catch (final ExecutionException ex) {
 							SwingUtilities.invokeLater(new Runnable() {
 								@Override
 								public void run() {
@@ -153,7 +148,7 @@ public class PythonDemo {
 										exception = exception.getCause();
 									}
 									resultLabel.setText("Error: "
-														+ exception.toString());
+											                    + exception.toString());
 								}
 							});
 							throw new AssertionError(ex);
@@ -197,7 +192,7 @@ public class PythonDemo {
 		}
 
 		public JythonSandbox(ThreadGroup group, Runnable target, String name,
-					   long stackSize) {
+		                     long stackSize) {
 			super(group, target, name, stackSize);
 		}
 
@@ -214,34 +209,34 @@ public class PythonDemo {
 			private final SecurityManager delegate;
 			private static final ThreadLocal<Boolean> isSandbox =
 					new InheritableThreadLocal<Boolean>() {
-				@Override
-				protected Boolean initialValue() {
-					return (Thread.currentThread() instanceof JythonSandbox);
-				}
-						
-				@Override
-				public Boolean get() {
-					return (Thread.currentThread() instanceof JythonSandbox)
-						   || super.get();
-				}
+						@Override
+						protected Boolean initialValue() {
+							return (Thread.currentThread() instanceof JythonSandbox);
+						}
 
-				@Override
-				protected Boolean childValue(Boolean parentValue) {
-					if (Thread.currentThread() instanceof JythonSandbox) {
-						throw new SecurityException("Sandboxes must not create"
-								+ " any child threads.");
-					}
-					return parentValue;
-				}
-			};
+						@Override
+						public Boolean get() {
+							return (Thread.currentThread() instanceof JythonSandbox)
+									|| super.get();
+						}
+
+						@Override
+						protected Boolean childValue(Boolean parentValue) {
+							if (Thread.currentThread() instanceof JythonSandbox) {
+								throw new SecurityException("Sandboxes must not create"
+										                            + " any child threads.");
+							}
+							return parentValue;
+						}
+					};
 
 			public SandboxSecurityManager(SecurityManager delegate) {
 				this.delegate = (delegate != null)
-								? ((delegate instanceof SandboxSecurityManager)
-								   ? ((SandboxSecurityManager) delegate)
-										.getDelegate()
-								   : delegate)
-								: new NullSecurityManager();
+				                ? ((delegate instanceof SandboxSecurityManager)
+				                   ? ((SandboxSecurityManager) delegate)
+						                   .getDelegate()
+				                   : delegate)
+				                : new NullSecurityManager();
 			}
 
 			private SecurityManager getDelegate() {
@@ -257,12 +252,11 @@ public class PythonDemo {
 					}
 					if (perm instanceof RuntimePermission
 							&& perm.getName().matches(
-								"createClassLoader|getProtectionDomain")) {
+							"createClassLoader|getProtectionDomain")) {
 						return;
 					}
 					throw new SecurityException(perm.toString());
-				}
-				else {
+				} else {
 					delegate.checkPermission(perm);
 				}
 			}
@@ -271,8 +265,7 @@ public class PythonDemo {
 			public void checkPermission(Permission perm, Object context) {
 				if (isSandbox.get().booleanValue()) {
 					checkPermission(perm);
-				}
-				else {
+				} else {
 					delegate.checkPermission(perm, context);
 				}
 			}
@@ -308,12 +301,12 @@ public class PythonDemo {
 
 	private static class RestrictedClassLoader extends ClassLoader {
 		private static final Set<String> WHITELIST =
-			Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
+				Collections.unmodifiableSet(new HashSet<>(Arrays.asList(
 				/* org.python.modules */
 				"org.python.modules.math",
 				"org.python.modules.cmath",
 				"org.python.modules.itertools"
-				)));
+				                                                       )));
 
 		@Override
 		public Class<?> loadClass(String name) throws ClassNotFoundException {

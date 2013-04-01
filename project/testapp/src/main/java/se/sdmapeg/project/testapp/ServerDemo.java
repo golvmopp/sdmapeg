@@ -12,7 +12,7 @@ import java.util.concurrent.Executors;
  */
 public class ServerDemo {
 	private final ExecutorService connectionListenerExecutor =
-		Executors.newSingleThreadExecutor();
+			Executors.newSingleThreadExecutor();
 	private final ServerSocket serverSocket;
 	private boolean running;
 
@@ -22,7 +22,7 @@ public class ServerDemo {
 	}
 
 	private ServerDemo(ServerSocket serverSocket,
-					   ConnectionHandler connectionHandler) {
+	                   ConnectionHandler connectionHandler) {
 		this.serverSocket = serverSocket;
 		this.running = true;
 		connectionListenerExecutor.submit(
@@ -44,8 +44,7 @@ public class ServerDemo {
 		running = false;
 		try {
 			serverSocket.close();
-		}
-		catch (IOException ex) {
+		} catch (IOException ex) {
 			throw new AssertionError(ex);
 		}
 		connectionListenerExecutor.shutdown();
@@ -56,7 +55,7 @@ public class ServerDemo {
 		private final ConnectionHandler connectionHandler;
 
 		public ConnectionAcceptor(ServerSocket serverSocket,
-								  ConnectionHandler connectionHandler) {
+		                          ConnectionHandler connectionHandler) {
 			this.serverSocket = serverSocket;
 			this.connectionHandler = connectionHandler;
 		}
@@ -67,10 +66,9 @@ public class ServerDemo {
 				while (true) {
 					connectionHandler.handle(
 							new Connection<ServerMessage, ClientMessage>(
-								serverSocket.accept()));
+									serverSocket.accept()));
 				}
-			}
-			catch (IOException ex) {
+			} catch (IOException ex) {
 				connectionHandler.serverShutdown();
 			}
 		}

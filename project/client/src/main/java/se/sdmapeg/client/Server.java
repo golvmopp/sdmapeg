@@ -1,6 +1,7 @@
 package se.sdmapeg.client;
 
 import java.net.InetAddress;
+
 import se.sdmapeg.common.communication.CommunicationException;
 
 import se.sdmapeg.serverclient.communication.ClientToServerMessage;
@@ -12,21 +13,24 @@ import se.sdmapeg.serverclient.communication.ServerToClientMessage;
 public interface Server {
 	/**
 	 * returns the address of the server.
+	 *
 	 * @return the address of the server
 	 */
 	InetAddress getAddress();
 
 	/**
 	 * Sends a message from the client to the server.
+	 *
 	 * @param message message to send
-	 * @exception IOException if an error occurred
+	 * @throws IOException if an error occurred
 	 */
 	void send(ClientToServerMessage message) throws CommunicationException;
 
 	/**
 	 * Receives a message from the server. This method blocks until a message has been received.
+	 *
 	 * @return received message.
-	 * @exception IOException if an error occurred
+	 * @throws IOException if an error occurred
 	 */
 	ServerToClientMessage receive() throws CommunicationException;
 

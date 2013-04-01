@@ -7,7 +7,10 @@ import java.net.InetAddress;
 
 public interface Server {
 	InetAddress getAddress();
+
 	void send(WorkerToServerMessage message);
+
 	ServerToWorkerMessage receive();
+
 	void disconnect();
 }

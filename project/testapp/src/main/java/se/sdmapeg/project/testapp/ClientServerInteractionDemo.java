@@ -8,7 +8,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- *
  * @author niclas
  */
 public class ClientServerInteractionDemo {
@@ -20,27 +19,24 @@ public class ClientServerInteractionDemo {
 					new ConnectionCallback()));
 			ClientDemo client = new ClientDemo();
 			try (Connection<ClientMessage, ServerMessage> connection =
-									  client.connectTo(new InetSocketAddress(
-						"localhost", PORT))) {
+					     client.connectTo(new InetSocketAddress(
+							     "localhost", PORT))) {
 				ExecutorService clientListener =
-								Executors.newSingleThreadExecutor();
+						Executors.newSingleThreadExecutor();
 				clientListener.submit(new ClientListener(connection));
 				connection.sendMessage(new Ping("Hello Server!"));
 				connection.sendMessage(new Ping("I'm a client!"));
 				connection.sendMessage(new Ping("Is this working?"));
 				try {
 					Thread.sleep(3000);
-				}
-				catch (InterruptedException ex) {
+				} catch (InterruptedException ex) {
 					Thread.currentThread().interrupt();
 				}
 				clientListener.shutdownNow();
-			}
-			finally {
+			} finally {
 				server.shutdown();
 			}
-		}
-		catch (IOException ex) {
+		} catch (IOException ex) {
 			throw new AssertionError(ex);
 		}
 	}
@@ -60,17 +56,16 @@ public class ClientServerInteractionDemo {
 					ServerMessage message = connection.receiveMessage();
 					System.out.println("Client: The server said: " + message);
 				}
-			}
-			catch (IOException ex) {
+			} catch (IOException ex) {
 			}
 		}
 	}
 
 	private static class SimpleConnectionHandler implements ConnectionHandler {
 		private final ExecutorService executors =
-									  Executors.newCachedThreadPool();
+				Executors.newCachedThreadPool();
 		private final Set<Connection<ServerMessage, ClientMessage>> connections =
-																	new CopyOnWriteArraySet<>();
+				new CopyOnWriteArraySet<>();
 
 		@Override
 		public void handle(Connection<ServerMessage, ClientMessage> connection) {
@@ -82,11 +77,10 @@ public class ClientServerInteractionDemo {
 		public void serverShutdown() {
 			executors.shutdownNow();
 			for (Connection<ServerMessage, ClientMessage> connection :
-				 connections) {
+					connections) {
 				try {
 					connection.close();
-				}
-				catch (IOException ex) {
+				} catch (IOException ex) {
 					throw new AssertionError(ex);
 				}
 			}
@@ -107,12 +101,11 @@ public class ClientServerInteractionDemo {
 						if (message instanceof Ping) {
 							Ping ping = (Ping) message;
 							System.out.println("Server: The client said: "
-											   + ping);
+									                   + ping);
 							connection.sendMessage(new Pong(ping.toString()));
 						}
 					}
-				}
-				catch (IOException ex) {
+				} catch (IOException ex) {
 				}
 			}
 		}
@@ -142,11 +135,10 @@ public class ClientServerInteractionDemo {
 					if (message instanceof Ping) {
 						Ping ping = (Ping) message;
 						System.out.println("Server: The client said: "
-										   + ping);
+								                   + ping);
 						connection.sendMessage(new Pong(ping.toString()));
 					}
-				}
-				catch (IOException ex) {
+				} catch (IOException ex) {
 					throw new AssertionError(ex);
 				}
 			}

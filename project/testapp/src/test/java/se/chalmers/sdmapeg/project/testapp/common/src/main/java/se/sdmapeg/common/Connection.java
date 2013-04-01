@@ -6,7 +6,10 @@ import java.net.InetAddress;
 
 public interface Connection<S extends Message, R extends Message> extends Closeable {
 	InetAddress getAddress();
+
 	void send(S message);
+
 	R receive();
+
 	boolean isOpen();
 }

@@ -6,6 +6,7 @@ import se.sdmapeg.serverworker.WorkerToServerMessage;
 
 import java.io.IOException;
 import java.net.InetAddress;
+
 import se.sdmapeg.common.communication.CommunicationException;
 
 /**
@@ -45,6 +46,7 @@ public final class ServerImpl implements Server {
 
 	/**
 	 * Creates a new Server with the specified connection.
+	 *
 	 * @param connection A connection to a Server.
 	 * @return the Server.
 	 */
