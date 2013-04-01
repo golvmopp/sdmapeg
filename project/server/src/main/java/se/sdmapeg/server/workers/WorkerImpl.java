@@ -56,7 +56,7 @@ public final class WorkerImpl implements Worker {
 	 * @param connection A connection to a Worker.
 	 * @return the Worker.
 	 */
-	public static WorkerImpl newWorker(Connection<ServerToWorkerMessage,
+	public static Worker newWorker(Connection<ServerToWorkerMessage,
 			WorkerToServerMessage> connection) {
 		return new WorkerImpl(connection);
 	}
