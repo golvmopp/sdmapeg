@@ -16,6 +16,11 @@ public interface ServerToWorkerMessage extends Message {
 	 * A visitor for messages from Server to Worker.
 	 */
 	interface Visitor<T> {
+	    /**
+	     * Visits a TaskMessage.
+	     * @param message The message to visit.
+	     */
+	    T visit(TaskMessage message);
 
 	}
 }

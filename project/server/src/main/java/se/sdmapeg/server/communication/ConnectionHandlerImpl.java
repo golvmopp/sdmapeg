@@ -6,7 +6,12 @@ import java.net.SocketException;
 
 import se.sdmapeg.common.communication.CommunicationException;
 import se.sdmapeg.common.communication.Connection;
+import se.sdmapeg.common.communication.ConnectionImpl;
 
+/**
+ * Implementation of the ConnectionHandler interface.
+ *
+ */
 public final class ConnectionHandlerImpl implements ConnectionHandler {
 
     private final ServerSocket serverSocket;
@@ -27,7 +32,7 @@ public final class ConnectionHandlerImpl implements ConnectionHandler {
 
     @Override
     public Connection accept() throws CommunicationException, SocketException {
-	return null;
+	return ConnectionImpl.newConnection(serverSocket.accept());
 	//TODO: Fix this whenever the exceptions here are sorted out. 
     }
 
