@@ -17,6 +17,10 @@ public interface ServerToClientMessage extends Message {
 	 * A visitor for messages from Server to Worker.
 	 */
 	interface Visitor<T> {
-
+		/**
+		 * Visits a ResultMessage.
+		 * @param message The message to visit.
+		 */
+		T visit(ResultMessage message);
 	}
 }
