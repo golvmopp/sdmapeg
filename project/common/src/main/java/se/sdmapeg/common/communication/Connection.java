@@ -24,8 +24,10 @@ public interface Connection<S extends Message, R extends Message> extends Closea
 	 *
 	 * @param message the message to be sent.
 	 * @throws CommunicationException if an error occurs.
+	 * @throws ConnectionClosedException if the connection was closed
 	 */
-	void send(S message) throws CommunicationException;
+	void send(S message) throws CommunicationException,
+								ConnectionClosedException;
 
 	/**
 	 * Receives a message from the other end of this connection. This method
@@ -33,8 +35,9 @@ public interface Connection<S extends Message, R extends Message> extends Closea
 	 *
 	 * @return the received message.
 	 * @throws CommunicationException if an error occurs.
+	 * @throws ConnectionClosedException if the connection was closed
 	 */
-	R receive() throws CommunicationException;
+	R receive() throws CommunicationException, ConnectionClosedException;
 
 	/**
 	 * Returns whether this connection is open.

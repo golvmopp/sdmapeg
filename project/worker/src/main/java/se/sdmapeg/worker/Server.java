@@ -8,6 +8,7 @@ import se.sdmapeg.serverworker.WorkerToServerMessage;
 import java.net.InetAddress;
 
 import se.sdmapeg.common.communication.CommunicationException;
+import se.sdmapeg.common.communication.ConnectionClosedException;
 
 /**
  * Represents the server. Handles communication between Worker and Server.
@@ -25,20 +26,26 @@ public interface Server {
 	 * Sends a message from the worker to the server.
 	 *
 	 * @param message message to send
-	 * @throws IOException if an error occurred
+	 * @throws CommunicationException if an error occurred
+	 * @throws ConnectionClosedException if the connection was closed
 	 */
-	void send(WorkerToServerMessage message) throws CommunicationException;
+	void send(WorkerToServerMessage message) throws CommunicationException,
+													ConnectionClosedException;
 
 	/**
-	 * Receives a message from the server. This method blocks until a message has been received.
+	 * Receives a message from the server. This method blocks until a message
+	 * has been received.
 	 *
 	 * @return received message.
-	 * @throws IOException if an error occurred
+	 * @throws CommunicationException if an error occurred
+	 * @throws ConnectionClosedException if the connection was closed
 	 */
-	ServerToWorkerMessage receive() throws CommunicationException;
+	ServerToWorkerMessage receive() throws CommunicationException,
+										   ConnectionClosedException;
 
 	/**
-	 * Disconnects from the server. If no connection is open, no action is performed.
+	 * Disconnects from the server. If no connection is open, no action is
+	 * performed.
 	 */
 	void disconnect();
 }

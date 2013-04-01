@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketException;
 
 /**
  * Implementation of a connection.
@@ -40,11 +41,15 @@ public final class ConnectionImpl<S extends Message, R extends Message> implemen
 	}
 
 	@Override
-	public void send(S message) throws CommunicationException {
+	public void send(S message) throws CommunicationException,
+			ConnectionClosedException {
 		synchronized (output) {
 			try {
 				output.writeObject(message);
-			} catch (IOException e) {
+			} catch (SocketException ex) {
+				throw new ConnectionClosedException(ex);
+			}
+			catch (IOException e) {
 				throw new CommunicationException(e);
 			}
 		}
@@ -55,6 +60,8 @@ public final class ConnectionImpl<S extends Message, R extends Message> implemen
 		synchronized (input) {
 			try {
 				return (R) input.readObject();
+			} catch (SocketException ex) {
+				throw new ConnectionClosedException(ex);
 			} catch (IOException | ClassNotFoundException e) {
 				throw new CommunicationException(e);
 			}
