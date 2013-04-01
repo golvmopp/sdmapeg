@@ -27,6 +27,7 @@ public final class ConnectionHandlerImpl implements ConnectionHandler {
 
     @Override
     public Connection accept() throws CommunicationException, SocketException {
+	return null;
 	//TODO: Fix this whenever the exceptions here are sorted out. 
     }
 
