@@ -17,6 +17,7 @@ import java.net.SocketException;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -265,11 +266,20 @@ public final class ClientManagerImpl implements ClientManager {
 	}
 
 	private static class Clients {
-		/*private ConcurrentHashMap<TaskId, ClientTaskId> idMap;
-		private ConcurrentHashMap<TaskId, Client> clientMap;*/
+		private ConcurrentMap<TaskId, ClientTaskId> idMap;
+		private ConcurrentMap<TaskId, Client> clientMap;
+		private ConcurrentMap<InetAddress, Client> addressMap;
+		private IdGenerator<TaskId> idGenerator;
+
+		private Clients(IdGenerator<TaskId> idGenerator) {
+			this.idGenerator = idGenerator;
+			this.idMap = new ConcurrentHashMap<TaskId, ClientTaskId>();
+			this.clientMap = new ConcurrentHashMap<TaskId, Client>();
+			this.addressMap = new ConcurrentHashMap<InetAddress, Client>();
+		}
 
 		public void addClient(Client c) {
-
+			addressMap.put(c.getAddress(), c);
 		}
 
 		public ClientTaskId getClientTaskId(TaskId id) {
@@ -277,23 +287,26 @@ public final class ClientManagerImpl implements ClientManager {
 		}
 
 		public Client getClient(TaskId id) {
-
+			return clientMap.get(id);
 		}
 
 		public Set<Client> allClients() {
 
 		}
 
-		public Client getClientByAddress(InetAddress adress) {
-
+		public Client getClientByAddress(InetAddress address) {
+			return addressMap.get(address);
 		}
 
 		public void remove(Client client) {
-
+			TaskId taskId = clientMap.
 		}
 
-		public TaskId addTask(Client client, ClientTaskId id) {
-
+		public TaskId addTask(Client client, ClientTaskId clientTaskId) {
+			TaskId taskId = idGenerator.newId();
+			idMap.put(taskId, clientTaskId);
+			clientMap.put(taskId, client);
+			return taskId;
 		}
 	}
 
