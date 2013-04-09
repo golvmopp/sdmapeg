@@ -11,14 +11,14 @@ public interface ClientToServerMessage extends Message {
 	/**
 	 * Accept method for use with the visitor pattern.
 	 */
-	<T> T accept(Visitor<T> visitor);
+	<T> T accept(Handler<T> handler);
 
 	/**
-	 * A visitor for messages from Server to Worker.
+	 * A handler for messages from Server to Worker.
 	 */
-	interface Visitor<T> {
-		T visit(ClientVerificationResponse message);
+	interface Handler<T> {
+		T handle(ClientVerificationResponse message);
 
-		T visit(TaskMessage message);
+		T handle(TaskMessage message);
 	}
 }
