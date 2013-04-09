@@ -6,6 +6,8 @@ import se.sdmapeg.serverworker.WorkerToServerMessage;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import se.sdmapeg.common.communication.CommunicationException;
 import se.sdmapeg.common.communication.ConnectionClosedException;
@@ -14,6 +16,7 @@ import se.sdmapeg.common.communication.ConnectionClosedException;
  * Implementation of Server interface.
  */
 public final class ServerImpl implements Server {
+	private static final Logger LOG = LoggerFactory.getLogger(ServerImpl.class);
 	private final Connection<WorkerToServerMessage, ServerToWorkerMessage> connection;
 
 	private ServerImpl(Connection<WorkerToServerMessage,
@@ -43,8 +46,7 @@ public final class ServerImpl implements Server {
 		try {
 			connection.close();
 		} catch (IOException e) {
-			//TODO: add logging
-			throw new AssertionError(e);
+			LOG.warn("An error occurred while closing the connection", e);
 		}
 	}
 
