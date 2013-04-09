@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
@@ -27,6 +28,17 @@ public final class ClientManagerImpl implements ClientManager {
 	private final ClientManagerCallback clientManagerCallback;
 	private final ExecutorService connectionThreadPool;
 	private final IdGenerator<TaskId> taskIdGenerator;
+
+	public ClientManagerImpl(ClientManagerCallback clientManagerCallback,
+	                         ExecutorService connectionThreadPool,
+	                         IdGenerator<TaskId> taskIdGenerator,
+	                         ConnectionHandler<ServerToClientMessage, ClientToServerMessage> connectionHandler) {
+		this.state = new AtomicReference<ClientManager>();
+		this.state.set(new CreatedClientManager(connectionHandler));
+		this.clientManagerCallback = clientManagerCallback;
+		this.connectionThreadPool = connectionThreadPool;
+		this.taskIdGenerator = taskIdGenerator;
+	}
 
 	@Override
 	public void handleResult(TaskId taskId, Result<?> result) {
@@ -100,10 +112,9 @@ public final class ClientManagerImpl implements ClientManager {
 		private final Map<Client, ClientToServerMessage.Visitor<Void>> visitors = new ConcurrentHashMap<>();
 		private volatile boolean shuttingDown = false;
 
-		private StartedClientManager(Clients clients,
-		                             ConnectionHandler<ServerToClientMessage,
+		private StartedClientManager(ConnectionHandler<ServerToClientMessage,
 				                             ClientToServerMessage> connectionHandler) {
-			this.clients = clients;
+			this.clients = new Clients();
 			this.connectionHandler = connectionHandler;
 		}
 
@@ -121,8 +132,13 @@ public final class ClientManagerImpl implements ClientManager {
 
 		@Override
 		public void handleResult(TaskId taskId, Result<?> result) {
-			ServerToClientMessage resultMessage = ResultMessage.newResultMessage(Clients.getClientTaskId(taskId), result);
-			clients.getClient(taskId).send(resultMessage);
+			ServerToClientMessage resultMessage = ResultMessage.newResultMessage(clients.getClientTaskId(taskId), result);
+			try {
+				clients.getClient(taskId).send(resultMessage);
+			} catch (CommunicationException e) {
+				//TODO: Log this
+				throw new AssertionError(e);
+			}
 		}
 
 		@Override
@@ -154,7 +170,7 @@ public final class ClientManagerImpl implements ClientManager {
 
 		@Override
 		public void disconnectClient(InetAddress clientAddress) {
-			Client client = clients.getClientByAdress(clientAddress);
+			Client client = clients.getClientByAddress(clientAddress);
 			client.disconnect();
 			removeClient(client);
 		}
@@ -252,7 +268,33 @@ public final class ClientManagerImpl implements ClientManager {
 		/*private ConcurrentHashMap<TaskId, ClientTaskId> idMap;
 		private ConcurrentHashMap<TaskId, Client> clientMap;*/
 
+		public void addClient(Client c) {
 
+		}
+
+		public ClientTaskId getClientTaskId(TaskId id) {
+
+		}
+
+		public Client getClient(TaskId id) {
+
+		}
+
+		public Set<Client> allClients() {
+
+		}
+
+		public Client getClientByAddress(InetAddress adress) {
+
+		}
+
+		public void remove(Client client) {
+
+		}
+
+		public TaskId addTask(Client client, ClientTaskId id) {
+
+		}
 	}
 
 	private static class ConnectionAcceptor implements Runnable {
