@@ -13,8 +13,8 @@ public final class ResultMessage implements WorkerToServerMessage {
 	}
 
 	@Override
-	public <T> T accept(Visitor<T> visitor) {
-		return visitor.visit(this);
+	public <T> T accept(Handler<T> handler) {
+		return handler.handle(this);
 	}
 
 	/**

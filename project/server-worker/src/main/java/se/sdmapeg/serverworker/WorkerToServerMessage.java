@@ -10,18 +10,18 @@ public interface WorkerToServerMessage extends Message {
 	/**
 	 * Accept method for use with the visitor pattern.
 	 */
-	<T> T accept(Visitor<T> visitor);
+	<T> T accept(Handler<T> handler);
 
 	/**
-	 * A visitor for messages from Worker to Server.
+	 * A handler for messages from Worker to Server.
 	 */
-	interface Visitor<T> {
+	interface Handler<T> {
 
 	    /**
-	     * Visits a ResultMessage.
-	     * @param message The message to visit.
+	     * Handles a ResultMessage.
+	     * @param message The message to handle.
 	     */
-	    T visit(ResultMessage message);
+	    T handle(ResultMessage message);
 
 	}
 }
