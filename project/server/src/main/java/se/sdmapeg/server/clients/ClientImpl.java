@@ -2,15 +2,16 @@ package se.sdmapeg.server.clients;
 
 import java.io.IOException;
 import java.net.InetAddress;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import se.sdmapeg.common.communication.CommunicationException;
-
 import se.sdmapeg.common.communication.Connection;
 import se.sdmapeg.common.communication.ConnectionClosedException;
 import se.sdmapeg.serverclient.communication.ClientToServerMessage;
 import se.sdmapeg.serverclient.communication.ServerToClientMessage;
 
 public final class ClientImpl implements Client {
+	private static final Logger LOG = LoggerFactory.getLogger(ClientImpl.class);
 
 	private final Connection<ServerToClientMessage,
 			ClientToServerMessage> connection;
@@ -42,8 +43,7 @@ public final class ClientImpl implements Client {
 		try {
 			connection.close();
 		} catch (IOException e) {
-			// TODO: Log this
-			throw new AssertionError(e);
+			LOG.warn("An error occurred while closing the connection", e);
 		}
 	}
 

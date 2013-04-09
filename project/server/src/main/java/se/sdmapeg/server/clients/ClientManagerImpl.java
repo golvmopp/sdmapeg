@@ -20,11 +20,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of ClientManager interface.
  */
 public final class ClientManagerImpl implements ClientManager {
+	private static final Logger LOG = LoggerFactory.getLogger(ClientManagerImpl.class);
 	private final AtomicReference<ClientManager> state;
 	private final ClientManagerCallback clientManagerCallback;
 	private final ExecutorService connectionThreadPool;
@@ -137,8 +140,7 @@ public final class ClientManagerImpl implements ClientManager {
 			try {
 				clients.getClient(taskId).send(resultMessage);
 			} catch (CommunicationException e) {
-				//TODO: Log this
-				throw new AssertionError(e);
+				LOG.error("Failed to send result message to client", e);
 			}
 		}
 
@@ -159,8 +161,7 @@ public final class ClientManagerImpl implements ClientManager {
 			try {
 				connectionHandler.close();
 			} catch (IOException e) {
-				// TODO: Log this
-				throw new AssertionError(e);
+				LOG.warn("An error occurred while closing the connection handler", e);
 			}
 			synchronized (clients) {
 				for (Client client : clients.allClients()) {
@@ -326,14 +327,12 @@ public final class ClientManagerImpl implements ClientManager {
 				try {
 					clientManager.clientConnected(connectionHandler.accept());
 				} catch (CommunicationException e) {
-					// TODO: Log this
-					throw new AssertionError(e);
+					LOG.error("An error occured while waiting for connections", e);
 				} catch (SocketException e) {
 					if (!connectionHandler.isOpen()) {
 						break;
 					} else {
-						// TODO: Log this
-						throw new AssertionError(e);
+						LOG.error("An error occured while waiting for connections", e);
 					}
 				}
 			}
@@ -358,7 +357,7 @@ public final class ClientManagerImpl implements ClientManager {
 					callback.clientDisconnected();
 					break;
 				} catch (CommunicationException e) {
-					// TODO: Log this
+					LOG.error("An error occurred while listening for messages", e);
 					client.disconnect();
 					callback.clientDisconnected();
 					break;
