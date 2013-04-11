@@ -1,6 +1,7 @@
 package se.sdmapeg.worker;
 
 import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,6 +30,7 @@ public final class TaskPerformerImpl<T, R> implements TaskPerformer<T, R> {
 
     @Override
     public void add(Task<?> task) {
+	
 	deque.add(task);	
     }
     
