@@ -14,5 +14,7 @@ public interface TaskPerformer<T extends Task<R>, R> {
 	R perform(T task) throws ExecutionException;
 
 	void add(Task<?> task);
+	
+	
 
 }
