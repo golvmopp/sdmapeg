@@ -1,5 +1,7 @@
 package se.sdmapeg.worker;
 
+import java.util.concurrent.ExecutionException;
+
 import org.junit.runner.Result;
 
 import se.sdmapeg.common.communication.CommunicationException;

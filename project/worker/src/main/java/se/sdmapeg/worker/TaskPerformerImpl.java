@@ -11,24 +11,25 @@ import se.sdmapeg.common.tasks.Task;
 public final class TaskPerformerImpl<T, R> implements TaskPerformer<T, R> {
 
     private ExecutorService ftp = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-    private BlockingDeque deque;
+    private BlockingDeque<Task<?>> deque;
     
     private TaskPerformerImpl(){
-	deque = new LinkedBlockingDeque<Task<?>>();	
+	deque = new LinkedBlockingDeque<>();	
     }
 
     @Override
     public R perform(T task) throws ExecutionException {
+	
 	return null;
-    }
-    
-    @Override
-    public void add(Task<?> task){
-	deque.add(task);
     }
     
     public static TaskPerformerImpl newTaskPerformer(){
 	return new TaskPerformerImpl();
+    }
+
+    @Override
+    public void add(Task<?> task) {
+	deque.add(task);	
     }
     
 }
