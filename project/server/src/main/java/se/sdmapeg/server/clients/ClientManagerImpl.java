@@ -17,6 +17,7 @@ import java.net.SocketException;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
@@ -262,99 +263,6 @@ public final class ClientManagerImpl implements ClientManager {
 		@Override
 		public State getState() {
 			return ClientManager.State.STOPPED;
-		}
-	}
-
-	private static class Clients {
-		/*private ConcurrentHashMap<TaskId, ClientTaskId> idMap;
-		private ConcurrentHashMap<TaskId, Client> clientMap;*/
-
-		public void addClient(Client c) {
-
-		}
-
-		public ClientTaskId getClientTaskId(TaskId id) {
-
-		}
-
-		public Client getClient(TaskId id) {
-
-		}
-
-		public Set<Client> allClients() {
-
-		}
-
-		public Client getClientByAddress(InetAddress adress) {
-
-		}
-
-		public void remove(Client client) {
-
-		}
-
-		public TaskId addTask(Client client, ClientTaskId id) {
-
-		}
-	}
-
-	private static class ConnectionAcceptor implements Runnable {
-		private final StartedClientManager clientManager;
-		private final ConnectionHandler<ServerToClientMessage, ClientToServerMessage> connectionHandler;
-
-		private ConnectionAcceptor(StartedClientManager clientManager,
-		                           ConnectionHandler<ServerToClientMessage, ClientToServerMessage> connectionHandler) {
-			this.clientManager = clientManager;
-			this.connectionHandler = connectionHandler;
-		}
-
-		@Override
-		public void run() {
-			while (!Thread.currentThread().isInterrupted()) {
-				try {
-					clientManager.clientConnected(connectionHandler.accept());
-				} catch (CommunicationException e) {
-					LOG.error("An error occured while waiting for connections", e);
-				} catch (SocketException e) {
-					if (!connectionHandler.isOpen()) {
-						break;
-					} else {
-						LOG.error("An error occured while waiting for connections", e);
-					}
-				}
-			}
-		}
-	}
-
-	private static class MessageListener implements Runnable {
-		private final Callback callback;
-		private final Client client;
-
-		private MessageListener(Callback callback, Client client) {
-			this.callback = callback;
-			this.client = client;
-		}
-
-		@Override
-		public void run() {
-			while (!Thread.currentThread().isInterrupted()) {
-				try {
-					callback.messageReceived(client.receive());
-				} catch (ConnectionClosedException e) {
-					callback.clientDisconnected();
-					break;
-				} catch (CommunicationException e) {
-					LOG.error("An error occurred while listening for messages", e);
-					client.disconnect();
-					callback.clientDisconnected();
-					break;
-				}
-			}
-		}
-
-		public interface Callback {
-			void messageReceived(ClientToServerMessage message);
-			void clientDisconnected();
 		}
 	}
 }
