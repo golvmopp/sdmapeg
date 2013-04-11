@@ -12,4 +12,7 @@ public interface TaskPerformer<T extends Task<R>, R> {
 	 * Performs the specified task and returns its result.
 	 */
 	R perform(T task) throws ExecutionException;
+
+	void add(Task<?> task);
+
 }
