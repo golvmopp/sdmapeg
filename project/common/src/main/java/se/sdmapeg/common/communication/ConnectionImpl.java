@@ -1,17 +1,21 @@
 package se.sdmapeg.common.communication;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of a connection.
  */
 public final class ConnectionImpl<S extends Message, R extends Message>
 		implements Connection<S, R> {
+	private static final Logger LOG = LoggerFactory.getLogger(ConnectionImpl.class);
 	private final Socket socket;
 	private final ObjectOutputStream output;
 	private final ObjectInputStream input;
@@ -47,7 +51,7 @@ public final class ConnectionImpl<S extends Message, R extends Message>
 				socket.close();
 			}
 			catch (IOException ex) {
-				// TODO: log this
+				LOG.warn("An error occurred while closing the connection", ex);
 				// Nothing to do here, http://fc06.deviantart.net/fs70/f/2011/288/3/c/nothing_to_do_here_by_rober_raik-d4cxltj.png
 			}
 			throw new CommunicationException(e);
@@ -68,15 +72,13 @@ public final class ConnectionImpl<S extends Message, R extends Message>
 			}
 		}
 		catch (SocketException ex) {
-			throw new ConnectionClosedException(ex);
-		}
-		catch (IOException ex) {
-			if (!isOpen()) {
+			try {
+				close();
+			} finally {
 				throw new ConnectionClosedException(ex);
 			}
-			else {
-				throw new CommunicationException(ex);
-			}
+		} catch (IOException ex) {
+			throw new CommunicationException(ex);
 		}
 	}
 
@@ -87,16 +89,13 @@ public final class ConnectionImpl<S extends Message, R extends Message>
 			synchronized (input) {
 				return (R) input.readObject();
 			}
-		}
-		catch (IOException ex) {
-			if (!isOpen()) {
+		} catch (SocketException | EOFException ex) {
+			try {
+				close();
+			} finally {
 				throw new ConnectionClosedException(ex);
 			}
-			else {
-				throw new CommunicationException(ex);
-			}
-		}
-		catch (ClassNotFoundException e) {
+		} catch (IOException | ClassNotFoundException e) {
 			throw new CommunicationException(e);
 		}
 	}

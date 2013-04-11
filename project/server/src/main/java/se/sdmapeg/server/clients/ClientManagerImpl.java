@@ -113,7 +113,7 @@ public final class ClientManagerImpl implements ClientManager {
 	private class StartedClientManager implements ClientManager {
 		private final Clients clients;
 		private final ConnectionHandler<ServerToClientMessage, ClientToServerMessage> connectionHandler;
-		private final Map<Client, ClientToServerMessage.Visitor<Void>> visitors = new ConcurrentHashMap<>();
+		private final Map<Client, ClientToServerMessage.Handler<Void>> visitors = new ConcurrentHashMap<>();
 		private volatile boolean shuttingDown = false;
 
 		private StartedClientManager(ConnectionHandler<ServerToClientMessage,
@@ -214,7 +214,7 @@ public final class ClientManagerImpl implements ClientManager {
 			}
 		}
 
-		private class ClientToServerMessageVisitor implements ClientToServerMessage.Visitor<Void> {
+		private class ClientToServerMessageVisitor implements ClientToServerMessage.Handler<Void> {
 			private final Client client;
 
 			private ClientToServerMessageVisitor(Client client) {
@@ -222,13 +222,13 @@ public final class ClientManagerImpl implements ClientManager {
 			}
 
 			@Override
-			public Void visit(ClientVerificationResponse message) {
+			public Void handle(ClientVerificationResponse message) {
 				// We are not supposed to receive this type of message at this point.
 				throw new AssertionError();
 			}
 
 			@Override
-			public Void visit(TaskMessage message) {
+			public Void handle(TaskMessage message) {
 				Task<?> task = message.getTask();
 				ClientTaskId clientTaskId = message.getTaskId();
 				TaskId taskId = clients.addTask(client, clientTaskId);
