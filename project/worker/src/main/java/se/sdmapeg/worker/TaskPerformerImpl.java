@@ -4,27 +4,30 @@ import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingDeque;
 
 import se.sdmapeg.common.tasks.Task;
 
-public final class TaskPerformerImpl implements TaskPerformer<T, R> {
+public final class TaskPerformerImpl<T, R> implements TaskPerformer<T, R> {
 
-    ExecutorService ftp = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-    BlockingDeque deque;
+    private ExecutorService ftp = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    private BlockingDeque deque;
     
-    public TaskPerformerImpl(){
-	
+    private TaskPerformerImpl(){
+	deque = new LinkedBlockingDeque<Task<?>>();	
     }
-
 
     @Override
     public R perform(T task) throws ExecutionException {
-	// TODO Auto-generated method stub
 	return null;
     }
     
-    public void add(Task task){
-	
+    public void add(Task<?> task){
+	deque.add(task);
+    }
+    
+    public TaskPerformerImpl newTaskPerformer(){
+	return new TaskPerformerImpl();
     }
     
 }

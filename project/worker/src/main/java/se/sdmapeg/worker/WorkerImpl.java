@@ -16,8 +16,9 @@ public class WorkerImpl implements Worker {
 
     public WorkerImpl(Server server) {
 	this.server = server;
+	this.taskPerformer = new TaskPerformerImpl();
 	new TaskMessageListener(server).run();
-	taskPerformer = new TaskPerformerImpl();
+	
 	
     }
     
@@ -37,7 +38,7 @@ public class WorkerImpl implements Worker {
         		Message message = server.receive();
         		if (message instanceof TaskMessage) {
         		    TaskMessage taskMessage = (TaskMessage) message;
-        		    taskPerformer.add(task);  
+        		    taskPerformer.add(((TaskMessage) message).getTask());  
         		}
         	    } catch (ConnectionClosedException ex) {
         		break;
