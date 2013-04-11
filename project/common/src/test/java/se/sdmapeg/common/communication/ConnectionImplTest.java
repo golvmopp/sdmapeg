@@ -335,7 +335,6 @@ public class ConnectionImplTest {
 		try (Sockets sockets = new Sockets(6666)) {
 			Socket server = sockets.getServer();
 			Socket client = sockets.getClient();
-			new ObjectOutputStream(server.getOutputStream());
 			// Close other end
 			server.close();
 			ConnectionImpl.newConnection(client);
