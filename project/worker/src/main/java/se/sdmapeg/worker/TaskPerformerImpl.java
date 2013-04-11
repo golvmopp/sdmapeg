@@ -22,11 +22,12 @@ public final class TaskPerformerImpl<T, R> implements TaskPerformer<T, R> {
 	return null;
     }
     
+    @Override
     public void add(Task<?> task){
 	deque.add(task);
     }
     
-    public TaskPerformerImpl newTaskPerformer(){
+    public static TaskPerformerImpl newTaskPerformer(){
 	return new TaskPerformerImpl();
     }
     
