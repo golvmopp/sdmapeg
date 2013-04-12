@@ -35,6 +35,11 @@ public final class ClientTaskId implements Id {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "ClientTaskId{" + id + '}';
+	}
+
 	/**
 	 * Returns an ID matching the specified underlying long id.
 	 */

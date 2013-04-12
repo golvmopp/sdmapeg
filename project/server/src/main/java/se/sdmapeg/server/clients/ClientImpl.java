@@ -58,4 +58,8 @@ public final class ClientImpl implements Client {
 		return new ClientImpl(connection);
 	}
 
+	@Override
+	public String toString() {
+		return "Client{" + connection.getAddress() + '}';
+	}
 }

@@ -35,6 +35,11 @@ public final class TaskId implements Id {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "TaskId{" + id + '}';
+	}
+
 	/**
 	 * Returns an ID matching the specified underlying long id.
 	 */
