@@ -10,7 +10,7 @@ import se.sdmapeg.common.communication.ConnectionClosedException;
 import se.sdmapeg.serverclient.communication.ClientToServerMessage;
 import se.sdmapeg.serverclient.communication.ServerToClientMessage;
 
-public final class ClientImpl implements Client {
+final class ClientImpl implements Client {
 	private static final Logger LOG = LoggerFactory.getLogger(ClientImpl.class);
 
 	private final Connection<ServerToClientMessage,
