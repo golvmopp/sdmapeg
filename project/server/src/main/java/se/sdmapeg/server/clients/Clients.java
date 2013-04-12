@@ -22,7 +22,7 @@ final class Clients {
 	private final Map<Client, Lock> lockMap;
 	private final IdGenerator<TaskId> idGenerator;
 
-	private Clients(IdGenerator<TaskId> idGenerator) {
+	public Clients(IdGenerator<TaskId> idGenerator) {
 		this.idGenerator = idGenerator;
 		this.idMap = new ConcurrentHashMap<>();
 		this.taskToClientMap = new ConcurrentHashMap<>();
