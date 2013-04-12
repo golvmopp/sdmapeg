@@ -6,4 +6,5 @@ package se.sdmapeg.common.tasks;
  * @param <T> the return type of this visitor's visit methods.
  */
 public interface TaskVisitor<T> {
+    // There is nothing here.
 }

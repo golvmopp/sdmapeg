@@ -7,7 +7,7 @@ import se.sdmapeg.common.communication.ConnectionClosedException;
 import se.sdmapeg.serverclient.communication.ClientToServerMessage;
 import se.sdmapeg.serverclient.communication.ClientToServerMessage.Handler;
 
-class ClientMessageListener implements Runnable {
+final class ClientMessageListener implements Runnable {
 	private static final Logger LOG =
 		LoggerFactory.getLogger(ClientMessageListener.class);
 	private final Client client;

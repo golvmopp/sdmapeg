@@ -1,5 +1,7 @@
 package se.sdmapeg.worker;
 
+import java.util.concurrent.ExecutionException;
+
 import org.junit.runner.Result;
 
 import se.sdmapeg.common.communication.CommunicationException;
@@ -14,7 +16,7 @@ import se.sdmapeg.serverworker.TaskMessage;
 public class WorkerImpl implements Worker {
     
     Server server;
-    TaskPerformer taskPerformer;
+    TaskPerformer<?, ?> taskPerformer;
 
     public WorkerImpl(Server server) {
 	this.server = server;
@@ -39,7 +41,7 @@ public class WorkerImpl implements Worker {
         	    try {
         		Message message = server.receive();
         		if (message instanceof TaskMessage) {
-        		    TaskMessage taskMessage = (TaskMessage) message;
+//        		    TaskMessage taskMessage = (TaskMessage) message;
         		    taskPerformer.add(((TaskMessage) message).getTask());  
         		}
         	    } catch (ConnectionClosedException ex) {

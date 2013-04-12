@@ -62,6 +62,28 @@ public class ConnectionImplTest {
 		}
 	}
 
+	@Test
+	public void testSendIOException() throws Exception {
+		try (Sockets sockets = new Sockets(6666)) {
+			Socket server = sockets.getServer();
+			Socket client = sockets.getClient();
+			new ObjectOutputStream(server.getOutputStream());
+			Connection<FailedMessage, FailedMessage> clientConnection =
+				ConnectionImpl.newConnection(client);
+			ObjectInputStream serverInputStream = new ObjectInputStream(
+					server.getInputStream());
+			FailedMessage message =
+				new FailedMessage(FailedMessage.Type.SEND_EXCEPTION);
+			try {
+				clientConnection.send(message);
+				fail("Receiving an IOException while sending a message should"
+						+ " throw an exception");
+			} catch (CommunicationException ex) {
+				assertEquals(CommunicationException.class, ex.getClass());
+			}
+		}
+	}
+
 	/**
 	 * Test of receive method, of class ConnectionImpl.
 	 */
@@ -81,6 +103,48 @@ public class ConnectionImplTest {
 				serverOutputStream.writeObject(message);
 				MockMessage receivedMessage = clientConnection.receive();
 				assertEquals(message, receivedMessage);
+			}
+		}
+	}
+
+	@Test
+	public void testReceiveIOException() throws Exception {
+		try (Sockets sockets = new Sockets(6666)) {
+			Socket server = sockets.getServer();
+			Socket client = sockets.getClient();
+			ObjectOutputStream serverOutputStream = new ObjectOutputStream(
+					server.getOutputStream());
+			Connection<FailedMessage, FailedMessage> clientConnection =
+				ConnectionImpl.newConnection(client);
+			FailedMessage message =
+				new FailedMessage(FailedMessage.Type.RECEIVE_EXCEPTION);
+			try {
+				serverOutputStream.writeObject(message);
+				clientConnection.receive();
+				fail("Receiving an IOException while receiving a message should"
+						+ " throw an exception");
+			} catch (CommunicationException ex) {
+			}
+		}
+	}
+
+	@Test
+	public void testReceiveClassNotFoundException() throws Exception {
+		try (Sockets sockets = new Sockets(6666)) {
+			Socket server = sockets.getServer();
+			Socket client = sockets.getClient();
+			ObjectOutputStream serverOutputStream = new ObjectOutputStream(
+					server.getOutputStream());
+			Connection<FailedMessage, FailedMessage> clientConnection =
+				ConnectionImpl.newConnection(client);
+			FailedMessage message =
+				new FailedMessage(FailedMessage.Type.RECEIVE_CLASS_NOT_FOUND);
+			try {
+				serverOutputStream.writeObject(message);
+				clientConnection.receive();
+				fail("Receiving a ClassNotFoundException while receiving a"
+						+ " message should throw an exception");
+			} catch (CommunicationException ex) {
 			}
 		}
 	}
@@ -382,6 +446,60 @@ public class ConnectionImplTest {
 		@Override
 		public String toString() {
 			return "MockMessage{" + "data=" + data + '}';
+		}
+	}
+
+	private static class FailedMessage implements Message {
+		private final Type type;
+
+		public FailedMessage(Type type) {
+			this.type = type;
+		}
+
+		private void writeObject(ObjectOutputStream out) throws IOException {
+			type.onWrite();
+			out.writeObject(type);
+		}
+
+		private void readObject(ObjectInputStream in) throws IOException,
+															 ClassNotFoundException {
+			((Type) in.readObject()).onRead();
+		}
+
+		public enum Type {
+			SEND_EXCEPTION() {
+				@Override
+				public void onWrite() throws IOException {
+					throw new IOException();
+				}
+
+				@Override
+				public void onRead() {
+				}
+			},
+			RECEIVE_EXCEPTION() {
+				@Override
+				public void onWrite() {
+				}
+
+				@Override
+				public void onRead() throws IOException {
+					throw new IOException();
+				}
+			},
+			RECEIVE_CLASS_NOT_FOUND() {
+				@Override
+				public void onWrite() {
+				}
+
+				@Override
+				public void onRead() throws ClassNotFoundException {
+					throw new ClassNotFoundException();
+				}
+			};
+
+			public abstract void onWrite() throws IOException;
+			public abstract void onRead() throws IOException, ClassNotFoundException;
 		}
 	}
 

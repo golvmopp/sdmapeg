@@ -12,7 +12,7 @@ import se.sdmapeg.serverclient.communication.ServerToClientMessage;
  *
  * @author niclas
  */
-class ClientConnectionAcceptor implements Runnable {
+final class ClientConnectionAcceptor implements Runnable {
 	private static final Logger LOG = LoggerFactory
 			.getLogger(ClientConnectionAcceptor.class);
 	private final ConnectionHandler<ServerToClientMessage, ClientToServerMessage> connectionHandler;
