@@ -1,8 +1,14 @@
 package se.sdmapeg.server.clients;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import se.sdmapeg.common.IdGenerator;
 import se.sdmapeg.common.communication.CommunicationException;
-import se.sdmapeg.common.communication.Connection;
 import se.sdmapeg.common.communication.ConnectionClosedException;
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.Task;
@@ -11,37 +17,29 @@ import se.sdmapeg.serverclient.ClientTaskId;
 import se.sdmapeg.serverclient.communication.*;
 import se.sdmapeg.serverworker.TaskId;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.atomic.AtomicReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Implementation of ClientManager interface.
  */
 public final class ClientManagerImpl implements ClientManager {
 	private static final Logger LOG = LoggerFactory.getLogger(ClientManagerImpl.class);
-	private final AtomicReference<ClientManager> state;
-	private final ClientManagerCallback clientManagerCallback;
+	private final AtomicReference<ClientManagerState> state;
+	private final ClientManagerCallback callback;
 	private final ExecutorService connectionThreadPool;
-	private final IdGenerator<TaskId> taskIdGenerator;
+	private final ConnectionHandler<ServerToClientMessage,
+			ClientToServerMessage> clientConnectionHandler;
+	private final Clients clients;
 
-	public ClientManagerImpl(ClientManagerCallback clientManagerCallback,
-	                         ExecutorService connectionThreadPool,
-	                         IdGenerator<TaskId> taskIdGenerator,
-	                         ConnectionHandler<ServerToClientMessage, ClientToServerMessage> connectionHandler) {
-		this.state = new AtomicReference<ClientManager>();
-		this.state.set(new CreatedClientManager(connectionHandler));
-		this.clientManagerCallback = clientManagerCallback;
+	public ClientManagerImpl(ClientManagerCallback callback,
+							 ExecutorService connectionThreadPool,
+							 ConnectionHandler<ServerToClientMessage,
+									 ClientToServerMessage>
+							 clientConnectionHandler,
+							 IdGenerator<TaskId> taskIdGenerator) {
+		this.callback = callback;
 		this.connectionThreadPool = connectionThreadPool;
-		this.taskIdGenerator = taskIdGenerator;
+		this.clientConnectionHandler = clientConnectionHandler;
+		this.clients = new Clients(taskIdGenerator);
+		this.state = new AtomicReference<ClientManagerState>(new CreatedState());
 	}
 
 	@Override
@@ -69,12 +67,37 @@ public final class ClientManagerImpl implements ClientManager {
 		return state.get().getState();
 	}
 
-	private class CreatedClientManager implements ClientManager {
-		private final ConnectionHandler<ServerToClientMessage, ClientToServerMessage> connectionHandler;
+	private void disconnectClient(Client client) {
+		client.disconnect();
+		clients.remove(client);
+	}
 
-		private CreatedClientManager(
-				ConnectionHandler<ServerToClientMessage, ClientToServerMessage> connectionHandler) {
-			this.connectionHandler = connectionHandler;
+	private void clientConnected(Client client) {
+		state.get().clientConnected(client);
+	}
+
+	private void handleTask(Task<?> task, ClientTaskId clientTaskId,
+										  Client source) {
+		state.get().handleTask(task, clientTaskId, source);
+	}
+
+	private final class CreatedState implements ClientManagerState {
+
+		@Override
+		public void initiate() {
+			// Do nothing
+		}
+
+		@Override
+		public void clientConnected(Client client) {
+			ClientManagerImpl.this.disconnectClient(client);
+			throw new IllegalStateException();
+		}
+
+		@Override
+		public void handleTask(Task<?> task, ClientTaskId clientTaskId,
+							   Client source) {
+			throw new IllegalStateException();
 		}
 
 		@Override
@@ -84,7 +107,12 @@ public final class ClientManagerImpl implements ClientManager {
 
 		@Override
 		public void shutDown() {
-			throw new IllegalStateException();
+			ClientManagerState shutdownState = new ShutdownState();
+			if (state.compareAndSet(this, shutdownState)) {
+				shutdownState.initiate();
+			} else {
+				ClientManagerImpl.this.shutDown();
+			}
 		}
 
 		@Override
@@ -94,175 +122,210 @@ public final class ClientManagerImpl implements ClientManager {
 
 		@Override
 		public void start() {
-			StartedClientManager newState = new StartedClientManager(connectionHandler);
-			ClientManager oldState = ClientManagerImpl.this.state.get();
-			boolean success = state.compareAndSet(oldState, newState);
-			if (success) {
-				connectionThreadPool.submit(new ConnectionAcceptor(newState, connectionHandler));
+			ClientManagerState startedState = new StartedState();
+			if (state.compareAndSet(this, startedState)) {
+				startedState.initiate();
 			} else {
-				throw new IllegalStateException();
+				ClientManagerImpl.this.start();
 			}
 		}
 
 		@Override
 		public State getState() {
-			return ClientManager.State.CREATED;
+			return State.CREATED;
 		}
 	}
 
-	private class StartedClientManager implements ClientManager {
-		private final Clients clients;
-		private final ConnectionHandler<ServerToClientMessage, ClientToServerMessage> connectionHandler;
-		private final Map<Client, ClientToServerMessage.Handler<Void>> visitors = new ConcurrentHashMap<>();
-		private volatile boolean shuttingDown = false;
+	private final class StartedState implements ClientManagerState {
 
-		private StartedClientManager(ConnectionHandler<ServerToClientMessage,
-				                             ClientToServerMessage> connectionHandler) {
-			this.clients = new Clients();
-			this.connectionHandler = connectionHandler;
+		@Override
+		public void initiate() {
+			connectionThreadPool.submit(new ClientConnectionAcceptor(
+					clientConnectionHandler, new ConnectionAcceptorCallback()));
 		}
 
-		public void clientConnected(Connection<ServerToClientMessage, ClientToServerMessage> connection) {
-			Client client = ClientImpl.newClient(connection);
-			synchronized (clients) {
-				if (!shuttingDown) {
-					clients.addClient(client);
-					visitors.put(client, new ClientToServerMessageVisitor(client));
-				} else {
-					client.disconnect();
-				}
+		@Override
+		public void clientConnected(Client client) {
+			clients.addClient(client);
+			connectionThreadPool.submit(new ClientMessageListener(client,
+					new ClientMessageHandler(client),
+					new ClientDisconnectionHandler(client)));
+		}
+
+		@Override
+		public void handleTask(Task<?> task, ClientTaskId clientTaskId,
+							   Client source) {
+			TaskId taskId = clients.addTask(source, clientTaskId);
+			if (taskId == null) {
+				return;
 			}
+			callback.handleTask(taskId, task);
 		}
 
 		@Override
 		public void handleResult(TaskId taskId, Result<?> result) {
-			ServerToClientMessage resultMessage = ResultMessage.newResultMessage(clients.getClientTaskId(taskId), result);
+			Client client = clients.getClientByTaskId(taskId);
+			ClientTaskId clientTaskId = clients.getClientTaskId(taskId);
+			if (client == null || clientTaskId == null) {
+				LOG.warn("Received result for task with id {} but found no"
+						+ " client waiting for it", taskId);
+				return;
+			}
+			ResultMessage resultMessage =
+				ResultMessage.newResultMessage(clientTaskId, result);
 			try {
-				clients.getClient(taskId).send(resultMessage);
-			} catch (CommunicationException e) {
-				LOG.error("Failed to send result message to client", e);
+				sendMessage(client, resultMessage);
+			}
+			catch (CommunicationException ex) {
+				LOG.warn("Failed to send result for task with id " + taskId
+						 + " to " +  client, ex);
 			}
 		}
 
 		@Override
 		public void shutDown() {
-			StoppedClientManager newState = new StoppedClientManager();
-			ClientManager oldState = state.get();
-			boolean success = state.compareAndSet(oldState, newState);
-			if (success) {
-				internalShutdown();
+			ClientManagerState shutdownState = new ShutdownState();
+			if (state.compareAndSet(this, shutdownState)) {
+				shutdownState.initiate();
 			} else {
-				throw new IllegalStateException();
-			}
-		}
-
-		private void internalShutdown() {
-			shuttingDown = true;
-			try {
-				connectionHandler.close();
-			} catch (IOException e) {
-				LOG.warn("An error occurred while closing the connection handler", e);
-			}
-			synchronized (clients) {
-				for (Client client : clients.allClients()) {
-					client.disconnect();
-				}
+				ClientManagerImpl.this.shutDown();
 			}
 		}
 
 		@Override
 		public void disconnectClient(InetAddress clientAddress) {
 			Client client = clients.getClientByAddress(clientAddress);
-			client.disconnect();
-			removeClient(client);
-		}
-
-		private void removeClient(Client client) {
-			clients.remove(client);
-			visitors.remove(client);
+			if (client == null) {
+				return;
+			}
+			ClientManagerImpl.this.disconnectClient(client);
+			LOG.info("{} was disconnected", client);
 		}
 
 		@Override
 		public void start() {
-			throw new IllegalStateException();
+			// Do nothing
 		}
 
 		@Override
 		public State getState() {
-			return ClientManager.State.STARTED;
+			return State.STARTED;
 		}
 
-		private void handleMessage(Client client, ClientToServerMessage message) {
-			message.accept(visitors.get(client));
-		}
-
-		private class MessageListenerCallback implements MessageListener.Callback {
-			private final Client client;
-
-			private MessageListenerCallback(Client client) {
-				this.client = client;
-			}
-
-			@Override
-			public void messageReceived(ClientToServerMessage message) {
-				handleMessage(client, message);
-			}
-
-			@Override
-			public void clientDisconnected() {
-				removeClient(client);
-			}
-		}
-
-		private class ClientToServerMessageVisitor implements ClientToServerMessage.Handler<Void> {
-			private final Client client;
-
-			private ClientToServerMessageVisitor(Client client) {
-				this.client = client;
-			}
-
-			@Override
-			public Void handle(ClientVerificationResponse message) {
-				// We are not supposed to receive this type of message at this point.
-				throw new AssertionError();
-			}
-
-			@Override
-			public Void handle(TaskMessage message) {
-				Task<?> task = message.getTask();
-				ClientTaskId clientTaskId = message.getTaskId();
-				TaskId taskId = clients.addTask(client, clientTaskId);
-				clientManagerCallback.handleTask(taskId, task);
-				return null;
+		private void sendMessage(Client client, ServerToClientMessage message)
+				throws CommunicationException {
+			try {
+				client.send(message);
+			} catch (ConnectionClosedException ex) {
+				ClientManagerImpl.this.disconnectClient(client);
+				LOG.info("{} was disconnected", client);
 			}
 		}
 	}
 
-	private class StoppedClientManager implements ClientManager {
+	private final class ShutdownState implements ClientManagerState {
 
 		@Override
-		public void handleResult(TaskId taskId, Result<?> result) {
-			throw new IllegalStateException();
+		public void initiate() {
+			try {
+				clientConnectionHandler.close();
+			} catch (IOException ex) {
+				LOG.warn("An error occurred while shutting down the client"
+						+ " manager", ex);
+			}
+		}
+
+		@Override
+		public void clientConnected(Client client) {
+			ClientManagerImpl.this.disconnectClient(client);
+		}
+
+		@Override
+		public void handleTask(Task<?> task, ClientTaskId clientTaskId,
+							   Client source) {
+			// Do nothing
+		}
+
+		@Override
+		public void handleResult(TaskId taskId,
+								 Result<?> result) {
+			// Do nothing
 		}
 
 		@Override
 		public void shutDown() {
-			throw new IllegalStateException();
+			// Do nothing
 		}
 
 		@Override
 		public void disconnectClient(InetAddress clientAddress) {
-			throw new IllegalStateException();
+			// Do nothing
 		}
 
 		@Override
 		public void start() {
-			throw new IllegalStateException();
+			// Do nothing
 		}
 
 		@Override
 		public State getState() {
-			return ClientManager.State.STOPPED;
+			return State.STOPPED;
+		}		
+	}
+
+	private interface ClientManagerState extends ClientManager {
+		void initiate();
+		void clientConnected(Client client);
+		void handleTask(Task<?> task, ClientTaskId clientTaskId, Client source);
+	}
+
+	private final class ConnectionAcceptorCallback
+			implements ClientConnectionAcceptor.Callback {
+
+		@Override
+		public void clientConnected(Client client) {
+			ClientManagerImpl.this.clientConnected(client);
+		}
+
+		@Override
+		public void shutdown() {
+			for (Client client : clients.allClients()) {
+				disconnectClient(client);
+			}
+		}
+	}
+
+	private final class ClientMessageHandler implements ClientToServerMessage.Handler<Void> {
+		private final Client client;
+
+		public ClientMessageHandler(Client client) {
+			this.client = client;
+		}
+
+		@Override
+		public Void handle(ClientIdentification message) {
+			throw new IllegalStateException();
+		}
+
+		@Override
+		public Void handle(TaskMessage message) {
+			handleTask(message.getTask(), message.getTaskId(), client);
+			return null;
+		}
+	}
+
+	private final class ClientDisconnectionHandler
+			implements ClientMessageListener.DisconnectionCallback {
+		private final Client client;
+
+		public ClientDisconnectionHandler(Client client) {
+			this.client = client;
+		}
+
+		@Override
+		public void clientDisconnected() {
+			disconnectClient(client);
+			LOG.info("{} was disconnected", client);
 		}
 	}
 }
