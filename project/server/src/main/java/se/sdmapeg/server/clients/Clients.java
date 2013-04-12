@@ -63,7 +63,6 @@ final class Clients {
 		if (!acquireLock(client)) {
 			return;
 		}
-		Lock lock = lockMap.get(client);
 		try {
 			addressMap.remove(client.getAddress());
 			Set<TaskId> tasks = clientToTaskMap.remove(client);
@@ -71,8 +70,8 @@ final class Clients {
 				idMap.remove(task);
 				taskToClientMap.remove(task);
 			}
-			lockMap.remove(client);
 		} finally {
+			Lock lock = lockMap.remove(client);
 			lock.unlock();
 		}
 	}
