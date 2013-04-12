@@ -47,7 +47,7 @@ final class Clients {
 		return idMap.get(id);
 	}
 
-	public Client getClient(TaskId taskId) {
+	public Client getClientByTaskId(TaskId taskId) {
 		return taskToClientMap.get(taskId);
 	}
 
