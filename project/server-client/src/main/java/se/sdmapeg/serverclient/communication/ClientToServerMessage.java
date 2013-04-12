@@ -17,7 +17,7 @@ public interface ClientToServerMessage extends Message {
 	 * A handler for messages from Server to Worker.
 	 */
 	interface Handler<T> {
-		T handle(ClientVerificationResponse message);
+		T handle(ClientIdentification message);
 
 		T handle(TaskMessage message);
 	}
