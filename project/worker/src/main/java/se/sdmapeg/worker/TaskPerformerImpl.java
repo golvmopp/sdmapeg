@@ -21,10 +21,9 @@ public final class TaskPerformerImpl<T, R> implements TaskPerformer<T, R> {
 	return null;
     }
     
-
-  /*  private ThreadFactory threadFactory;
+/*
+    private ThreadFactory threadFactory;
     private ExecutorService ftp;
-    private BlockingDeque<Task<?>> deque;
     
     private TaskPerformerImpl(){
 	threadFactory = new ThreadFactory() {
@@ -35,7 +34,6 @@ public final class TaskPerformerImpl<T, R> implements TaskPerformer<T, R> {
 	    }
 	};
 	ftp = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors(),threadFactory);
-	deque = new LinkedBlockingDeque<>();	
     }
 
     @Override
@@ -46,14 +44,5 @@ public final class TaskPerformerImpl<T, R> implements TaskPerformer<T, R> {
     public static TaskPerformerImpl newTaskPerformer(){
 	return new TaskPerformerImpl();
     }
-
-    @Override
-    public void add(Task<?> task) {
-	boolean taskPerformed = false;
-	
-	if(taskPerformed) {
-	    deque.add(task);	
-	}
-    }*/
-    
+  */  
 }
