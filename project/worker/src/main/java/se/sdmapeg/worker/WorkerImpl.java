@@ -17,12 +17,13 @@ public class WorkerImpl implements Worker {
     
     Server server;
     TaskPerformer<?, ?> taskPerformer;
+    
+    
 
     public WorkerImpl(Server server) {
 	this.server = server;
 	this.taskPerformer =  TaskPerformerImpl.newTaskPerformer();
-	new TaskMessageListener(server).run();
-	
+	new TaskMessageListener(server).run();	
 	
     }
     
