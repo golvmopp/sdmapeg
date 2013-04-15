@@ -8,9 +8,9 @@ import se.sdmapeg.common.tasks.Task;
 public class TaskQueue {
 
     private BlockingDeque<Task> deque;
-    private TaskPerformer taskPerformer;
+    private SpecificTaskPerformer taskPerformer;
     
-    private TaskQueue(TaskPerformer taskPerformer){
+    private TaskQueue(SpecificTaskPerformer taskPerformer){
 	this.taskPerformer = taskPerformer;
 	deque = new LinkedBlockingDeque<Task>();
     }
@@ -19,7 +19,7 @@ public class TaskQueue {
 	deque.add(task);
     }
     
-    public static TaskQueue newTaskQueue(TaskPerformer taskPerformer){
+    public static TaskQueue newTaskQueue(SpecificTaskPerformer taskPerformer){
 	return new TaskQueue(taskPerformer);
     }
 }

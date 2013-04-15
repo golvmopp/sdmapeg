@@ -12,7 +12,7 @@ import se.sdmapeg.serverclient.communication.ServerToClientMessage;
 /**
  * Represents the client. Handles communication between Server and Client.
  */
-public interface Client {
+interface Client {
 	/**
 	 * returns the address of the client.
 	 *
