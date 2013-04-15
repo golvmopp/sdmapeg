@@ -9,6 +9,7 @@ import se.sdmapeg.common.communication.ConnectionImpl;
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.serverclient.ClientTaskId;
+import se.sdmapeg.serverclient.ClientTaskIdGenerator;
 import se.sdmapeg.serverclient.communication.ResultMessage;
 import se.sdmapeg.serverclient.communication.ServerToClientMessage;
 import se.sdmapeg.serverclient.communication.TaskMessage;
@@ -37,7 +38,7 @@ public class ClientImpl implements Client {
 		executorService = Executors.newCachedThreadPool();
 		taskMap = new ConcurrentHashMap<>();
 		resultMap = new ConcurrentHashMap<>();
-		//idGenerator = new IdGeneratorImpl<>();
+		idGenerator = new ClientTaskIdGenerator();
 	}
 
 	public void addTask(Task task) {
