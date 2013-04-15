@@ -52,6 +52,11 @@ public final class WorkerImpl implements Worker {
 		throw new UnsupportedOperationException("Not yet implemented");
 	}
 
+	@Override
+	public String toString() {
+		return "Worker{" + connection.getAddress() + '}';
+	}
+
 	/**
 	 * Creates a new Worker with the specified connection.
 	 *
