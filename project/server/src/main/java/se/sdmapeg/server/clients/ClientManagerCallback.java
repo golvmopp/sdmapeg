@@ -15,4 +15,11 @@ public interface ClientManagerCallback {
 	 * @param task   Task to be handled
 	 */
 	void handleTask(TaskId taskId, Task<?> task);
+
+	/**
+	 * Cancels the task with the specified id.
+	 *
+	 * @param taskId Id of the task to be cancelled
+	 */
+	void cancelTask(TaskId taskId);
 }

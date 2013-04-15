@@ -28,6 +28,7 @@ interface Client {
 
 	interface Callback {
 		void taskReceived(Client client, TaskId taskId, Task<?> task);
+		void taskCancelled(Client client, TaskId taskId);
 		void clientDisconnected(Client client);
 	}
 }

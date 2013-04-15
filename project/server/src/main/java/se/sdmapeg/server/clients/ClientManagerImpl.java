@@ -97,8 +97,7 @@ public class ClientManagerImpl implements ClientManager {
 	private void clientDisconnected(Client client) {
 		addressMap.remove(client.getAddress());
 		for (TaskId task : client.getActiveTasks()) {
-			taskMap.remove(task);
-			// TODO: Cancel task here
+			cancelTask(task);
 		}
 	}
 
@@ -114,6 +113,11 @@ public class ClientManagerImpl implements ClientManager {
 
 	private boolean isStarted() {
 		return started.get();
+	}
+
+	private void cancelTask(TaskId task) {
+		taskMap.remove(task);
+		callback.cancelTask(task);
 	}
 
 	private final class ConnectionAcceptor implements Runnable {
@@ -160,6 +164,11 @@ public class ClientManagerImpl implements ClientManager {
 				Task<?> task) {
 			taskMap.put(taskId, client);
 			callback.handleTask(taskId, task);
+		}
+
+		@Override
+		public void taskCancelled(Client client, TaskId taskId) {
+			cancelTask(taskId);
 		}
 
 		@Override

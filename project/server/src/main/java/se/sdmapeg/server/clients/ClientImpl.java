@@ -20,6 +20,7 @@ import se.sdmapeg.serverclient.communication.ClientIdentification;
 import se.sdmapeg.serverclient.communication.ClientToServerMessage;
 import se.sdmapeg.serverclient.communication.ResultMessage;
 import se.sdmapeg.serverclient.communication.ServerToClientMessage;
+import se.sdmapeg.serverclient.communication.TaskCancellationMesage;
 import se.sdmapeg.serverclient.communication.TaskMessage;
 import se.sdmapeg.serverworker.TaskId;
 
@@ -33,7 +34,11 @@ class ClientImpl implements Client {
 	private final IdGenerator<TaskId> taskIdGenerator;
 	private final Client.Callback callback;
 	private final MessageHandler messageHandler;
-	private final Map<TaskId, ClientTaskId> tasksIdMap = new ConcurrentHashMap<>();
+	private final Map<TaskId, ClientTaskId> taskIdMap =
+		new ConcurrentHashMap<>();
+	private final Map<ClientTaskId, TaskId> clientTaskIdMap =
+		new ConcurrentHashMap<>();
+	
 
 	public ClientImpl(Connection<ServerToClientMessage,
 			ClientToServerMessage> connection,
@@ -73,13 +78,17 @@ class ClientImpl implements Client {
 
 	@Override
 	public void taskCompleted(TaskId taskId, Result<?> result) {
-		send(ResultMessage.newResultMessage(tasksIdMap.get(taskId), result));
-		tasksIdMap.remove(taskId);
+		ClientTaskId clientTaskId = taskIdMap.remove(taskId);
+		clientTaskIdMap.remove(clientTaskId);
+		if (clientTaskId == null) {
+			return;
+		}
+		send(ResultMessage.newResultMessage(clientTaskId, result));
 	}
 
 	@Override
 	public Set<TaskId> getActiveTasks() {
-		return Collections.unmodifiableSet(new HashSet<>(tasksIdMap.keySet()));
+		return Collections.unmodifiableSet(new HashSet<>(taskIdMap.keySet()));
 	}
 
 	@Override
@@ -125,8 +134,17 @@ class ClientImpl implements Client {
 			Task<?> task = message.getTask();
 			ClientTaskId clientTaskId = message.getTaskId();
 			TaskId taskId = taskIdGenerator.newId();
-			tasksIdMap.put(taskId, clientTaskId);
+			taskIdMap.put(taskId, clientTaskId);
+			clientTaskIdMap.put(clientTaskId, taskId);
 			callback.taskReceived(ClientImpl.this, taskId, task);
+			return null;
+		}
+
+		@Override
+		public Void handle(TaskCancellationMesage mesage) {
+			ClientTaskId clientTaskId = mesage.getTaskId();
+			TaskId taskId = clientTaskIdMap.get(clientTaskId);
+			callback.taskCancelled(ClientImpl.this, taskId);
 			return null;
 		}
 	}
