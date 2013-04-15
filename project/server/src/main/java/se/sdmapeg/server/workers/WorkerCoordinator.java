@@ -36,12 +36,26 @@ public interface WorkerCoordinator {
 	void start();
 
 	/**
-	 * Checks whether the Worker Coordinator is running.
+	 * Returns the current state of this worker coordinator.
 	 */
-	boolean isRunning();
+	State getState();
 
 	/**
-	 * Returns true if the Worker Coordinator has been started at least once.
+	 * Enum representing the state of a worker coordinator.
 	 */
-	boolean isStarted();
+	public enum State {
+		/**
+		 * Indicates that a worker coordinator has been created but not yet
+		 * started.
+		 */
+		CREATED,
+		/**
+		 * Indicates that a worker coordinator has been created and started.
+		 */
+		STARTED,
+		/**
+		 * Indicates that a worker coordinator has been stopped.
+		 */
+		STOPPED;
+	}
 }
