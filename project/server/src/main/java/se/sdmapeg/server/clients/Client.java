@@ -1,47 +1,33 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package se.sdmapeg.server.clients;
 
-import java.io.IOException;
 import java.net.InetAddress;
-
-import se.sdmapeg.common.communication.CommunicationException;
-import se.sdmapeg.common.communication.ConnectionClosedException;
-
-import se.sdmapeg.serverclient.communication.ClientToServerMessage;
-import se.sdmapeg.serverclient.communication.ServerToClientMessage;
+import java.util.Set;
+import se.sdmapeg.common.tasks.Result;
+import se.sdmapeg.common.tasks.Task;
+import se.sdmapeg.serverworker.TaskId;
 
 /**
- * Represents the client. Handles communication between Server and Client.
+ *
+ * @author niclas
  */
 interface Client {
-	/**
-	 * returns the address of the client.
-	 *
-	 * @return the address of the client
-	 */
+
+	void disconnect();
+
+	Set<TaskId> getActiveTasks();
+
 	InetAddress getAddress();
 
-	/**
-	 * Sends a message from server to client.
-	 *
-	 * @param message message to send
-	 * @throws CommunicationException if an error occurred
-	 * @throws ConnectionClosedException if the connection was closed
-	 */
-	void send(ServerToClientMessage message) throws CommunicationException,
-													ConnectionClosedException;
+	void listen();
 
-	/**
-	 * Receives a message from the client. This method blocks until a message
-	 * has been received.
-	 *
-	 * @return received message.
-	 * @throws CommunicationException if an error occurred
-	 * @throws ConnectionClosedException if the connection was closed
-	 */
-	ClientToServerMessage receive() throws CommunicationException;
+	void taskCompleted(TaskId taskId, Result<?> result);
 
-	/**
-	 * Disconnects the client.
-	 */
-	void disconnect();
+	interface Callback {
+		void taskReceived(Client client, TaskId taskId, Task<?> task);
+		void clientDisconnected(Client client);
+	}
 }
