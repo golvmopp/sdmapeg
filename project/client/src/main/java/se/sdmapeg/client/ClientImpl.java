@@ -2,6 +2,7 @@ package se.sdmapeg.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import se.sdmapeg.client.GUI.ClientView;
 import se.sdmapeg.common.IdGenerator;
 import se.sdmapeg.common.communication.CommunicationException;
 import se.sdmapeg.common.communication.ConnectionClosedException;
@@ -14,7 +15,10 @@ import se.sdmapeg.serverclient.communication.ResultMessage;
 import se.sdmapeg.serverclient.communication.ServerToClientMessage;
 import se.sdmapeg.serverclient.communication.TaskMessage;
 
+import java.io.IOException;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -27,11 +31,13 @@ public class ClientImpl implements Client {
 	private final Map<ClientTaskId, Task<?>> taskMap;
 	private final Map<ClientTaskId, Result<?>> resultMap;
 	private final IdGenerator<ClientTaskId> idGenerator;
+	private final ClientView view;
 
-	private ClientImpl() {
+	private ClientImpl(ClientView view, String host, int port) {
 		try {
-			server = ServerImpl.newServer(ConnectionImpl.newConnection(new Socket()));
-		} catch (CommunicationException e) {
+			// TODO: Fix connection
+			server = ServerImpl.newServer(ConnectionImpl.newConnection(new Socket(host, port)));
+		} catch (CommunicationException|IOException e) {
 			// TODO: throw a better exception
 			throw new AssertionError(e);
 		}
@@ -39,11 +45,14 @@ public class ClientImpl implements Client {
 		taskMap = new ConcurrentHashMap<>();
 		resultMap = new ConcurrentHashMap<>();
 		idGenerator = new ClientTaskIdGenerator();
+		this.view = view;
+		view.show(this);
 	}
 
-	public void addTask(Task task) {
+	public ClientTaskId addTask(Task task) {
 		ClientTaskId id = idGenerator.newId();
 		taskMap.put(id, task);
+		return id;
 	}
 
 	public void sendTask(ClientTaskId id) {
@@ -80,8 +89,8 @@ public class ClientImpl implements Client {
 	private void showResult(ClientTaskId id) {
 	}
 
-	public static Client newClientImp() {
-		return new ClientImpl();
+	public static Client newClientImp(ClientView view, String host, int port) {
+		return new ClientImpl(view, host, port);
 	}
 
 	private final class ServerMessageHandler implements ServerToClientMessage.Handler<Void> {
