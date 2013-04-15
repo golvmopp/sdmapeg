@@ -1,4 +1,4 @@
-package se.sdmapeg.serverworker;
+package se.sdmapeg.serverworker.communication;
 
 import se.sdmapeg.common.communication.Message;
 

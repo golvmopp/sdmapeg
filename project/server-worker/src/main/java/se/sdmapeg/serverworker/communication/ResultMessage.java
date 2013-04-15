@@ -1,6 +1,7 @@
-package se.sdmapeg.serverworker;
+package se.sdmapeg.serverworker.communication;
 
 import se.sdmapeg.common.tasks.Result;
+import se.sdmapeg.serverworker.TaskId;
 
 public final class ResultMessage implements WorkerToServerMessage {
     	private static final long serialVersionUID = 1L;

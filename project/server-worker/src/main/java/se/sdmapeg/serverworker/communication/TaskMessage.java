@@ -1,6 +1,7 @@
-package se.sdmapeg.serverworker;
+package se.sdmapeg.serverworker.communication;
 
 import se.sdmapeg.common.tasks.Task;
+import se.sdmapeg.serverworker.TaskId;
 
 /**
  * Implementation of ServerToWorkerMessage containing 

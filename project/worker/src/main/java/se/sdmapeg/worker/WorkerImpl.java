@@ -12,9 +12,9 @@ import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.SimpleFailure;
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.common.tasks.TaskPerformer;
-import se.sdmapeg.serverworker.ServerToWorkerMessage;
+import se.sdmapeg.serverworker.communication.ServerToWorkerMessage;
 import se.sdmapeg.serverworker.TaskId;
-import se.sdmapeg.serverworker.TaskMessage;
+import se.sdmapeg.serverworker.communication.TaskMessage;
 
 /**
  * Actual implementation of the Worker in the worker module.

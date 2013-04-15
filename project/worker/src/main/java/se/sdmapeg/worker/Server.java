@@ -2,8 +2,8 @@ package se.sdmapeg.worker;
 
 import java.io.IOException;
 
-import se.sdmapeg.serverworker.ServerToWorkerMessage;
-import se.sdmapeg.serverworker.WorkerToServerMessage;
+import se.sdmapeg.serverworker.communication.ServerToWorkerMessage;
+import se.sdmapeg.serverworker.communication.WorkerToServerMessage;
 
 import java.net.InetAddress;
 

@@ -9,8 +9,8 @@ import se.sdmapeg.common.communication.CommunicationException;
 
 import se.sdmapeg.common.communication.Connection;
 import se.sdmapeg.common.communication.ConnectionClosedException;
-import se.sdmapeg.serverworker.ServerToWorkerMessage;
-import se.sdmapeg.serverworker.WorkerToServerMessage;
+import se.sdmapeg.serverworker.communication.ServerToWorkerMessage;
+import se.sdmapeg.serverworker.communication.WorkerToServerMessage;
 
 public final class WorkerImpl implements Worker {
 	private static final Logger LOG = LoggerFactory.getLogger(WorkerImpl.class);
