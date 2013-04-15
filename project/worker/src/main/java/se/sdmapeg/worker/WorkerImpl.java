@@ -12,9 +12,11 @@ import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.SimpleFailure;
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.common.tasks.TaskPerformer;
+import se.sdmapeg.serverworker.ResultMessage;
 import se.sdmapeg.serverworker.ServerToWorkerMessage;
 import se.sdmapeg.serverworker.TaskId;
 import se.sdmapeg.serverworker.TaskMessage;
+import se.sdmapeg.serverworker.WorkerToServerMessage;
 
 /**
  * Actual implementation of the Worker in the worker module.
@@ -38,14 +40,14 @@ public class WorkerImpl implements Worker {
 	}
 
 	private void cancelTask(TaskId taskId) {
-		// TODO: Find the FutureTask with the specified task id and cancel it 
+		taskMap.get(taskId).cancel(true);
 	}
 
 	private void runTask(TaskId taskId, Task<?> task) {
 		FutureTask<Void> futureTask = new FutureTask<>(new TaskRunner(taskId,
 				task), null);
-		// TODO: Add a mapping between task id and futureTask, submit futureTask
-		// to thread pool
+		taskMap.put(taskId, futureTask);
+		workerThreadPool.submit(futureTask);
 	}
 
 	private <R> Result<R> performTask(Task<R> task) {
@@ -59,7 +61,8 @@ public class WorkerImpl implements Worker {
 	}
 
 	private void completeTask(TaskId taskId, Result<?> result) {
-		// TODO: Send back result and remove task from any collections here
+	    WorkerToServerMessage resultMessage = ResultMessage.newResultMessage(taskId, result);
+	    taskMap.remove(taskId); 
 	}
 
 	private final class TaskMessageListener implements Runnable {
@@ -75,6 +78,7 @@ public class WorkerImpl implements Worker {
 					break;
 				} catch (CommunicationException ex) {
 					try {
+					    // Sleep for one second if no task is found. 
 						Thread.sleep(1000);
 					} catch (InterruptedException ex1) {
 						break;
@@ -106,10 +110,9 @@ public class WorkerImpl implements Worker {
 		private final TaskId taskId;
 		private final Task<?> task;
 
-		public TaskRunner(TaskId taskId,
-						  Task<?> task) {
-			this.taskId = taskId;
-			this.task = task;
+		public TaskRunner(TaskId taskId, Task<?> task) {
+		    this.taskId = taskId;
+		    this.task = task;
 		}
 
 		@Override
