@@ -29,7 +29,7 @@ public class PythonEditor implements ActionListener {
 		textArea.setFont(Font.decode("Monospaced"));
 		frame.add(new JScrollPane(textArea), BorderLayout.CENTER);
 		Box box = new Box(BoxLayout.LINE_AXIS);
-		JButton confirmButton = new JButton("Compile and run");
+		JButton confirmButton = new JButton("Send task");
 		box.add(confirmButton);
 		frame.add(box, BorderLayout.SOUTH);
 		frame.setLocationByPlatform(true);
