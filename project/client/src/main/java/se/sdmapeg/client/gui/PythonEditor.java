@@ -1,4 +1,4 @@
-package se.sdmapeg.client.GUI;
+package se.sdmapeg.client.gui;
 
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;

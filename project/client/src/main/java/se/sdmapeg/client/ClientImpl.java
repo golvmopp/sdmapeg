@@ -2,7 +2,7 @@ package se.sdmapeg.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import se.sdmapeg.client.GUI.ClientView;
+import se.sdmapeg.client.gui.ClientView;
 import se.sdmapeg.common.IdGenerator;
 import se.sdmapeg.common.communication.CommunicationException;
 import se.sdmapeg.common.communication.ConnectionClosedException;
@@ -16,9 +16,7 @@ import se.sdmapeg.serverclient.communication.ServerToClientMessage;
 import se.sdmapeg.serverclient.communication.TaskMessage;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;

@@ -1,6 +1,5 @@
-package se.sdmapeg.client.GUI;
+package se.sdmapeg.client.gui;
 
-import se.sdmapeg.client.Client;
 import se.sdmapeg.client.ClientImpl;
 import se.sdmapeg.common.tasks.PythonTask;
 import se.sdmapeg.common.tasks.Task;
@@ -12,7 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 /**
- * Class that handles the Client GUI.
+ * Class that handles the Client gui.
  */
 public class ClientView implements ActionListener {
 	private final JFrame frame;
