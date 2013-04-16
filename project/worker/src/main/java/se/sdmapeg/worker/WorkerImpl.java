@@ -12,17 +12,14 @@ import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.SimpleFailure;
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.common.tasks.TaskPerformer;
-import se.sdmapeg.serverworker.ResultMessage;
-import se.sdmapeg.serverworker.ServerToWorkerMessage;
-import se.sdmapeg.serverworker.TaskId;
-import se.sdmapeg.serverworker.TaskMessage;
-import se.sdmapeg.serverworker.WorkerToServerMessage;
+import se.sdmapeg.serverworker.*;
 
 /**
  * Actual implementation of the Worker in the worker module.
  */
 public class WorkerImpl implements Worker {
-	private final ExecutorService workerThreadPool;
+	//private final ExecutorService workerThreadPool;
+    	private final TaskQueue taskQueue;
 	private final Server server;
 	private final TaskPerformer taskPerformer;
 	private final Map<TaskId, FutureTask<Void>> taskMap =
@@ -30,7 +27,7 @@ public class WorkerImpl implements Worker {
 
 	public WorkerImpl(ExecutorService workerThreadPool, Server server,
 					  TaskPerformer taskPerformer) {
-		this.workerThreadPool = workerThreadPool;
+		this.taskQueue = TaskQueue.newTaskQueue(workerThreadPool);
 		this.server = server;
 		this.taskPerformer = taskPerformer;
 	}
@@ -40,14 +37,19 @@ public class WorkerImpl implements Worker {
 	}
 
 	private void cancelTask(TaskId taskId) {
-		taskMap.get(taskId).cancel(true);
+		FutureTask<Void> task = taskMap.remove(taskId);
+		if(task == null) {
+			return;
+		}
+		task.cancel(true);
 	}
 
 	private void runTask(TaskId taskId, Task<?> task) {
 		FutureTask<Void> futureTask = new FutureTask<>(new TaskRunner(taskId,
 				task), null);
 		taskMap.put(taskId, futureTask);
-		workerThreadPool.submit(futureTask);
+		//workerThreadPool.submit(futureTask);
+		taskQueue.addToQueue(futureTask);
 	}
 
 	private <R> Result<R> performTask(Task<R> task) {
