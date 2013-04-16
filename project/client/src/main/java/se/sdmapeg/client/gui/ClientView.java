@@ -2,6 +2,7 @@ package se.sdmapeg.client.gui;
 
 import se.sdmapeg.client.ClientImpl;
 import se.sdmapeg.common.tasks.PythonTask;
+import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.serverclient.ClientTaskId;
 
@@ -9,6 +10,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Class that handles the Client gui.
@@ -51,6 +53,14 @@ public class ClientView implements ActionListener {
 
 	public static ClientView newView() {
 		return new ClientView();
+	}
+
+	public void showResult(Result<?> result) {
+		try {
+			JOptionPane.showMessageDialog(frame, result.get());
+		} catch (ExecutionException e) {
+			JOptionPane.showMessageDialog(frame, "Something went wrong when running the task.");
+		}
 	}
 
 	@Override

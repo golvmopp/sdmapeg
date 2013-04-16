@@ -85,6 +85,7 @@ public class ClientImpl implements Client {
 	}
 
 	private void showResult(ClientTaskId id) {
+		view.showResult(resultMap.get(id));
 	}
 
 	public static Client newClientImp(ClientView view, String host, int port) {

@@ -14,8 +14,8 @@ public class PythonTask implements Task {
 	}
 
 	@Override
-	public Result perform(TaskPerformer taskPerformer) throws ExecutionException {
-		return taskPerformer.performPythonTask(pythonCode);
+	public Result<String> perform(TaskPerformer taskPerformer) throws ExecutionException {
+		return taskPerformer.performPythonTask(this);
 	}
 
 	@Override
