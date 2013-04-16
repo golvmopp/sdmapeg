@@ -58,7 +58,7 @@ class ClientImpl implements Client {
 	@Override
 	public void listen() {
 		try {
-			while (!Thread.currentThread().isInterrupted()) {
+			while (true) {
 				ClientToServerMessage message = connection.receive();
 				handleMessage(message);
 			}
