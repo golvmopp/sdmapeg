@@ -2,7 +2,6 @@ package se.sdmapeg.server.clients;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.SocketException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -10,10 +9,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.sdmapeg.common.IdGenerator;
-import se.sdmapeg.common.communication.CommunicationException;
 import se.sdmapeg.common.communication.Connection;
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.Task;
+import se.sdmapeg.server.communication.ConnectionAcceptor;
 import se.sdmapeg.server.communication.ConnectionHandler;
 import se.sdmapeg.serverclient.communication.ClientToServerMessage;
 import se.sdmapeg.serverclient.communication.ServerToClientMessage;
@@ -69,7 +68,7 @@ public class ClientManagerImpl implements ClientManager {
 
 	@Override
 	public void disconnectClient(InetAddress clientAddress) {
-		Client client = addressMap.remove(clientAddress);
+		Client client = addressMap.get(clientAddress);
 		if (client == null) {
 			return;
 		}
@@ -79,18 +78,19 @@ public class ClientManagerImpl implements ClientManager {
 	@Override
 	public void start() {
 		if (started.compareAndSet(false, true)) {
-			connectionThreadPool.submit(new ConnectionAcceptor());
+			connectionThreadPool.submit(new ConnectionAcceptor(
+					connectionHandler, new ConnectionAcceptorCallback()));
 		}
 	}
 
 	@Override
-	public State getState() {
+	public ClientManager.State getState() {
 		if (isStopped()) {
-			return State.STOPPED;
+			return ClientManager.State.STOPPED;
 		} else if (isStarted()) {
-			return State.STARTED;
+			return ClientManager.State.STARTED;
 		} else {
-			return State.CREATED;
+			return ClientManager.State.CREATED;
 		}
 	}
 
@@ -120,27 +120,21 @@ public class ClientManagerImpl implements ClientManager {
 		callback.cancelTask(task);
 	}
 
-	private final class ConnectionAcceptor implements Runnable {
+	private final class ConnectionAcceptorCallback
+		implements ConnectionAcceptor.Callback<ServerToClientMessage,
+			ClientToServerMessage> {
 		@Override
-		public void run() {
-			try {
-				while (!Thread.currentThread().isInterrupted()) {
-					Connection<ServerToClientMessage,
-							ClientToServerMessage> connection =
-						connectionHandler.accept();
-					Client client = new ClientImpl(connection,
-							taskIdGenerator, clientCallback);
-					addressMap.put(client.getAddress(), client);
-					connectionThreadPool.submit(new ClientListener(client));
-				}
-			} catch (SocketException ex) {
-				// The connection handler was shut down.
-			} catch (CommunicationException ex) {
-				LOG.error("An error occurred while listening for connections",
-						  ex);
-			} finally {
-				connectionHandlerClosed();
-			}
+		public void connectionReceived(Connection<ServerToClientMessage,
+				ClientToServerMessage> connection) {
+			Client client = new ClientImpl(connection, taskIdGenerator,
+					clientCallback);
+			addressMap.put(client.getAddress(), client);
+			connectionThreadPool.submit(new ClientListener(client));
+		}
+
+		@Override
+		public void connectionHandlerClosed() {
+			ClientManagerImpl.this.connectionHandlerClosed();
 		}
 	}
 
