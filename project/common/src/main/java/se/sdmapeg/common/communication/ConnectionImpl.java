@@ -52,7 +52,6 @@ public final class ConnectionImpl<S extends Message, R extends Message>
 			}
 			catch (IOException ex) {
 				LOG.warn("An error occurred while closing the connection", ex);
-				// Nothing to do here, http://fc06.deviantart.net/fs70/f/2011/288/3/c/nothing_to_do_here_by_rober_raik-d4cxltj.png
 			}
 			throw new CommunicationException(e);
 		}
@@ -69,6 +68,8 @@ public final class ConnectionImpl<S extends Message, R extends Message>
 		try {
 			synchronized (output) {
 				output.writeObject(message);
+				// Make sure that the message is sent immediately
+				output.flush();
 			}
 		}
 		catch (SocketException ex) {
