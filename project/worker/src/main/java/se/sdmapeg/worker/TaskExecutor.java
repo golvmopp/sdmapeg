@@ -40,4 +40,8 @@ public class TaskExecutor {
     public static TaskExecutor newTaskQueue(int poolSize){
 	return new TaskExecutor(poolSize);
     }
+
+	void shutDown() {
+		workerThreadPool.shutdown();
+	}
 }

@@ -162,6 +162,7 @@ public class WorkerImpl implements Worker {
 	public void stop() {
 	    server.disconnect();
 	    serverListenerExecutor.shutdown();
+		taskExecutor.shutDown();
 	    //TODO: Work out better soloution. 
 	}
 }
