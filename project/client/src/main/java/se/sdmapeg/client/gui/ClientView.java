@@ -1,7 +1,6 @@
 package se.sdmapeg.client.gui;
 
 import java.awt.GridLayout;
-import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.concurrent.ExecutionException;
@@ -9,6 +8,7 @@ import java.util.concurrent.ExecutionException;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JTextArea;
 
 import se.sdmapeg.client.ClientImpl;
 import se.sdmapeg.common.tasks.PythonTask;
@@ -73,7 +73,7 @@ public class ClientView implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		Task task = PythonTask.newPythonTask(((TextArea) e.getSource()).getText());
+		Task task = PythonTask.newPythonTask(((JTextArea) e.getSource()).getText());
 		ClientTaskId id = client.addTask(task);
 		client.sendTask(id);
 	}
