@@ -9,5 +9,6 @@ import se.sdmapeg.serverclient.ClientTaskId;
 public interface Client {
 	public ClientTaskId addTask(Task task);
 	public void sendTask(ClientTaskId id);
-	public void receive();
+	public void start();
+	public void shutDown();
 }

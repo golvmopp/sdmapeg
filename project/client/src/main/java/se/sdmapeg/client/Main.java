@@ -19,7 +19,7 @@ public class Main {
 		int port = Integer.parseInt(portString);
 		ClientView view = ClientView.newView();
 		try {
-			ClientImpl.newClientImp(view, host, port).receive();
+			ClientImpl.newClientImp(view, host, port).start();
 		} catch (CommunicationException e) {
 			JOptionPane.showMessageDialog(null, "Could not connect to server.");
 			view.dispose();

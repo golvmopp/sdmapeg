@@ -46,12 +46,14 @@ public class ClientImpl implements Client {
 		view.show(this);
 	}
 
+	@Override
 	public ClientTaskId addTask(Task task) {
 		ClientTaskId id = idGenerator.newId();
 		taskMap.put(id, task);
 		return id;
 	}
 
+	@Override
 	public void sendTask(ClientTaskId id) {
 		try {
 			server.send(TaskMessage.newTaskMessage(taskMap.get(id), id));
@@ -60,12 +62,13 @@ public class ClientImpl implements Client {
 		}
 	}
 
-	public void receive() {
+	@Override
+	public void start() {
 		executorService.execute(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					while (!Thread.currentThread().isInterrupted()) {
+					while (true) {
 						ServerToClientMessage message = server.receive();
 						message.accept(new ServerMessageHandler());
 					}
@@ -76,6 +79,11 @@ public class ClientImpl implements Client {
 				}
 			}
 		});
+	}
+
+	@Override
+	public void shutDown() {
+		server.disconnect();
 	}
 
 	private void handleResult(ClientTaskId id, Result<?> result) {
