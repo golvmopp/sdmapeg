@@ -1,8 +1,6 @@
 package se.sdmapeg.client;
 
 import javax.swing.JOptionPane;
-
-import com.sun.deploy.trace.LoggerTraceListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.sdmapeg.client.gui.ClientView;
