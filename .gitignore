@@ -23,6 +23,7 @@ nb-configuration.xml
 *.iml
 *.iws
 .DS_Store
+*.sh
 log/
 target/
 bin/
