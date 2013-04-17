@@ -92,6 +92,12 @@ public class WorkerImpl implements Worker {
 	    WorkerToServerMessage resultMessage = ResultMessage.newResultMessage(taskId, result);
 	    FutureTask<Void> futureTask = taskMap.remove(taskId); 
 	    idMap.remove(futureTask);
+		try {
+		server.send(resultMessage);
+		} catch (CommunicationException ex) {
+			server.disconnect();
+			// TODO: log this
+		}
 	}
 
 	private void stealTasks(int desired) {
