@@ -6,6 +6,7 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import se.sdmapeg.common.tasks.Task;
+import se.sdmapeg.serverworker.TaskId;
 
 public class TaskQueue {
 
@@ -22,9 +23,10 @@ public class TaskQueue {
 	workerThreadpool.submit(task);
     }
     
-    public void stealTask(){
+    public FutureTask stealTask(TaskId taskId){
 	
     }
+    
     
     public static TaskQueue newTaskQueue(ExecutorService threadPool){
 	return new TaskQueue(threadPool);
