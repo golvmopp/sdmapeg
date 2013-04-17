@@ -58,13 +58,14 @@ class ClientImpl implements Client {
 	@Override
 	public void listen() {
 		try {
+			LOG.info("Listening to {}", this);
 			while (true) {
 				ClientToServerMessage message = connection.receive();
 				handleMessage(message);
 			}
 		} catch (ConnectionClosedException ex) {
 			LOG.info("{} disconnected", this);
-		} catch (CommunicationException ex) {
+		} catch (Exception ex) {
 			LOG.error("An error occurred while listening for messages", ex);
 		} finally {
 			disconnect();

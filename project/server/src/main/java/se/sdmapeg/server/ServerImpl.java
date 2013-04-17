@@ -17,6 +17,7 @@ import se.sdmapeg.server.workers.WorkerCoordinatorImpl;
 import se.sdmapeg.serverclient.communication.ClientToServerMessage;
 import se.sdmapeg.serverclient.communication.ServerToClientMessage;
 import se.sdmapeg.serverworker.TaskId;
+import se.sdmapeg.serverworker.TaskIdGenerator;
 import se.sdmapeg.serverworker.communication.ServerToWorkerMessage;
 import se.sdmapeg.serverworker.communication.WorkerToServerMessage;
 
@@ -25,11 +26,11 @@ import se.sdmapeg.serverworker.communication.WorkerToServerMessage;
  * @author niclas
  */
 public class ServerImpl implements Server {
-	private static final int CLIENT_PORT = 666666;
-	private static final int WORKER_PORT = 666667;
+	private static final int CLIENT_PORT = 6666;
+	private static final int WORKER_PORT = 6667;
 	private final ExecutorService connectionThreadPool =
 		Executors.newCachedThreadPool();
-	private final IdGenerator<TaskId> taskIdGenerator = null;
+	private final IdGenerator<TaskId> taskIdGenerator = new TaskIdGenerator();
 	private final ClientManager clientManager;
 	private final WorkerCoordinator workerCoordinator;
 
@@ -67,6 +68,7 @@ public class ServerImpl implements Server {
 	public void shutDown() {
 		clientManager.shutDown();
 		workerCoordinator.shutDown();
+		connectionThreadPool.shutdown();
 	}
 
 	private final class ClientsCallback implements ClientManagerCallback {

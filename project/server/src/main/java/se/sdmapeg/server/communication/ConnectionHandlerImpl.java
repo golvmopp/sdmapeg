@@ -32,6 +32,8 @@ public final class ConnectionHandlerImpl implements ConnectionHandler {
 	public Connection accept() throws CommunicationException, SocketException {
 		try {
 			return ConnectionImpl.newConnection(serverSocket.accept());
+		} catch (SocketException e) {
+			throw e;
 		} catch(IOException e) {
 			throw new CommunicationException(e);
 		}

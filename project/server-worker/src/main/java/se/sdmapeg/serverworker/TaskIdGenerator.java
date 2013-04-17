@@ -8,11 +8,11 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Implementation of IdGenerator for TaskIds.
  */
-public class TaskIdGenerator implements IdGenerator {
+public class TaskIdGenerator implements IdGenerator<TaskId> {
 	private AtomicLong idCount = new AtomicLong(0L);
 
 	@Override
-	public Id newId() {
+	public TaskId newId() {
 		return TaskIdImpl.getId(idCount.getAndIncrement());
 	}
 

@@ -54,6 +54,7 @@ public class ClientManagerImpl implements ClientManager {
 			return;
 		}
 		client.taskCompleted(taskId, result);
+		LOG.info("Result for Task {} sent to {}", taskId, client);
 	}
 
 	@Override
@@ -80,6 +81,7 @@ public class ClientManagerImpl implements ClientManager {
 		if (started.compareAndSet(false, true)) {
 			connectionThreadPool.submit(new ConnectionAcceptor(
 					connectionHandler, new ConnectionAcceptorCallback()));
+			LOG.info("Client Manager Started");
 		}
 	}
 
@@ -105,6 +107,7 @@ public class ClientManagerImpl implements ClientManager {
 		for (Client client : addressMap.values()) {
 			client.disconnect();
 		}
+		LOG.info("Client Manager Stopped");
 	}
 
 	private boolean isStopped() {
@@ -128,6 +131,7 @@ public class ClientManagerImpl implements ClientManager {
 				ClientToServerMessage> connection) {
 			Client client = new ClientImpl(connection, taskIdGenerator,
 					clientCallback);
+			LOG.info("{} connected", client);
 			addressMap.put(client.getAddress(), client);
 			connectionThreadPool.submit(new ClientListener(client));
 		}
@@ -157,11 +161,13 @@ public class ClientManagerImpl implements ClientManager {
 		public void taskReceived(Client client, TaskId taskId,
 				Task<?> task) {
 			taskMap.put(taskId, client);
+			LOG.info("Task {} received from {}", taskId, client);
 			callback.handleTask(taskId, task);
 		}
 
 		@Override
 		public void taskCancelled(Client client, TaskId taskId) {
+			LOG.info("Task {} cancelled by {}", taskId, client);
 			cancelTask(taskId);
 		}
 
