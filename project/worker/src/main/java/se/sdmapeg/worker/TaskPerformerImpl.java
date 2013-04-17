@@ -7,7 +7,7 @@ import se.sdmapeg.common.tasks.TaskPerformer;
 /**
  * An implementation of a task performer.
  */
-public final class TaskPerformerImpl<T, R> implements TaskPerformer {
+public final class TaskPerformerImpl implements TaskPerformer {
 
     @Override
     public Result<String> performPythonTask(PythonTask pythonCode) {
