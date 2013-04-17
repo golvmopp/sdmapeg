@@ -2,11 +2,11 @@ package se.sdmapeg.client;
 
 import java.io.IOException;
 import java.net.InetAddress;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import se.sdmapeg.common.communication.CommunicationException;
-
 import se.sdmapeg.common.communication.Connection;
 import se.sdmapeg.common.communication.ConnectionClosedException;
 import se.sdmapeg.serverclient.communication.ClientToServerMessage;

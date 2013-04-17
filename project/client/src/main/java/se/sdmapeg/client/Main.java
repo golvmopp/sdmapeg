@@ -1,9 +1,9 @@
 package se.sdmapeg.client;
 
+import javax.swing.JOptionPane;
+
 import se.sdmapeg.client.gui.ClientView;
 import se.sdmapeg.common.communication.CommunicationException;
-
-import javax.swing.*;
 
 public class Main {
 	public static void main(String[] args) {

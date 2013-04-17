@@ -4,13 +4,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-
-import se.sdmapeg.common.tasks.Task;
-import se.sdmapeg.serverworker.TaskId;
 
 public class TaskExecutor {
 
