@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
 import se.sdmapeg.common.communication.CommunicationException;
@@ -23,37 +25,40 @@ import se.sdmapeg.serverworker.communication.WorkerToServerMessage;
  * Actual implementation of the Worker in the worker module.
  */
 public class WorkerImpl implements Worker {
-	//private final ExecutorService workerThreadPool;
+	private final ExecutorService serverListenerExecutor;
     	private final TaskExecutor taskExecutor;
 	private final Server server;
 	private final TaskPerformer taskPerformer;
 	private final Map<TaskId, FutureTask<Void>> taskMap =
 		new ConcurrentHashMap<>();
 	private final Map<Runnable, TaskId> idMap = new ConcurrentHashMap<>();
+	
 
 	private WorkerImpl(int poolSize, Server server,
 					  TaskPerformer taskPerformer) {
+	    	this.serverListenerExecutor = Executors.newSingleThreadExecutor();
 		this.taskExecutor = TaskExecutor.newTaskQueue(poolSize);
 		this.server = server;
 		this.taskPerformer = taskPerformer;
 	}
 
-	/**
-	 * Listens for new work to collect from the server. 
-	 */
-	public void listen() {
-	    while (true) {
+	private void listen() {
+	    
 		try {
+		    while (true) {
 			ServerToWorkerMessage message = server.receive();
 			// Send a message handler to the accept method, and let the
 			// message worry about calling the right method.
 			message.accept(new MessageHandler());
+		    }
 		} catch (ConnectionClosedException ex) {
-			break;
+		    server.disconnect();
+		    //TODO: Log it!
 		} catch (CommunicationException ex) {
-			
+		    //TODO: Log it!
+		    server.disconnect();
 		}
-	}
+	
 	}
 
 	private void cancelTask(TaskId taskId) {
@@ -107,10 +112,10 @@ public class WorkerImpl implements Worker {
 	    return new WorkerImpl(poolSize, server, taskPerformer);
 	}
 
-	private final class TaskMessageListener implements Runnable {
+	private final class MessageListener implements Runnable {
 		@Override
 		public void run() {
-			
+			listen();
 		}
 	}
 
@@ -146,5 +151,17 @@ public class WorkerImpl implements Worker {
 			Result<?> result = performTask(task);
 			completeTask(taskId, result);
 		}
+	}
+
+	@Override
+	public void start() {
+	    serverListenerExecutor.submit(new MessageListener());
+	}
+
+	@Override
+	public void stop() {
+	    server.disconnect();
+	    serverListenerExecutor.shutdown();
+	    //TODO: Work out better soloution. 
 	}
 }
