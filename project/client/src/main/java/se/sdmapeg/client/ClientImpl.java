@@ -25,7 +25,7 @@ import se.sdmapeg.serverclient.communication.TaskMessage;
 
 public class ClientImpl implements Client {
 	private static final Logger LOG = LoggerFactory.getLogger(ClientImpl.class);
-	private final ExecutorService executorService;
+	private final ExecutorService serverListenerExecutor;
 	private final Server server;
 	private final Map<ClientTaskId, Task<?>> taskMap;
 	private final Map<ClientTaskId, Result<?>> resultMap;
@@ -38,7 +38,7 @@ public class ClientImpl implements Client {
 		} catch (CommunicationException|IOException e) {
 			throw new CommunicationException();
 		}
-		executorService = Executors.newCachedThreadPool();
+		serverListenerExecutor = Executors.newSingleThreadExecutor();
 		taskMap = new ConcurrentHashMap<>();
 		resultMap = new ConcurrentHashMap<>();
 		idGenerator = new ClientTaskIdGenerator();
@@ -46,12 +46,14 @@ public class ClientImpl implements Client {
 		view.show(this);
 	}
 
+	@Override
 	public ClientTaskId addTask(Task task) {
 		ClientTaskId id = idGenerator.newId();
 		taskMap.put(id, task);
 		return id;
 	}
 
+	@Override
 	public void sendTask(ClientTaskId id) {
 		try {
 			server.send(TaskMessage.newTaskMessage(taskMap.get(id), id));
@@ -60,12 +62,13 @@ public class ClientImpl implements Client {
 		}
 	}
 
-	public void receive() {
-		executorService.execute(new Runnable() {
+	@Override
+	public void start() {
+		serverListenerExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					while (!Thread.currentThread().isInterrupted()) {
+					while (true) {
 						ServerToClientMessage message = server.receive();
 						message.accept(new ServerMessageHandler());
 					}
@@ -76,6 +79,12 @@ public class ClientImpl implements Client {
 				}
 			}
 		});
+	}
+
+	@Override
+	public void shutDown() {
+		server.disconnect();
+		serverListenerExecutor.shutdown();
 	}
 
 	private void handleResult(ClientTaskId id, Result<?> result) {

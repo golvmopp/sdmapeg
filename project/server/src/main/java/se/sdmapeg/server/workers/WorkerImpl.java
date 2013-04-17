@@ -102,6 +102,7 @@ public final class WorkerImpl implements Worker {
 
 	@Override
 	public void listen() {
+		LOG.info("Listening to {}", this);
 		try {
 			while (true) {
 				WorkerToServerMessage message = connection.receive();
@@ -109,7 +110,7 @@ public final class WorkerImpl implements Worker {
 			}
 		} catch (ConnectionClosedException ex) {
 			LOG.info("{} disconnected", this);
-		} catch (CommunicationException ex) {
+		} catch (Exception ex) {
 			LOG.error("An error occurred while listening for messages", ex);
 		} finally {
 			synchronized (taskAssignmentLock) {

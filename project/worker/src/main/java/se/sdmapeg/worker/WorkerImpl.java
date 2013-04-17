@@ -1,8 +1,12 @@
 package se.sdmapeg.worker;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
 import se.sdmapeg.common.communication.CommunicationException;
@@ -21,39 +25,58 @@ import se.sdmapeg.serverworker.communication.WorkerToServerMessage;
  * Actual implementation of the Worker in the worker module.
  */
 public class WorkerImpl implements Worker {
-	//private final ExecutorService workerThreadPool;
+	private final ExecutorService serverListenerExecutor;
     	private final TaskExecutor taskExecutor;
 	private final Server server;
 	private final TaskPerformer taskPerformer;
 	private final Map<TaskId, FutureTask<Void>> taskMap =
 		new ConcurrentHashMap<>();
+	private final Map<Runnable, TaskId> idMap = new ConcurrentHashMap<>();
+	
 
-	public WorkerImpl(int poolSize, Server server,
+	private WorkerImpl(int poolSize, Server server,
 					  TaskPerformer taskPerformer) {
+	    	this.serverListenerExecutor = Executors.newSingleThreadExecutor();
 		this.taskExecutor = TaskExecutor.newTaskQueue(poolSize);
 		this.server = server;
 		this.taskPerformer = taskPerformer;
 	}
 
-	public void run() {
-		new TaskMessageListener().run();
+	private void listen() {
+	    
+		try {
+		    while (true) {
+			ServerToWorkerMessage message = server.receive();
+			// Send a message handler to the accept method, and let the
+			// message worry about calling the right method.
+			message.accept(new MessageHandler());
+		    }
+		} catch (ConnectionClosedException ex) {
+		    server.disconnect();
+		    //TODO: Log it!
+		} catch (CommunicationException ex) {
+		    //TODO: Log it!
+		    server.disconnect();
+		}
+	
 	}
 
 	private void cancelTask(TaskId taskId) {
-		FutureTask<Void> task = taskMap.remove(taskId);
-		if(task == null) {
+		FutureTask<Void> futureTask = taskMap.remove(taskId);
+		idMap.remove(futureTask);
+		if(futureTask == null) {
 			return;
 		}
-		task.cancel(true);
+		futureTask.cancel(true);
 	}
 
 	private void runTask(TaskId taskId, Task<?> task) {
 		FutureTask<Void> futureTask = new FutureTask<>(new TaskRunner(taskId,
 				task), null);
 		taskMap.put(taskId, futureTask);
-		//workerThreadPool.submit(futureTask);
-		//taskExecutor.submit();
-	}
+		idMap.put(futureTask, taskId);
+		taskExecutor.submit(futureTask);
+	}	//TODO: Make an adapter for task -> runnable
 
 	private <R> Result<R> performTask(Task<R> task) {
 		Result<R> result;
@@ -67,29 +90,38 @@ public class WorkerImpl implements Worker {
 
 	private void completeTask(TaskId taskId, Result<?> result) {
 	    WorkerToServerMessage resultMessage = ResultMessage.newResultMessage(taskId, result);
-	    taskMap.remove(taskId); 
+	    FutureTask<Void> futureTask = taskMap.remove(taskId); 
+	    idMap.remove(futureTask);
+		try {
+		server.send(resultMessage);
+		} catch (CommunicationException ex) {
+			server.disconnect();
+			// TODO: log this
+		}
 	}
 
-	private final class TaskMessageListener implements Runnable {
+	private void stealTasks(int desired) {
+	    Set<Runnable> runnables = taskExecutor.stealTasks(desired);
+	    Set<TaskId> stolenTasks = new HashSet<>();
+	    for (Runnable runnable : runnables) {
+		TaskId taskId = idMap.remove(runnable);
+		taskMap.remove(taskId);
+		if (taskId != null) {
+		    stolenTasks.add(taskId);
+		}
+	    }
+	    // TODO: Send stolen tasks to server
+	}
+	
+	public static WorkerImpl newWorkerImpl(int poolSize, Server server,
+					  TaskPerformer taskPerformer){
+	    return new WorkerImpl(poolSize, server, taskPerformer);
+	}
+
+	private final class MessageListener implements Runnable {
 		@Override
 		public void run() {
-			while (true) {
-				try {
-					ServerToWorkerMessage message = server.receive();
-					// Send a message handler to the accept method, and let the
-					// message worry about calling the right method.
-					message.accept(new MessageHandler());
-				} catch (ConnectionClosedException ex) {
-					break;
-				} catch (CommunicationException ex) {
-					try {
-					    // Sleep for one second if no task is found. 
-						Thread.sleep(1000);
-					} catch (InterruptedException ex1) {
-						break;
-					}
-				}
-			}
+			listen();
 		}
 	}
 
@@ -125,5 +157,18 @@ public class WorkerImpl implements Worker {
 			Result<?> result = performTask(task);
 			completeTask(taskId, result);
 		}
+	}
+
+	@Override
+	public void start() {
+	    serverListenerExecutor.submit(new MessageListener());
+	}
+
+	@Override
+	public void stop() {
+	    server.disconnect();
+	    serverListenerExecutor.shutdown();
+		taskExecutor.shutDown();
+	    //TODO: Work out better soloution. 
 	}
 }

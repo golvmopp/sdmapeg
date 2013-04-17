@@ -1,8 +1,6 @@
 package se.sdmapeg.client;
 
 import javax.swing.JOptionPane;
-
-import com.sun.deploy.trace.LoggerTraceListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.sdmapeg.client.gui.ClientView;
@@ -21,7 +19,7 @@ public class Main {
 		int port = Integer.parseInt(portString);
 		ClientView view = ClientView.newView();
 		try {
-			ClientImpl.newClientImp(view, host, port).receive();
+			ClientImpl.newClientImp(view, host, port).start();
 		} catch (CommunicationException e) {
 			JOptionPane.showMessageDialog(null, "Could not connect to server.");
 			view.dispose();
