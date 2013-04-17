@@ -31,13 +31,11 @@ public class ClientImpl implements Client {
 	private final IdGenerator<ClientTaskId> idGenerator;
 	private final ClientView view;
 
-	private ClientImpl(ClientView view, String host, int port) {
+	private ClientImpl(ClientView view, String host, int port) throws CommunicationException {
 		try {
-			// TODO: Fix connection
 			server = ServerImpl.newServer(ConnectionImpl.newConnection(new Socket(host, port)));
 		} catch (CommunicationException|IOException e) {
-			// TODO: throw a better exception
-			throw new AssertionError(e);
+			throw new CommunicationException();
 		}
 		executorService = Executors.newCachedThreadPool();
 		taskMap = new ConcurrentHashMap<>();
@@ -88,7 +86,7 @@ public class ClientImpl implements Client {
 		view.showResult(resultMap.get(id));
 	}
 
-	public static Client newClientImp(ClientView view, String host, int port) {
+	public static Client newClientImp(ClientView view, String host, int port) throws CommunicationException {
 		return new ClientImpl(view, host, port);
 	}
 

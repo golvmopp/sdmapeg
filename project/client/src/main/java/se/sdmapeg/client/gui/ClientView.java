@@ -21,7 +21,7 @@ public class ClientView implements ActionListener {
 
 	private ClientView() {
 		frame = new JFrame("Client");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.setLayout(new GridLayout(2, 1));
 
 		JButton pythonTaskButton = new JButton("Create a task");
@@ -61,6 +61,10 @@ public class ClientView implements ActionListener {
 		} catch (ExecutionException e) {
 			JOptionPane.showMessageDialog(frame, "Something went wrong when running the task.");
 		}
+	}
+
+	public void dispose() {
+		frame.dispose();
 	}
 
 	@Override
