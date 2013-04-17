@@ -1,17 +1,15 @@
 package se.sdmapeg.server.workers;
 
-import java.io.IOException;
 import java.net.InetAddress;
-
-import se.sdmapeg.common.communication.CommunicationException;
-import se.sdmapeg.common.communication.ConnectionClosedException;
-import se.sdmapeg.serverworker.ServerToWorkerMessage;
-import se.sdmapeg.serverworker.WorkerToServerMessage;
+import java.util.Set;
+import se.sdmapeg.common.tasks.Result;
+import se.sdmapeg.common.tasks.Task;
+import se.sdmapeg.serverworker.TaskId;
 
 /**
- * Represents the client. Handles communication between Server and Client.
+ * Represents a worker. Handles communication between Server and Worker.
  */
-public interface Worker {
+interface Worker {
 	/**
 	 * returns the address of the worker.
 	 *
@@ -20,24 +18,72 @@ public interface Worker {
 	InetAddress getAddress();
 
 	/**
-	 * Sends a message from server to worker.
+	 * Attempts to assign a task to this Worker, and returns true if the
+	 * assignment was successful. The worker will attempt to perform the
+	 * task and then return its result through the taskCompleted method of the
+	 * Callback. If the task could not be assigned for some reason (e.g. due to
+	 * the worker being shut down), this method will return false, and no side
+	 * effects of assigning the task will be seen. If the task is successfully
+	 * assigned it will be present in the Set returned by getActiveTasks until
+	 * it has been successfully completed.
 	 *
-	 * @param message message to send
-	 * @throws CommunicationException if an error occurred
-	 * @throws ConnectionClosedException if the connection was closed
+	 * @param taskId the TaskId of the task
+	 * @param task the Task to assign this worker
 	 */
-	void send(ServerToWorkerMessage message) throws CommunicationException,
-													ConnectionClosedException;
+	boolean assignTask(TaskId taskId, Task<?> task);
 
 	/**
-	 * Receives a message from the worker. This method blocks until a message has been received
+	 * Cancels the execution of the task with the specified TaskId. If the task
+	 * has already begun executing, an attempt to abort it will be made.
 	 *
-	 * @return received message
-	 * @throws CommunicationException if an error occurred
-	 * @throws ConnectionClosedException if the connection was closed
+	 * @param taskId the TaskId of the task to cancel
 	 */
-	WorkerToServerMessage receive() throws CommunicationException,
-										   ConnectionClosedException;
+	void cancelTask(TaskId taskId);
+
+	/**
+	 * Returns an immutable snapshot of the IDs of all currently active tasks.
+	 * An active task is a task that has been assigned to this worker but not
+	 * yet completed or cancelled.
+	 *
+	 * @return a snapshot of all currently active tasks
+	 */
+	Set<TaskId> getActiveTasks();
+
+	/**
+	 * Returns the current load on this worker. The load is the number of tasks
+	 * assigned to this worker minus this worker's known parallel work capacity.
+	 * In other words; the load is the amount of excess work that this worker
+	 * has queued up. Note that the load may also be negative, if the worker
+	 * does not have enough tasks assigned to work at full capacity.
+	 *
+	 * @return the current workload on this worker
+	 */
+	int getLoad();
+
+	/**
+	 * Attempts to steal a number of tasks from this worker's work queue. This
+	 * method will cause the worker to cancel at most a number equal to the
+	 * specified maximum number of tasks which are currently queued to be
+	 * performed by the worker. The taskStolen method of the Callback will
+	 * be invoked for each cancelled task. Note that the max parameter
+	 * specified the <b>maximum</b> number of tasks to cancel; it is perfectly
+	 * acceptable for a worker to cancel fewer or none at all.
+	 *
+	 * @param max the maximum number of tasks to steal
+	 */
+	void stealTasks(int max);
+
+	/**
+	 * Continually listens to input from this Worker, and calls the appropriate
+	 * methods of the Callback when an input has been received. The methods of
+	 * the callback will only be called while a thread is running this method,
+	 * and will only ever be called by that thread, if the callback is not
+	 * shared with other objects. This method will keep running until this
+	 * Worker is disconnected, and will always end with calling the
+	 * workerDisconnected method of the Callback with this Worker as the
+	 * argument.
+	 */
+	void listen();
 
 	/**
 	 * Disconnects the worker.
@@ -50,4 +96,49 @@ public interface Worker {
 	 * @return number of processor cores in the worker
 	 */
 	int getParallellWorkCapacity();
+
+	/**
+	 * Returns true if this Worker is currently accepting work. While this
+	 * method returns false, all calls to assignTask will also return false.
+	 *
+	 * @return whether this Worker is currently accepting new tasks 
+	 */
+	boolean isAcceptingWork();
+
+	/**
+	 * A callback for providing asynchronous responses to commands sent to a
+	 * Worker.
+	 */
+	interface Callback {
+		/**
+		 * Called to indicate that the specified Worker has completed the task
+		 * with the specified TaskId.
+		 *
+		 * @param worker the Worker which completed the task
+		 * @param taskId the id of the completed task
+		 * @param result the result of the completed task
+		 */
+		void taskCompleted(Worker worker, TaskId taskId, Result<?> result);
+		/**
+		 * Called to indicate that the task with the specified TaskId was
+		 * successfully stolen from the specified Worker.
+		 *
+		 * @param worker the Worker from which the task was stolen
+		 * @param taskId the id of the stolen task
+		 */
+		void taskStolen(Worker worker, TaskId taskId);
+
+		/**
+		 * Called to indicate that the specified Worker has disconnected.
+		 *
+		 * @param worker the Worker which was disconnected
+		 */
+		void workerDisconnected(Worker worker);
+
+		/**
+		 * Called to indicate that the specified worker has a shortage of work
+		 * and is requesting more tasks to perform.
+		 */
+		void workRequested(Worker worker);
+	}
 }

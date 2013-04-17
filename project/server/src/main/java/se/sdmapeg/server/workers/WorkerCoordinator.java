@@ -19,6 +19,13 @@ public interface WorkerCoordinator {
 	void handleTask(TaskId taskId, Task<?> task);
 
 	/**
+	 * Cancels the task with the specified TaskId.
+	 *
+	 * @param taskId the id of the task to cancel
+	 */
+	void cancelTask(TaskId taskId);
+
+	/**
 	 * Shuts down this WorkerCoordinator. By disconnecting all workers and stops listening to new connections.
 	 */
 	void shutDown();

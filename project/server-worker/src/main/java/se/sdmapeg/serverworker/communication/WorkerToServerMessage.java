@@ -23,5 +23,11 @@ public interface WorkerToServerMessage extends Message {
 	     */
 	    T handle(ResultMessage message);
 
+		/**
+		 * Handles a WorkerIdentification.
+		 *
+		 * @param message the message to handle
+		 */
+		T handle(WorkerIdentification message);
 	}
 }
