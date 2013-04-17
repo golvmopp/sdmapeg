@@ -19,15 +19,15 @@ import se.sdmapeg.serverworker.*;
  */
 public class WorkerImpl implements Worker {
 	//private final ExecutorService workerThreadPool;
-    	private final TaskQueue taskQueue;
+    	private final TaskExecutor taskExecutor;
 	private final Server server;
 	private final TaskPerformer taskPerformer;
 	private final Map<TaskId, FutureTask<Void>> taskMap =
 		new ConcurrentHashMap<>();
 
-	public WorkerImpl(ExecutorService workerThreadPool, Server server,
+	public WorkerImpl(int poolSize, Server server,
 					  TaskPerformer taskPerformer) {
-		this.taskQueue = TaskQueue.newTaskQueue(workerThreadPool);
+		this.taskExecutor = TaskExecutor.newTaskQueue(poolSize);
 		this.server = server;
 		this.taskPerformer = taskPerformer;
 	}
@@ -49,7 +49,7 @@ public class WorkerImpl implements Worker {
 				task), null);
 		taskMap.put(taskId, futureTask);
 		//workerThreadPool.submit(futureTask);
-		taskQueue.addToQueue(futureTask);
+		//taskExecutor.submit();
 	}
 
 	private <R> Result<R> performTask(Task<R> task) {
