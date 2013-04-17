@@ -1,14 +1,11 @@
 package se.sdmapeg.worker;
 
-import java.io.IOException;
-
-import se.sdmapeg.serverworker.ServerToWorkerMessage;
-import se.sdmapeg.serverworker.WorkerToServerMessage;
-
 import java.net.InetAddress;
 
 import se.sdmapeg.common.communication.CommunicationException;
 import se.sdmapeg.common.communication.ConnectionClosedException;
+import se.sdmapeg.serverworker.ServerToWorkerMessage;
+import se.sdmapeg.serverworker.WorkerToServerMessage;
 
 /**
  * Represents the server. Handles communication between Worker and Server.

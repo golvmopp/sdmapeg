@@ -3,7 +3,6 @@ package se.sdmapeg.worker;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.FutureTask;
 
 import se.sdmapeg.common.communication.CommunicationException;
@@ -12,7 +11,11 @@ import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.SimpleFailure;
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.common.tasks.TaskPerformer;
-import se.sdmapeg.serverworker.*;
+import se.sdmapeg.serverworker.ResultMessage;
+import se.sdmapeg.serverworker.ServerToWorkerMessage;
+import se.sdmapeg.serverworker.TaskId;
+import se.sdmapeg.serverworker.TaskMessage;
+import se.sdmapeg.serverworker.WorkerToServerMessage;
 
 /**
  * Actual implementation of the Worker in the worker module.

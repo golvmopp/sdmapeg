@@ -1,7 +1,15 @@
 package se.sdmapeg.client;
 
+import java.io.IOException;
+import java.net.Socket;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import se.sdmapeg.client.gui.ClientView;
 import se.sdmapeg.common.IdGenerator;
 import se.sdmapeg.common.communication.CommunicationException;
@@ -14,13 +22,6 @@ import se.sdmapeg.serverclient.ClientTaskIdGenerator;
 import se.sdmapeg.serverclient.communication.ResultMessage;
 import se.sdmapeg.serverclient.communication.ServerToClientMessage;
 import se.sdmapeg.serverclient.communication.TaskMessage;
-
-import java.io.IOException;
-import java.net.Socket;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class ClientImpl implements Client {
 	private static final Logger LOG = LoggerFactory.getLogger(ClientImpl.class);

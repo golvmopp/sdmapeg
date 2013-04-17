@@ -1,11 +1,9 @@
 package se.sdmapeg.client;
 
 import java.net.InetAddress;
-import java.nio.channels.ConnectionPendingException;
 
 import se.sdmapeg.common.communication.CommunicationException;
 import se.sdmapeg.common.communication.ConnectionClosedException;
-
 import se.sdmapeg.serverclient.communication.ClientToServerMessage;
 import se.sdmapeg.serverclient.communication.ServerToClientMessage;
 
