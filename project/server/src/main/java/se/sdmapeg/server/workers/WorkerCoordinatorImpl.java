@@ -65,6 +65,7 @@ public class WorkerCoordinatorImpl implements WorkerCoordinator {
 				return;
 			}
 		} while (!worker.assignTask(taskId, task));
+		LOG.info("Task {} sent to {}", taskId, worker);
 		taskAssignmentMap.put(taskId, worker);
 	}
 
@@ -99,6 +100,7 @@ public class WorkerCoordinatorImpl implements WorkerCoordinator {
 		if (started.compareAndSet(false, true)) {
 			connectionThreadPool.submit(new ConnectionAcceptor(
 					connectionHandler, new ConnectionAcceptorCallback()));
+			LOG.info("Worker Coordinator Started.");
 		}
 	}
 
@@ -164,6 +166,7 @@ public class WorkerCoordinatorImpl implements WorkerCoordinator {
 		for (Worker worker : addressMap.values()) {
 			worker.disconnect();
 		}
+		LOG.info("Worker Coordinator Stopped");
 	}
 
 	private void reassignTask(TaskId taskId) {
@@ -238,6 +241,7 @@ public class WorkerCoordinatorImpl implements WorkerCoordinator {
 		public void connectionReceived(Connection<ServerToWorkerMessage,
 				WorkerToServerMessage> connection) {
 			Worker worker = new WorkerImpl(connection, workerCallback);
+			LOG.info("{} connected", worker);
 			addressMap.put(worker.getAddress(), worker);
 			connectionThreadPool.submit(new WorkerListener(worker));
 		}
@@ -268,11 +272,13 @@ public class WorkerCoordinatorImpl implements WorkerCoordinator {
 				Result<?> result) {
 			taskAssignmentMap.remove(taskId);
 			taskMap.remove(taskId);
+			LOG.info("Task {} completed by {}", taskId, worker);
 			callback.handleResult(taskId, result);
 		}
 
 		@Override
 		public void taskStolen(Worker worker, TaskId taskId) {
+			LOG.info("Task {} stolen from {}", taskId, worker);
 			reassignTask(taskId);
 		}
 
@@ -280,6 +286,7 @@ public class WorkerCoordinatorImpl implements WorkerCoordinator {
 		public void workerDisconnected(Worker worker) {
 			addressMap.remove(worker.getAddress());
 			for (TaskId taskId : worker.getActiveTasks()) {
+				LOG.info("Reassigning task {} from {}", taskId, worker);
 				reassignTask(taskId);
 			}
 		}
@@ -287,6 +294,7 @@ public class WorkerCoordinatorImpl implements WorkerCoordinator {
 		@Override
 		public void workRequested(Worker worker) {
 			stealTasks(worker.getParallellWorkCapacity());
+			LOG.info("Work requested by {}", worker);
 		}
 	}
 }
