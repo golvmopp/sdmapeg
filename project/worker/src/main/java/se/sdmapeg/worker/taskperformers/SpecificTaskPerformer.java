@@ -1,4 +1,4 @@
-package se.sdmapeg.worker;
+package se.sdmapeg.worker.taskperformers;
 
 import java.util.concurrent.ExecutionException;
 import se.sdmapeg.common.tasks.Task;

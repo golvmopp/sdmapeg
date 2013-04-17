@@ -1,8 +1,9 @@
 package se.sdmapeg.worker;
 
-import se.sdmapeg.common.tasks.PythonTask;
-import se.sdmapeg.common.tasks.Result;
-import se.sdmapeg.common.tasks.TaskPerformer;
+import se.sdmapeg.common.tasks.*;
+import se.sdmapeg.worker.taskperformers.PythonTaskPerformer;
+
+import java.util.concurrent.ExecutionException;
 
 /**
  * An implementation of a task performer.
@@ -11,6 +12,10 @@ public final class TaskPerformerImpl implements TaskPerformer {
 
     @Override
     public Result<String> performPythonTask(PythonTask pythonCode) {
-	return null;
+	    try {
+		    return new SimpleResult<>(PythonTaskPerformer.execute(pythonCode.getPythonCode()));
+	    } catch (ExecutionException e) {
+		    return new SimpleFailure<>(e);
+	    }
     }
 }
