@@ -24,7 +24,13 @@ public class ClientView implements ActionListener {
 	private ClientImpl client;
 
 	private ClientView() {
-		frame = new JFrame("Client");
+		frame = new JFrame("Client") {
+			@Override
+			public void dispose() {
+				client.shutDown();
+				super.dispose();
+			}
+		};
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		frame.setLayout(new GridLayout(2, 1));
 
@@ -40,7 +46,7 @@ public class ClientView implements ActionListener {
 		exitButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.exit(0);
+				frame.dispose();
 			}
 		});
 

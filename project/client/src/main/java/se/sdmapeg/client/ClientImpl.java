@@ -84,6 +84,7 @@ public class ClientImpl implements Client {
 	@Override
 	public void shutDown() {
 		server.disconnect();
+		executorService.shutdown();
 	}
 
 	private void handleResult(ClientTaskId id, Result<?> result) {
