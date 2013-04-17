@@ -31,15 +31,29 @@ public class WorkerImpl implements Worker {
 		new ConcurrentHashMap<>();
 	private final Map<Runnable, TaskId> idMap = new ConcurrentHashMap<>();
 
-	public WorkerImpl(int poolSize, Server server,
+	private WorkerImpl(int poolSize, Server server,
 					  TaskPerformer taskPerformer) {
 		this.taskExecutor = TaskExecutor.newTaskQueue(poolSize);
 		this.server = server;
 		this.taskPerformer = taskPerformer;
 	}
 
-	public void run() {
-		new TaskMessageListener().run();
+	/**
+	 * Listens for new work to collect from the server. 
+	 */
+	public void listen() {
+	    while (true) {
+		try {
+			ServerToWorkerMessage message = server.receive();
+			// Send a message handler to the accept method, and let the
+			// message worry about calling the right method.
+			message.accept(new MessageHandler());
+		} catch (ConnectionClosedException ex) {
+			break;
+		} catch (CommunicationException ex) {
+			
+		}
+	}
 	}
 
 	private void cancelTask(TaskId taskId) {
@@ -87,27 +101,16 @@ public class WorkerImpl implements Worker {
 	    }
 	    // TODO: Send stolen tasks to server
 	}
+	
+	public static WorkerImpl newWorkerImpl(int poolSize, Server server,
+					  TaskPerformer taskPerformer){
+	    return new WorkerImpl(poolSize, server, taskPerformer);
+	}
 
 	private final class TaskMessageListener implements Runnable {
 		@Override
 		public void run() {
-			while (true) {
-				try {
-					ServerToWorkerMessage message = server.receive();
-					// Send a message handler to the accept method, and let the
-					// message worry about calling the right method.
-					message.accept(new MessageHandler());
-				} catch (ConnectionClosedException ex) {
-					break;
-				} catch (CommunicationException ex) {
-					try {
-					    // Sleep for one second if no task is found. 
-						Thread.sleep(1000);
-					} catch (InterruptedException ex1) {
-						break;
-					}
-				}
-			}
+			
 		}
 	}
 
