@@ -1,6 +1,8 @@
 package se.sdmapeg.worker;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
@@ -27,6 +29,7 @@ public class WorkerImpl implements Worker {
 	private final TaskPerformer taskPerformer;
 	private final Map<TaskId, FutureTask<Void>> taskMap =
 		new ConcurrentHashMap<>();
+	private final Map<Runnable, TaskId> idMap = new ConcurrentHashMap<>();
 
 	public WorkerImpl(int poolSize, Server server,
 					  TaskPerformer taskPerformer) {
@@ -40,20 +43,21 @@ public class WorkerImpl implements Worker {
 	}
 
 	private void cancelTask(TaskId taskId) {
-		FutureTask<Void> task = taskMap.remove(taskId);
-		if(task == null) {
+		FutureTask<Void> futureTask = taskMap.remove(taskId);
+		idMap.remove(futureTask);
+		if(futureTask == null) {
 			return;
 		}
-		task.cancel(true);
+		futureTask.cancel(true);
 	}
 
 	private void runTask(TaskId taskId, Task<?> task) {
 		FutureTask<Void> futureTask = new FutureTask<>(new TaskRunner(taskId,
 				task), null);
 		taskMap.put(taskId, futureTask);
-		//workerThreadPool.submit(futureTask);
-		//taskExecutor.submit();
-	}
+		idMap.put(futureTask, taskId);
+		taskExecutor.submit(futureTask);
+	}	//TODO: Make an adapter for task -> runnable
 
 	private <R> Result<R> performTask(Task<R> task) {
 		Result<R> result;
@@ -67,7 +71,21 @@ public class WorkerImpl implements Worker {
 
 	private void completeTask(TaskId taskId, Result<?> result) {
 	    WorkerToServerMessage resultMessage = ResultMessage.newResultMessage(taskId, result);
-	    taskMap.remove(taskId); 
+	    FutureTask<Void> futureTask = taskMap.remove(taskId); 
+	    idMap.remove(futureTask);
+	}
+
+	private void stealTasks(int desired) {
+	    Set<Runnable> runnables = taskExecutor.stealTasks(desired);
+	    Set<TaskId> stolenTasks = new HashSet<>();
+	    for (Runnable runnable : runnables) {
+		TaskId taskId = idMap.remove(runnable);
+		taskMap.remove(taskId);
+		if (taskId != null) {
+		    stolenTasks.add(taskId);
+		}
+	    }
+	    // TODO: Send stolen tasks to server
 	}
 
 	private final class TaskMessageListener implements Runnable {
