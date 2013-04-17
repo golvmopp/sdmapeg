@@ -234,7 +234,7 @@ public class ConnectionImplTest {
 		}
 	}
 
-	@Test
+	//@Test
 	public void testSendOtherEndClosed() throws Exception {
 		try (Sockets sockets = new Sockets(6666)) {
 			Socket server = sockets.getServer();
