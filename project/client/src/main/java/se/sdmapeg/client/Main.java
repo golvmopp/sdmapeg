@@ -10,7 +10,7 @@ public class Main {
 	private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
 	public static void main(String[] args) {
-		String host = JOptionPane.showInputDialog("Address:");
+		String host = JOptionPane.showInputDialog("Address:", "server.sdmapeg.se");
 		ClientView view = ClientView.newView();
 		try {
 			ClientImpl.newClientImp(view, host).start();

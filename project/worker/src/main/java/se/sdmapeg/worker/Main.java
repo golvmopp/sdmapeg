@@ -17,7 +17,7 @@ public class Main {
 	 * @throws CommunicationException
 	 */
 	public static void main(String[] args) throws CommunicationException {
-		String host = JOptionPane.showInputDialog("Address:");
+		String host = JOptionPane.showInputDialog("Address:", "server.sdmapeg.se");
 		Server server;
 		try {
 			server = ServerImpl.newServer(ConnectionImpl
