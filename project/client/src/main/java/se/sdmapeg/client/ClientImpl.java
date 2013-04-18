@@ -76,6 +76,8 @@ public class ClientImpl implements Client {
 					LOG.info("Connection to server was closed.");
 				} catch (CommunicationException e) {
 					LOG.error("An error occurred while listening for messages.", e);
+				} finally {
+					view.showConnectionError();
 				}
 			}
 		});
