@@ -31,7 +31,7 @@ public class Main {
 		}
 		int poolSize = Runtime.getRuntime().availableProcessors();
 		Worker worker = WorkerImpl.newWorkerImpl(poolSize, server,
-												 new TaskPerformerImpl());
+												new TaskPerformerImpl());
 		worker.start();
 		JOptionPane.showMessageDialog(null, "Worker running...");
 		worker.stop();

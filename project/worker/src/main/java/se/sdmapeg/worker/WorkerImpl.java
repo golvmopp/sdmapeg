@@ -9,6 +9,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import se.sdmapeg.common.communication.CommunicationException;
 import se.sdmapeg.common.communication.ConnectionClosedException;
 import se.sdmapeg.common.tasks.Result;
@@ -26,17 +29,18 @@ import se.sdmapeg.serverworker.communication.WorkerToServerMessage;
  */
 public class WorkerImpl implements Worker {
 	private final ExecutorService serverListenerExecutor;
-    	private final TaskExecutor taskExecutor;
+    private final TaskExecutor taskExecutor;
 	private final Server server;
 	private final TaskPerformer taskPerformer;
 	private final Map<TaskId, FutureTask<Void>> taskMap =
 		new ConcurrentHashMap<>();
 	private final Map<Runnable, TaskId> idMap = new ConcurrentHashMap<>();
+	private static final Logger LOG = LoggerFactory.getLogger(WorkerImpl.class);
 	
 
 	private WorkerImpl(int poolSize, Server server,
 					  TaskPerformer taskPerformer) {
-	    	this.serverListenerExecutor = Executors.newSingleThreadExecutor();
+    	this.serverListenerExecutor = Executors.newSingleThreadExecutor();
 		this.taskExecutor = TaskExecutor.newTaskQueue(poolSize);
 		this.server = server;
 		this.taskPerformer = taskPerformer;
@@ -53,9 +57,9 @@ public class WorkerImpl implements Worker {
 		    }
 		} catch (ConnectionClosedException ex) {
 		    server.disconnect();
-		    //TODO: Log it!
+		    LOG.warn("Connection closed.");
 		} catch (CommunicationException ex) {
-		    //TODO: Log it!
+			LOG.warn("Communication error.");
 		    server.disconnect();
 		}
 	
@@ -73,14 +77,16 @@ public class WorkerImpl implements Worker {
 	private void runTask(TaskId taskId, Task<?> task) {
 		FutureTask<Void> futureTask = new FutureTask<>(new TaskRunner(taskId,
 				task), null);
+		LOG.info("Queueing task {}", taskId);
 		taskMap.put(taskId, futureTask);
 		idMap.put(futureTask, taskId);
 		taskExecutor.submit(futureTask);
-	}	//TODO: Make an adapter for task -> runnable
+	}
 
 	private <R> Result<R> performTask(Task<R> task) {
 		Result<R> result;
 		try {
+			LOG.info("Performing task {}", idMap.get(task));
 			result = task.perform(taskPerformer);
 		} catch (ExecutionException ex) {
 			result = new SimpleFailure<>(ex);
@@ -96,7 +102,7 @@ public class WorkerImpl implements Worker {
 		server.send(resultMessage);
 		} catch (CommunicationException ex) {
 			server.disconnect();
-			// TODO: log this
+			LOG.error("Disconnected from server before the result could be sent");
 		}
 	}
 
@@ -104,13 +110,12 @@ public class WorkerImpl implements Worker {
 	    Set<Runnable> runnables = taskExecutor.stealTasks(desired);
 	    Set<TaskId> stolenTasks = new HashSet<>();
 	    for (Runnable runnable : runnables) {
-		TaskId taskId = idMap.remove(runnable);
-		taskMap.remove(taskId);
-		if (taskId != null) {
-		    stolenTasks.add(taskId);
-		}
-	    }
-	    // TODO: Send stolen tasks to server
+			TaskId taskId = idMap.remove(runnable);
+			taskMap.remove(taskId);
+			if (taskId != null) {
+			    stolenTasks.add(taskId);
+			}
+	    } // TODO: Send stolen tasks to server
 	}
 	
 	public static WorkerImpl newWorkerImpl(int poolSize, Server server,
