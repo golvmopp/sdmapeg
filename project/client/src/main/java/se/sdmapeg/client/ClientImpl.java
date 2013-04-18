@@ -25,6 +25,7 @@ import se.sdmapeg.serverclient.communication.TaskMessage;
 
 public class ClientImpl implements Client {
 	private static final Logger LOG = LoggerFactory.getLogger(ClientImpl.class);
+	private static final int SERVER_PORT = 6666;
 	private final ExecutorService serverListenerExecutor;
 	private final Server server;
 	private final Map<ClientTaskId, Task<?>> taskMap;
@@ -32,9 +33,9 @@ public class ClientImpl implements Client {
 	private final IdGenerator<ClientTaskId> idGenerator;
 	private final ClientView view;
 
-	private ClientImpl(ClientView view, String host, int port) throws CommunicationException {
+	private ClientImpl(ClientView view, String host) throws CommunicationException {
 		try {
-			server = ServerImpl.newServer(ConnectionImpl.newConnection(new Socket(host, port)));
+			server = ServerImpl.newServer(ConnectionImpl.newConnection(new Socket(host, SERVER_PORT)));
 		} catch (CommunicationException|IOException e) {
 			throw new CommunicationException();
 		}
@@ -98,8 +99,8 @@ public class ClientImpl implements Client {
 		view.showResult(resultMap.get(id));
 	}
 
-	public static Client newClientImp(ClientView view, String host, int port) throws CommunicationException {
-		return new ClientImpl(view, host, port);
+	public static Client newClientImp(ClientView view, String host) throws CommunicationException {
+		return new ClientImpl(view, host);
 	}
 
 	private final class ServerMessageHandler implements ServerToClientMessage.Handler<Void> {
