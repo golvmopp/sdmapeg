@@ -9,39 +9,37 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class TaskExecutor {
+	private BlockingDeque<Runnable> queue;
+	private ExecutorService workerThreadPool;
 
-    private BlockingDeque<Runnable> queue;
-    private ExecutorService workerThreadPool;
-    
-    private TaskExecutor(int poolSize) {
-	this.queue = new LinkedBlockingDeque<>();
-	this.workerThreadPool = new ThreadPoolExecutor(poolSize, poolSize, 0L, 
-	TimeUnit.MILLISECONDS, queue);
-	
-    }
-    
-    public void submit(Runnable task) {
-	workerThreadPool.submit(task);
-    }
-    
-    public Set<Runnable> stealTasks(int desired) {
-	Set<Runnable> stolenTasks = new HashSet<>();
-	for (int i = 0; i < desired; i++) {
-	    Runnable task = queue.pollLast();
-	    if (task == null) {
-		break;
-	    }
-	    stolenTasks.add(task);
+	private TaskExecutor(int poolSize) {
+		this.queue = new LinkedBlockingDeque<>();
+		this.workerThreadPool = new ThreadPoolExecutor(poolSize, poolSize, 0L,
+			TimeUnit.MILLISECONDS, queue);
+
 	}
-	return stolenTasks;
-    }
-    
-    
-    public static TaskExecutor newTaskQueue(int poolSize){
-	return new TaskExecutor(poolSize);
-    }
+
+	public void submit(Runnable task) {
+		workerThreadPool.submit(task);
+	}
+
+	public Set<Runnable> stealTasks(int desired) {
+		Set<Runnable> stolenTasks = new HashSet<>();
+		for (int i = 0; i < desired; i++) {
+			Runnable task = queue.pollLast();
+			if (task == null) {
+				break;
+			}
+			stolenTasks.add(task);
+		}
+		return stolenTasks;
+	}
+
+	public static TaskExecutor newTaskQueue(int poolSize) {
+		return new TaskExecutor(poolSize);
+	}
 
 	void shutDown() {
-		workerThreadPool.shutdown();
+		workerThreadPool.shutdownNow();
 	}
 }
