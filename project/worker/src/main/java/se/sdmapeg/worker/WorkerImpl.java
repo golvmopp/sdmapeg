@@ -86,7 +86,6 @@ public class WorkerImpl implements Worker {
 	private <R> Result<R> performTask(Task<R> task) {
 		Result<R> result;
 		try {
-			LOG.info("Performing task {}", idMap.get(task));
 			result = task.perform(taskPerformer);
 		} catch (ExecutionException ex) {
 			result = new SimpleFailure<>(ex);
@@ -100,6 +99,7 @@ public class WorkerImpl implements Worker {
 	    idMap.remove(futureTask);
 		try {
 		server.send(resultMessage);
+		LOG.info("Sending result for {}", taskId);
 		} catch (CommunicationException ex) {
 			server.disconnect();
 			LOG.error("Disconnected from server before the result could be sent");
@@ -107,7 +107,7 @@ public class WorkerImpl implements Worker {
 	}
 
 	private void stealTasks(int desired) {
-	    Set<Runnable> runnables = taskExecutor.stealTasks(desired);
+	    Set<Runnable> runnables = taskExecutor.stealTasks(desired);	
 	    Set<TaskId> stolenTasks = new HashSet<>();
 	    for (Runnable runnable : runnables) {
 			TaskId taskId = idMap.remove(runnable);
@@ -159,6 +159,7 @@ public class WorkerImpl implements Worker {
 
 		@Override
 		public void run() {
+			LOG.info("Performing task {}", taskId );
 			Result<?> result = performTask(task);
 			completeTask(taskId, result);
 		}
