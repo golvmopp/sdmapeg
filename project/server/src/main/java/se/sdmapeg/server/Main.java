@@ -9,8 +9,13 @@ import se.sdmapeg.common.communication.CommunicationException;
  *
  * @author niclas
  */
-public class Main {
+public final class Main {
 	private static final Logger LOG = LoggerFactory.getLogger(Main.class);
+
+	private Main() {
+		// Prevent instantiation
+		throw new AssertionError();
+	}
 
 	public static void main(String[] args) {
 		Server server;

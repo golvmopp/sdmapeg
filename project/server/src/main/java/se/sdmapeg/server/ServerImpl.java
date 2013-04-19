@@ -22,10 +22,9 @@ import se.sdmapeg.serverworker.communication.ServerToWorkerMessage;
 import se.sdmapeg.serverworker.communication.WorkerToServerMessage;
 
 /**
- *
- * @author niclas
+ * Concrete implementation of a Server.
  */
-public class ServerImpl implements Server {
+public final class ServerImpl implements Server {
 	private static final int CLIENT_PORT = 6666;
 	private static final int WORKER_PORT = 6667;
 	private final ExecutorService connectionThreadPool =
@@ -34,28 +33,34 @@ public class ServerImpl implements Server {
 	private final ClientManager clientManager;
 	private final WorkerCoordinator workerCoordinator;
 
+	/**
+	 * Creates a new ServerImpl.
+	 *
+	 * @throws	CommunicationException if something went wrong when creating the
+	 *			client manager or worker coordinator
+	 */
 	public ServerImpl() throws CommunicationException {
-			ConnectionHandler<ServerToClientMessage,
-					ClientToServerMessage> clientConnectionHandler;
-			try {
-				clientConnectionHandler =
-					ConnectionHandlerImpl.newConnectionHandler(CLIENT_PORT);
-			} catch (CommunicationException ex) {
-				throw ex;
-			}
-			clientManager = new ClientManagerImpl(connectionThreadPool,
-				clientConnectionHandler, taskIdGenerator, new ClientsCallback());
-			ConnectionHandler<ServerToWorkerMessage, 
-					WorkerToServerMessage> workerConnectionHandler;
-			try {
-				workerConnectionHandler =
-					ConnectionHandlerImpl.newConnectionHandler(WORKER_PORT);
-			} catch (CommunicationException ex) {
-				clientManager.shutDown();
-				throw ex;
-			}
-			workerCoordinator = new WorkerCoordinatorImpl(connectionThreadPool,
-				workerConnectionHandler, new WorkersCallback());
+		ConnectionHandler<ServerToClientMessage,
+				ClientToServerMessage> clientConnectionHandler;
+		try {
+			clientConnectionHandler =
+				ConnectionHandlerImpl.newConnectionHandler(CLIENT_PORT);
+		} catch (CommunicationException ex) {
+			throw ex;
+		}
+		clientManager = new ClientManagerImpl(connectionThreadPool,
+			clientConnectionHandler, taskIdGenerator, new ClientsCallback());
+		ConnectionHandler<ServerToWorkerMessage,
+				WorkerToServerMessage> workerConnectionHandler;
+		try {
+			workerConnectionHandler =
+				ConnectionHandlerImpl.newConnectionHandler(WORKER_PORT);
+		} catch (CommunicationException ex) {
+			clientManager.shutDown();
+			throw ex;
+		}
+		workerCoordinator = new WorkerCoordinatorImpl(connectionThreadPool,
+			workerConnectionHandler, new WorkersCallback());
 	}
 
 	@Override
