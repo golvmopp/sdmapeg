@@ -30,6 +30,6 @@ public interface WorkerToServerMessage extends Message {
 		 */
 		T handle(WorkerIdentification message);
 
-		T handle(WorkStealingResponse workStealingResponse);
+		T handle(WorkStealingResponse message);
 	}
 }
