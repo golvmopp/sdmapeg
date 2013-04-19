@@ -194,7 +194,9 @@ final class WorkerImpl implements Worker {
 
 		@Override
 		public Void handle(WorkStealingResponse message) {
-			// TODO: get the stolen tasks from the message and notify the callback.
+			for (TaskId taskId : message.getStolenTasks()) {
+				callback.taskStolen(taskId);
+			}
 			return null;
 		}
 	}
