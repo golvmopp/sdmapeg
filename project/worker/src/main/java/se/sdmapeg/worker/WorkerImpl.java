@@ -71,6 +71,7 @@ public class WorkerImpl implements Worker {
 			return;
 		}
 		futureTask.cancel(true);
+		LOG.info("Cancelled task {}", taskId);
 	}
 
 	private void runTask(TaskId taskId, Task<?> task) {
@@ -136,7 +137,11 @@ public class WorkerImpl implements Worker {
 	private final class MessageListener implements Runnable {
 		@Override
 		public void run() {
-			listen();
+			try {
+				listen();
+			} catch (Exception ex) {
+				LOG.error("An uncaught exception was encountered", ex);
+			}
 		}
 	}
 
