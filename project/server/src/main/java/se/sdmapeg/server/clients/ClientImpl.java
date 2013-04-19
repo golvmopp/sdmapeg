@@ -29,7 +29,7 @@ import se.sdmapeg.serverworker.TaskId;
  * A Client representation using an underlying Connection to communicate with
  * the actual client.
  */
-class ClientImpl implements Client {
+final class ClientImpl implements Client {
 	private static final Logger LOG = LoggerFactory.getLogger(ClientImpl.class);
 	private final Connection<ServerToClientMessage, ClientToServerMessage> connection;
 	private final IdGenerator<TaskId> taskIdGenerator;
@@ -39,7 +39,7 @@ class ClientImpl implements Client {
 		new ConcurrentHashMap<>();
 	
 
-	public ClientImpl(Connection<ServerToClientMessage,
+	private ClientImpl(Connection<ServerToClientMessage,
 								 ClientToServerMessage> connection,
 			IdGenerator<TaskId> taskIdGenerator) {
 		this.connection = connection;
@@ -116,6 +116,22 @@ class ClientImpl implements Client {
 	private static void handleMessage(ClientToServerMessage message,
 							   Handler<Void> messageHandler) {
 		message.accept(messageHandler);
+	}
+
+	/**
+	 * Creates a new client representation communicating over the specified
+	 * connection.
+	 *
+	 * @param connection		the Connection to be used for communicating with
+	 *							this client
+	 * @param taskIdGenerator	the IdGenerator to be used by this client for
+	 *							generating new TaskIds
+	 * @return the created Client
+	 */
+	public static Client newClient(Connection<ServerToClientMessage,
+								 ClientToServerMessage> connection,
+			IdGenerator<TaskId> taskIdGenerator) {
+		return new ClientImpl(connection, taskIdGenerator);
 	}
 
 	private final class MessageHandler

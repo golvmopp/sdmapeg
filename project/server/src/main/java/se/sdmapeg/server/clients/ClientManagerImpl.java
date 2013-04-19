@@ -13,6 +13,7 @@ import se.sdmapeg.common.communication.Connection;
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.server.communication.ConnectionAcceptor;
+import se.sdmapeg.server.communication.ConnectionAcceptorCallback;
 import se.sdmapeg.server.communication.ConnectionHandler;
 import se.sdmapeg.serverclient.communication.ClientToServerMessage;
 import se.sdmapeg.serverclient.communication.ServerToClientMessage;
@@ -22,7 +23,7 @@ import se.sdmapeg.serverworker.TaskId;
  *
  * @author niclas
  */
-public class ClientManagerImpl implements ClientManager {
+public final class ClientManagerImpl implements ClientManager {
 	private static final Logger LOG = LoggerFactory.getLogger(ClientManagerImpl.class);
 	private final ExecutorService connectionThreadPool;
 	private final ConnectionHandler<ServerToClientMessage,
@@ -35,7 +36,7 @@ public class ClientManagerImpl implements ClientManager {
 		new ConcurrentHashMap<>();
 	private final AtomicBoolean started = new AtomicBoolean(false);
 
-	public ClientManagerImpl(ExecutorService connectionThreadPool,
+	private ClientManagerImpl(ExecutorService connectionThreadPool,
 			ConnectionHandler<ServerToClientMessage, ClientToServerMessage>
 				connectionHandler, IdGenerator<TaskId> taskIdGenerator,
 			ClientManagerCallback callback) {
@@ -87,8 +88,8 @@ public class ClientManagerImpl implements ClientManager {
 		 */
 		if (started.compareAndSet(false, true)) {
 			// Start a new thread to deal with incoming connections
-			connectionThreadPool.submit(new ConnectionAcceptor<>(
-					connectionHandler, new ConnectionAcceptorCallback()));
+			ConnectionAcceptor.acceptConnections(connectionThreadPool,
+				connectionHandler, new ClientConnectionCallback());
 			LOG.info("Client Manager Started");
 		}
 	}
@@ -125,13 +126,34 @@ public class ClientManagerImpl implements ClientManager {
 		client.disconnect();
 	}
 
-	private final class ConnectionAcceptorCallback
-		implements ConnectionAcceptor.Callback<ServerToClientMessage,
+	/**
+	 * Creates a new ClientManager with the specified connectionThreadPool,
+	 * connectionHandler, taskIdGenerator and callback.
+	 *
+	 * @param connectionThreadPool a thread pool for handling connections
+	 * @param connectionHandler a connection handler for dealing with new
+	 *							connections
+	 * @param taskIdGenerator an IdGenerator for generating TaskIds
+	 * @param callback a callback to be notified of events
+	 * @return the created ClientManager
+	 */
+	public static ClientManager newClientManager(
+			ExecutorService connectionThreadPool,
+			ConnectionHandler<ServerToClientMessage, ClientToServerMessage>
+				connectionHandler,
+			IdGenerator<TaskId> taskIdGenerator,
+			ClientManagerCallback callback) {
+		return new ClientManagerImpl(connectionThreadPool, connectionHandler,
+									 taskIdGenerator, callback);
+	}
+
+	private final class ClientConnectionCallback
+		implements ConnectionAcceptorCallback<ServerToClientMessage,
 			ClientToServerMessage> {
 		@Override
 		public void connectionReceived(Connection<ServerToClientMessage,
 				ClientToServerMessage> connection) {
-			Client client = new ClientImpl(connection, taskIdGenerator);
+			Client client = ClientImpl.newClient(connection, taskIdGenerator);
 			LOG.info("{} connected", client);
 			addressMap.put(client.getAddress(), client);
 			// Start a new thread to listen to the client

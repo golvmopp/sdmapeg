@@ -35,7 +35,7 @@ final class WorkerImpl implements Worker {
 	private volatile boolean acceptingWork = true;
 	private volatile WorkerData workerData = WorkerData.getDefaultWorkerData();
 
-	public WorkerImpl(Connection<ServerToWorkerMessage,
+	private WorkerImpl(Connection<ServerToWorkerMessage,
 								 WorkerToServerMessage> connection) {
 		this.connection = connection;
 	}
@@ -168,7 +168,21 @@ final class WorkerImpl implements Worker {
 		return new WorkerData(message.getParallelWorkCapacity());
 	}
 
-	private final class MessageHander implements WorkerToServerMessage.Handler<Void> {
+	/**
+	 * Creates a new worker representation communicating over the specified
+	 * connection.
+	 *
+	 * @param connection		the Connection to be used for communicating with
+	 *							this worker
+	 * @return the created Worker
+	 */
+	public static Worker newWorker(Connection<ServerToWorkerMessage,
+								 WorkerToServerMessage> connection) {
+		return new WorkerImpl(connection);
+	}
+
+	private final class MessageHander
+			implements WorkerToServerMessage.Handler<Void> {
 		private final WorkerCallback callback;
 
 		public MessageHander(WorkerCallback callback) {

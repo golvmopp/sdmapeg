@@ -47,6 +47,19 @@ public final class ConnectionHandlerImpl<S extends Message, R extends Message>
 		return !serverSocket.isClosed();
 	}
 
+	/**
+	 * Creates a new ConnectionHandler listening for connections on the
+	 * specified port.
+	 *
+	 * @param <S>	the type of messages that can be sent over the connections
+	 *				accepted by the created ConnectionHandler
+	 * @param <R>	the type of messages that can be received over the
+	 *				connections accepted by the created ConnectionHandler
+	 * @param port the port to listen for connections on
+	 * @return the created ConnectionHandler
+	 * @throws CommunicationException	if something went wrong when attempting
+	 *									to create the ConnectionHandler
+	 */
 	public static <S extends Message, R extends Message> ConnectionHandler<S, R>
 			newConnectionHandler(int port) throws CommunicationException {
 		return new ConnectionHandlerImpl<>(port);

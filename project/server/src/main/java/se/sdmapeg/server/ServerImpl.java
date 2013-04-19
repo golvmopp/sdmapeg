@@ -33,13 +33,7 @@ public final class ServerImpl implements Server {
 	private final ClientManager clientManager;
 	private final WorkerCoordinator workerCoordinator;
 
-	/**
-	 * Creates a new ServerImpl.
-	 *
-	 * @throws	CommunicationException if something went wrong when creating the
-	 *			client manager or worker coordinator
-	 */
-	public ServerImpl() throws CommunicationException {
+	private ServerImpl() throws CommunicationException {
 		ConnectionHandler<ServerToClientMessage,
 				ClientToServerMessage> clientConnectionHandler;
 		try {
@@ -48,7 +42,7 @@ public final class ServerImpl implements Server {
 		} catch (CommunicationException ex) {
 			throw ex;
 		}
-		clientManager = new ClientManagerImpl(connectionThreadPool,
+		clientManager = ClientManagerImpl.newClientManager(connectionThreadPool,
 			clientConnectionHandler, taskIdGenerator, new ClientsCallback());
 		ConnectionHandler<ServerToWorkerMessage,
 				WorkerToServerMessage> workerConnectionHandler;
@@ -59,8 +53,9 @@ public final class ServerImpl implements Server {
 			clientManager.shutDown();
 			throw ex;
 		}
-		workerCoordinator = new WorkerCoordinatorImpl(connectionThreadPool,
-			workerConnectionHandler, new WorkersCallback());
+		workerCoordinator = WorkerCoordinatorImpl.newWorkerCoordinator(
+				connectionThreadPool, workerConnectionHandler,
+				new WorkersCallback());
 	}
 
 	@Override
@@ -74,6 +69,17 @@ public final class ServerImpl implements Server {
 		clientManager.shutDown();
 		workerCoordinator.shutDown();
 		connectionThreadPool.shutdown();
+	}
+
+	/**
+	 * Creates a new Server.
+	 *
+	 * @throws	CommunicationException if something went wrong when creating the
+	 *			client manager or worker coordinator
+	 * @return the created Server
+	 */
+	public static Server newServer() throws CommunicationException {
+		return new ServerImpl();
 	}
 
 	private final class ClientsCallback implements ClientManagerCallback {

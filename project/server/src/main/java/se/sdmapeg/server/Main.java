@@ -6,8 +6,7 @@ import org.slf4j.LoggerFactory;
 import se.sdmapeg.common.communication.CommunicationException;
 
 /**
- *
- * @author niclas
+ * The Main class for running the server application.
  */
 public final class Main {
 	private static final Logger LOG = LoggerFactory.getLogger(Main.class);
@@ -20,7 +19,7 @@ public final class Main {
 	public static void main(String[] args) {
 		Server server;
 		try {
-			server = new ServerImpl();
+			server = ServerImpl.newServer();
 		} catch (CommunicationException ex) {
 			LOG.error("Failed to create server", ex);
 			return;

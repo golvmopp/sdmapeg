@@ -18,6 +18,7 @@ import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.SimpleFailure;
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.server.communication.ConnectionAcceptor;
+import se.sdmapeg.server.communication.ConnectionAcceptorCallback;
 import se.sdmapeg.server.communication.ConnectionHandler;
 import se.sdmapeg.serverworker.TaskId;
 import se.sdmapeg.serverworker.communication.ServerToWorkerMessage;
@@ -27,7 +28,7 @@ import se.sdmapeg.serverworker.communication.WorkerToServerMessage;
  *
  * @author niclas
  */
-public class WorkerCoordinatorImpl implements WorkerCoordinator {
+public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 	private static final Logger LOG = LoggerFactory.getLogger(WorkerCoordinatorImpl.class);
 	private final ExecutorService connectionThreadPool;
 	private final ConnectionHandler<ServerToWorkerMessage,
@@ -40,7 +41,7 @@ public class WorkerCoordinatorImpl implements WorkerCoordinator {
 		new ConcurrentHashMap<>();
 	private final AtomicBoolean started = new AtomicBoolean(false);
 
-	public WorkerCoordinatorImpl(ExecutorService connectionThreadPool,
+	private WorkerCoordinatorImpl(ExecutorService connectionThreadPool,
 			ConnectionHandler<ServerToWorkerMessage,
 					WorkerToServerMessage> connectionHandler,
 			WorkerCoordinatorCallback callback) {
@@ -109,8 +110,8 @@ public class WorkerCoordinatorImpl implements WorkerCoordinator {
 		 */
 		if (started.compareAndSet(false, true)) {
 			// Start a new thread to deal with incoming connections
-			connectionThreadPool.submit(new ConnectionAcceptor<>(
-					connectionHandler, new ConnectionAcceptorCallback()));
+			ConnectionAcceptor.acceptConnections(connectionThreadPool,
+				connectionHandler, new WorkerConnectionCallback());
 			LOG.info("Worker Coordinator Started.");
 		}
 	}
@@ -200,6 +201,25 @@ public class WorkerCoordinatorImpl implements WorkerCoordinator {
 	}
 
 	/**
+	 * Creates a new WorkerCoordinator with the specified connectionThreadPool,
+	 * connectionHandler, and callback.
+	 *
+	 * @param connectionThreadPool a thread pool for handling connections
+	 * @param connectionHandler a connection handler for dealing with new
+	 *							connections
+	 * @param callback a callback to be notified of events
+	 * @return the created ClientManager
+	 */
+	public static WorkerCoordinator newWorkerCoordinator(
+			ExecutorService connectionThreadPool,
+			ConnectionHandler<ServerToWorkerMessage, WorkerToServerMessage>
+				connectionHandler,
+			WorkerCoordinatorCallback callback) {
+		return new WorkerCoordinatorImpl(connectionThreadPool,
+				connectionHandler, callback);
+	}
+
+	/**
 	 * Immutable class used for sorting (mutable) workers according to their
 	 * load at some point in time. Since Workers are mutable and may be modified
 	 * by other threads at any point in time, attempting to sort them using a
@@ -247,14 +267,14 @@ public class WorkerCoordinatorImpl implements WorkerCoordinator {
 		}
 	}
 
-	private final class ConnectionAcceptorCallback
-		implements ConnectionAcceptor.Callback<ServerToWorkerMessage,
+	private final class WorkerConnectionCallback
+		implements ConnectionAcceptorCallback<ServerToWorkerMessage,
 			WorkerToServerMessage> {
 
 		@Override
 		public void connectionReceived(Connection<ServerToWorkerMessage,
 				WorkerToServerMessage> connection) {
-			Worker worker = new WorkerImpl(connection);
+			Worker worker = WorkerImpl.newWorker(connection);
 			LOG.info("{} connected", worker);
 			addressMap.put(worker.getAddress(), worker);
 			// Start a new thread to listen to the worker
