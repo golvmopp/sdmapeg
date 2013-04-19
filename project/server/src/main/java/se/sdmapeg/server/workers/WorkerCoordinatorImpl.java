@@ -98,7 +98,7 @@ public class WorkerCoordinatorImpl implements WorkerCoordinator {
 	@Override
 	public void start() {
 		if (started.compareAndSet(false, true)) {
-			connectionThreadPool.submit(new ConnectionAcceptor(
+			connectionThreadPool.submit(new ConnectionAcceptor<>(
 					connectionHandler, new ConnectionAcceptorCallback()));
 			LOG.info("Worker Coordinator Started.");
 		}

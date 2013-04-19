@@ -79,7 +79,7 @@ public class ClientManagerImpl implements ClientManager {
 	@Override
 	public void start() {
 		if (started.compareAndSet(false, true)) {
-			connectionThreadPool.submit(new ConnectionAcceptor(
+			connectionThreadPool.submit(new ConnectionAcceptor<>(
 					connectionHandler, new ConnectionAcceptorCallback()));
 			LOG.info("Client Manager Started");
 		}
