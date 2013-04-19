@@ -7,14 +7,14 @@ import se.sdmapeg.serverclient.ClientTaskId;
  * @author niclas
  */
 public class TaskCancellationMessage implements ClientToServerMessage {
-	private final ClientTaskId taskId;
+	private final ClientTaskId clientTaskId;
 
-	private TaskCancellationMessage(ClientTaskId taskId) {
-		this.taskId = taskId;
+	private TaskCancellationMessage(ClientTaskId clientTaskId) {
+		this.clientTaskId = clientTaskId;
 	}
 
 	public ClientTaskId getTaskId() {
-		return taskId;
+		return clientTaskId;
 	}
 
 	@Override

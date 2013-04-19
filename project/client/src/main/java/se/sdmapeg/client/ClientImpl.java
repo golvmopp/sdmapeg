@@ -20,10 +20,7 @@ import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.serverclient.ClientTaskId;
 import se.sdmapeg.serverclient.ClientTaskIdGenerator;
-import se.sdmapeg.serverclient.communication.ClientToServerMessage;
-import se.sdmapeg.serverclient.communication.ResultMessage;
-import se.sdmapeg.serverclient.communication.ServerToClientMessage;
-import se.sdmapeg.serverclient.communication.TaskMessage;
+import se.sdmapeg.serverclient.communication.*;
 
 public class ClientImpl implements Client {
 	private static final Logger LOG = LoggerFactory.getLogger(ClientImpl.class);
@@ -59,9 +56,9 @@ public class ClientImpl implements Client {
 	}
 
 	@Override
-	public void sendTask(ClientTaskId id) {
+	public void sendTask(ClientTaskId clientTaskId) {
 		try {
-			server.send(TaskMessage.newTaskMessage(taskMap.get(id), id));
+			server.send(TaskMessage.newTaskMessage(taskMap.get(clientTaskId), clientTaskId));
 		} catch (CommunicationException e) {
 			LOG.warn("Connection was closed before this task could be sent.");
 		}
@@ -86,6 +83,15 @@ public class ClientImpl implements Client {
 				}
 			}
 		});
+	}
+
+	@Override
+	public void abortTask(ClientTaskId clientTaskId) {
+		try {
+			server.send(TaskCancellationMessage.newTaskCancellationMessage(clientTaskId));
+		} catch (CommunicationException e) {
+			LOG.error("Connection was lost before task could be aborted.");
+		}
 	}
 
 	@Override
