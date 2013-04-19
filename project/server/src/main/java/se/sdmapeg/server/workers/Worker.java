@@ -6,13 +6,13 @@ import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.serverworker.TaskId;
 
 /**
- * Represents a worker. Handles communication between Server and Worker.
+ * Interface for representing a worker connected to the server.
  */
 interface Worker {
 	/**
-	 * returns the address of the worker.
+	 * Returns the address of this worker.
 	 *
-	 * @return the address of the worker
+	 * @return the address of this worker
 	 */
 	InetAddress getAddress();
 
@@ -74,12 +74,12 @@ interface Worker {
 
 	/**
 	 * Continually listens to input from this Worker, and calls the appropriate
-	 * methods of the Callback when an input has been received. The methods of
+	 * methods of the callback when an input has been received. The methods of
 	 * the callback will only be called while a thread is running this method,
 	 * and will only ever be called by that thread, if the callback is not
 	 * shared with other objects. This method will keep running until this
 	 * Worker is disconnected, and will always end with calling the
-	 * workerDisconnected method of the Callback with this Worker as the
+	 * workerDisconnected method of the callback with this Worker as the
 	 * argument.
 	 */
 	void listen();
