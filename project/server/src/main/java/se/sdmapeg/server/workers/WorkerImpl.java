@@ -121,7 +121,7 @@ final class WorkerImpl implements Worker {
 				acceptingWork = false;
 			}
 			disconnect();
-			callback.workerDisconnected(this);
+			callback.workerDisconnected();
 		}
 	}
 

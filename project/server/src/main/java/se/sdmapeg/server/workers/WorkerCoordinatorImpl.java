@@ -312,7 +312,7 @@ public class WorkerCoordinatorImpl implements WorkerCoordinator {
 		}
 
 		@Override
-		public void workerDisconnected(Worker worker) {
+		public void workerDisconnected() {
 			addressMap.remove(worker.getAddress());
 			/*
 			 * Reassign all active tasks of this worker. Since this method is

@@ -21,7 +21,6 @@ interface WorkerCallback {
 	 * Notifies this callback that the task with the specified TaskId was
 	 * successfully stolen from the worker.
 	 *
-	 * @param worker the Worker from which the task was stolen
 	 * @param taskId the id of the stolen task
 	 */
 	void taskStolen(TaskId taskId);
@@ -29,9 +28,8 @@ interface WorkerCallback {
 	/**
 	 * Notifies this callback that the worker has disconnected.
 	 *
-	 * @param worker the Worker which was disconnected
 	 */
-	void workerDisconnected(Worker worker);
+	void workerDisconnected();
 
 	/**
 	 * Notifies this callback that the worker has a shortage of work and is
