@@ -5,5 +5,6 @@ package se.sdmapeg.common.tasks;
  *
  */
 public interface TaskPerformer {
-    public Result<String> performPythonTask(PythonTask pythonCode);
+    Result<String> performPythonTask(PythonTask pythonCode);
+	Result<Integer> performFindNextIntTask();
 }
