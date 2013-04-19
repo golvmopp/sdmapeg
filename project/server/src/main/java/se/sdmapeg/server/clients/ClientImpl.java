@@ -16,13 +16,9 @@ import se.sdmapeg.common.communication.ConnectionClosedException;
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.serverclient.ClientTaskId;
-import se.sdmapeg.serverclient.communication.ClientIdentification;
-import se.sdmapeg.serverclient.communication.ClientToServerMessage;
+import se.sdmapeg.serverclient.communication.*;
 import se.sdmapeg.serverclient.communication.ClientToServerMessage.Handler;
-import se.sdmapeg.serverclient.communication.ResultMessage;
-import se.sdmapeg.serverclient.communication.ServerToClientMessage;
-import se.sdmapeg.serverclient.communication.TaskCancellationMesage;
-import se.sdmapeg.serverclient.communication.TaskMessage;
+import se.sdmapeg.serverclient.communication.TaskCancellationMessage;
 import se.sdmapeg.serverworker.TaskId;
 
 /**
@@ -162,7 +158,7 @@ final class ClientImpl implements Client {
 		}
 
 		@Override
-		public Void handle(TaskCancellationMesage mesage) {
+		public Void handle(TaskCancellationMessage mesage) {
 			ClientTaskId clientTaskId = mesage.getTaskId();
 			TaskId taskId = clientTaskIdMap.get(clientTaskId);
 			callback.taskCancelled(taskId);
