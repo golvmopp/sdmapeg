@@ -61,8 +61,8 @@ public class ClientView implements ActionListener {
 		frame.setVisible(true);
 	}
 
-	public static ClientView newView() {
-		return new ClientView();
+	public void showConnectionError() {
+		JOptionPane.showMessageDialog(frame, "Connection to server was lost.");
 	}
 
 	public void showResult(Result<?> result) {
@@ -82,5 +82,9 @@ public class ClientView implements ActionListener {
 		Task task = PythonTask.newPythonTask(((JTextArea) e.getSource()).getText());
 		ClientTaskId id = client.addTask(task);
 		client.sendTask(id);
+	}
+
+	public static ClientView newView() {
+		return new ClientView();
 	}
 }
