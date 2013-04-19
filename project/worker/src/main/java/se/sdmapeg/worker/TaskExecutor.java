@@ -7,6 +7,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TaskExecutor {
 	private BlockingDeque<Runnable> queue;
@@ -15,12 +17,26 @@ public class TaskExecutor {
 	private TaskExecutor(int poolSize) {
 		this.queue = new LinkedBlockingDeque<>();
 		this.workerThreadPool = new ThreadPoolExecutor(poolSize, poolSize, 0L,
-			TimeUnit.MILLISECONDS, queue);
-
+			TimeUnit.MILLISECONDS, queue);		
+		for (int i = 0; i < poolSize; i++) {
+			workerThreadPool.submit(new Runnable() {
+				@Override
+				public void run() {
+					while (!Thread.currentThread().isInterrupted()) {
+						try {
+							queue.take().run();
+						}
+						catch (InterruptedException ex) {
+							Thread.currentThread().interrupt();
+						}
+					}
+				}
+			});
+		}
 	}
 
 	public void submit(Runnable task) {
-		workerThreadPool.submit(task);
+		queue.add(task);
 	}
 
 	public Set<Runnable> stealTasks(int desired) {
