@@ -16,6 +16,7 @@ import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.serverworker.TaskId;
 import se.sdmapeg.serverworker.communication.ResultMessage;
 import se.sdmapeg.serverworker.communication.ServerToWorkerMessage;
+import se.sdmapeg.serverworker.communication.TaskCancellationMessage;
 import se.sdmapeg.serverworker.communication.TaskMessage;
 import se.sdmapeg.serverworker.communication.WorkStealingRequest;
 import se.sdmapeg.serverworker.communication.WorkStealingResponse;
@@ -61,7 +62,7 @@ final class WorkerImpl implements Worker {
 	@Override
 	public void cancelTask(TaskId taskId) {
 		if (activeTasks.remove(taskId)) {
-			// TODO: Send message to cancel task here
+			send(TaskCancellationMessage.newTaskCancellationMessage(taskId));
 		}
 	}
 
