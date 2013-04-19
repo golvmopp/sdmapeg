@@ -21,6 +21,6 @@ public interface ClientToServerMessage extends Message {
 
 		T handle(TaskMessage message);
 
-		T handle(TaskCancellationMesage mesage);
+		T handle(TaskCancellationMessage mesage);
 	}
 }

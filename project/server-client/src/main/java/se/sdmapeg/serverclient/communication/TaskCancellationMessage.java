@@ -6,10 +6,10 @@ import se.sdmapeg.serverclient.ClientTaskId;
  *
  * @author niclas
  */
-public class TaskCancellationMesage implements ClientToServerMessage {
+public class TaskCancellationMessage implements ClientToServerMessage {
 	private final ClientTaskId taskId;
 
-	public TaskCancellationMesage(ClientTaskId taskId) {
+	private TaskCancellationMessage(ClientTaskId taskId) {
 		this.taskId = taskId;
 	}
 
@@ -20,5 +20,9 @@ public class TaskCancellationMesage implements ClientToServerMessage {
 	@Override
 	public <T> T accept(Handler<T> handler) {
 		return handler.handle(this);
+	}
+
+	public static TaskCancellationMessage newTaskCancellationMessage(ClientTaskId taskId) {
+		return new TaskCancellationMessage(taskId);
 	}
 }
