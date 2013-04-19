@@ -33,7 +33,7 @@ public class WorkerCoordinatorImpl implements WorkerCoordinator {
 	private final ConnectionHandler<ServerToWorkerMessage,
 			WorkerToServerMessage> connectionHandler;
 	private final WorkerCoordinatorCallback callback;
-	private final Worker.Callback workerCallback = new WorkerCallback();
+	private final WorkerCallback workerCallback = new WorkerEventCallback();
 	private final Map<TaskId, Task<?>> taskMap = new ConcurrentHashMap<>();
 	private final Map<TaskId, Worker> taskAssignmentMap =
 		new ConcurrentHashMap<>();
@@ -265,7 +265,7 @@ public class WorkerCoordinatorImpl implements WorkerCoordinator {
 		}
 	}
 
-	private final class WorkerCallback implements Worker.Callback {
+	private final class WorkerEventCallback implements WorkerCallback {
 
 		@Override
 		public void taskCompleted(Worker worker, TaskId taskId,

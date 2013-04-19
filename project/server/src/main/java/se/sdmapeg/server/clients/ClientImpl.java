@@ -32,7 +32,7 @@ class ClientImpl implements Client {
 	private static final Logger LOG = LoggerFactory.getLogger(ClientImpl.class);
 	private final Connection<ServerToClientMessage, ClientToServerMessage> connection;
 	private final IdGenerator<TaskId> taskIdGenerator;
-	private final Client.Callback callback;
+	private final ClientCallback callback;
 	private final MessageHandler messageHandler;
 	private final Map<TaskId, ClientTaskId> taskIdMap =
 		new ConcurrentHashMap<>();
@@ -43,7 +43,7 @@ class ClientImpl implements Client {
 	public ClientImpl(Connection<ServerToClientMessage,
 			ClientToServerMessage> connection,
 							 IdGenerator<TaskId> taskIdGenerator,
-							 Client.Callback callback) {
+							 ClientCallback callback) {
 		this.connection = connection;
 		this.taskIdGenerator = taskIdGenerator;
 		this.callback = callback;

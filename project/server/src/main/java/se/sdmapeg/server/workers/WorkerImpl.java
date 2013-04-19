@@ -23,7 +23,7 @@ import se.sdmapeg.serverworker.communication.WorkerToServerMessage;
 public final class WorkerImpl implements Worker {
 	private static final Logger LOG = LoggerFactory.getLogger(WorkerImpl.class);
 	private final Connection<ServerToWorkerMessage, WorkerToServerMessage> connection;
-	private final Worker.Callback callback;
+	private final WorkerCallback callback;
 	private final WorkerToServerMessage.Handler<Void> messageHandler =
 		new MessageHander();
 	private final Set<TaskId> activeTasks = Collections.newSetFromMap(
@@ -33,7 +33,7 @@ public final class WorkerImpl implements Worker {
 	private volatile WorkerData workerData = WorkerData.getDefaultWorkerData();
 
 	public WorkerImpl(Connection<ServerToWorkerMessage,
-			WorkerToServerMessage> connection, Callback callback) {
+			WorkerToServerMessage> connection, WorkerCallback callback) {
 		this.connection = connection;
 		this.callback = callback;
 	}

@@ -29,8 +29,8 @@ public class ClientManagerImpl implements ClientManager {
 			ClientToServerMessage> connectionHandler;
 	private final IdGenerator<TaskId> taskIdGenerator;
 	private final ClientManagerCallback callback;
-	private final Client.Callback clientCallback =
-		new ClientCallback();
+	private final ClientCallback clientCallback =
+		new ClientEventCallback();
 	private final Map<TaskId, Client> taskMap =
 		new ConcurrentHashMap<>();
 	private final Map<InetAddress, Client> addressMap =
@@ -155,7 +155,7 @@ public class ClientManagerImpl implements ClientManager {
 		}
 	}
 
-	private final class ClientCallback implements Client.Callback {
+	private final class ClientEventCallback implements ClientCallback {
 
 		@Override
 		public void taskReceived(Client client, TaskId taskId,

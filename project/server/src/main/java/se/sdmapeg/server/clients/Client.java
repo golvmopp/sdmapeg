@@ -7,7 +7,6 @@ package se.sdmapeg.server.clients;
 import java.net.InetAddress;
 import java.util.Set;
 import se.sdmapeg.common.tasks.Result;
-import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.serverworker.TaskId;
 
 /**
@@ -25,10 +24,4 @@ interface Client {
 	void listen();
 
 	void taskCompleted(TaskId taskId, Result<?> result);
-
-	interface Callback {
-		void taskReceived(Client client, TaskId taskId, Task<?> task);
-		void taskCancelled(Client client, TaskId taskId);
-		void clientDisconnected(Client client);
-	}
 }
