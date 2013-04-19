@@ -62,6 +62,7 @@ final class WorkerImpl implements Worker {
 	@Override
 	public void cancelTask(TaskId taskId) {
 		if (activeTasks.remove(taskId)) {
+			LOG.info("Sending task cancellation message to {}", this);
 			send(TaskCancellationMessage.newTaskCancellationMessage(taskId));
 		}
 	}

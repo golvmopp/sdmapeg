@@ -221,6 +221,7 @@ public final class ClientManagerImpl implements ClientManager {
 			 * concurrently.
 			 */
 			for (TaskId task : client.getActiveTasks()) {
+				LOG.info("Cancelling task {}", task);
 				cancelTask(task);
 			}
 		}

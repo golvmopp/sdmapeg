@@ -160,7 +160,11 @@ final class ClientImpl implements Client {
 		@Override
 		public Void handle(TaskCancellationMessage mesage) {
 			ClientTaskId clientTaskId = mesage.getTaskId();
-			TaskId taskId = clientTaskIdMap.get(clientTaskId);
+			TaskId taskId = clientTaskIdMap.remove(clientTaskId);
+			taskIdMap.remove(taskId);
+			if (taskId == null) {
+				return null;
+			}
 			callback.taskCancelled(taskId);
 			return null;
 		}
