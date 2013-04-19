@@ -53,8 +53,10 @@ public class WorkerCoordinatorImpl implements WorkerCoordinator {
 	public void handleTask(TaskId taskId, Task<?> task) {
 		taskMap.put(taskId, task);
 		Worker worker;
-		// Keep trying until the task has been successfully assigned.
-		// This should normally succeed on the first attempt.
+		/*
+		 * Keep trying until the task has been successfully assigned. This
+		 * should normally succeed on the first attempt.
+		 */
 		do {
 			worker = leastLoadedAvailableWorker();
 			if (worker == null) {
@@ -78,6 +80,11 @@ public class WorkerCoordinatorImpl implements WorkerCoordinator {
 	@Override
 	public void shutDown() {
 		try {
+			/*
+			 * Closes the connection handler. This will be noticed by the
+			 * connection acceptor thread which will handle the rest of the
+			 * shutdown work.
+			 */
 			connectionHandler.close();
 		} catch (IOException ex) {
 			LOG.warn("An error occurred while closing the connection handler",
@@ -91,12 +98,17 @@ public class WorkerCoordinatorImpl implements WorkerCoordinator {
 		if (worker == null) {
 			return;
 		}
-		worker.disconnect();
+		disconnectWorker(worker);
 	}
 
 	@Override
 	public void start() {
+		/*
+		 * compareAndSet to ensure that the connection acceptor thread will only
+		 * be started the first time this method is called.
+		 */
 		if (started.compareAndSet(false, true)) {
+			// Start a new thread to deal with incoming connections
 			connectionThreadPool.submit(new ConnectionAcceptor<>(
 					connectionHandler, new ConnectionAcceptorCallback()));
 			LOG.info("Worker Coordinator Started.");
@@ -161,13 +173,6 @@ public class WorkerCoordinatorImpl implements WorkerCoordinator {
 		return tasksToSteal;
 	}
 
-	private void connectionHandlerClosed() {
-		for (Worker worker : addressMap.values()) {
-			worker.disconnect();
-		}
-		LOG.info("Worker Coordinator Stopped");
-	}
-
 	private void reassignTask(TaskId taskId) {
 		taskAssignmentMap.remove(taskId);
 		Task<?> task = taskMap.remove(taskId);
@@ -175,13 +180,23 @@ public class WorkerCoordinatorImpl implements WorkerCoordinator {
 	}
 
 	private List<LoadSnapshot> createLoadSnapshotList() {
-		// Since new workers may be added at any time, we give the list a
-		// slightly larger initial capacity
+		/*
+		 * Since new workers may be added at any time, we give the list a
+		 * slightly larger initial capacity.
+		 */
 		List<LoadSnapshot> snapshots = new ArrayList<>(addressMap.size() + 5);
 		for (Worker worker : addressMap.values()) {
 			snapshots.add(new LoadSnapshot(worker));
 		}
 		return snapshots;
+	}
+
+	private void disconnectWorker(Worker worker) {
+		/*
+		 * Disconnects the worker. This will be noticed by the worker listener
+		 * thread, which will handle the rest of the cleanup work.
+		 */
+		worker.disconnect();
 	}
 
 	/**
@@ -242,12 +257,23 @@ public class WorkerCoordinatorImpl implements WorkerCoordinator {
 			Worker worker = new WorkerImpl(connection);
 			LOG.info("{} connected", worker);
 			addressMap.put(worker.getAddress(), worker);
+			// Start a new thread to listen to the worker
 			connectionThreadPool.submit(new WorkerListener(worker));
 		}
 
 		@Override
 		public void connectionHandlerClosed() {
-			WorkerCoordinatorImpl.this.connectionHandlerClosed();
+			/*
+			 * Disconnect all currently connected workers. Since this method is
+			 * called by the only thread responsible for accepting new
+			 * connections, we can safely assume that the collection will
+			 * remain up to date without having to worry about new workers being
+			 * added concurrently.
+			 */
+			for (Worker worker : addressMap.values()) {
+				disconnectWorker(worker);
+			}
+			LOG.info("Worker Coordinator Stopped");
 		}
 	}
 
@@ -288,6 +314,14 @@ public class WorkerCoordinatorImpl implements WorkerCoordinator {
 		@Override
 		public void workerDisconnected(Worker worker) {
 			addressMap.remove(worker.getAddress());
+			/*
+			 * Reassign all active tasks of this worker. Since this method is
+			 * called from the only thread responsible for completing tasks
+			 * assigned to this worker, and a disconnected worker will never
+			 * accept any new tasks, we can safely assume that the set of active
+			 * tasks will be up to date and that no tasks will be added or
+			 * removed concurrently.
+			 */
 			for (TaskId taskId : worker.getActiveTasks()) {
 				LOG.info("Reassigning task {} from {}", taskId, worker);
 				reassignTask(taskId);
