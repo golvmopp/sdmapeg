@@ -58,6 +58,11 @@ public class ClientManagerImpl implements ClientManager {
 	@Override
 	public void shutDown() {
 		try {
+			/*
+			 * Closes the connection handler. This will be noticed by the
+			 * connection acceptor thread which will handle the rest of the
+			 * shutdown work.
+			 */
 			connectionHandler.close();
 		} catch (IOException ex) {
 			LOG.warn("An error occurred while closing the connection handler",
@@ -71,12 +76,17 @@ public class ClientManagerImpl implements ClientManager {
 		if (client == null) {
 			return;
 		}
-		client.disconnect();
+		disconnectClient(client);
 	}
 
 	@Override
 	public void start() {
+		/*
+		 * compareAndSet to ensure that the connection acceptor thread will only
+		 * be started the first time this method is called.
+		 */
 		if (started.compareAndSet(false, true)) {
+			// Start a new thread to deal with incoming connections
 			connectionThreadPool.submit(new ConnectionAcceptor<>(
 					connectionHandler, new ConnectionAcceptorCallback()));
 			LOG.info("Client Manager Started");
@@ -94,20 +104,6 @@ public class ClientManagerImpl implements ClientManager {
 		}
 	}
 
-	private void clientDisconnected(Client client) {
-		addressMap.remove(client.getAddress());
-		for (TaskId task : client.getActiveTasks()) {
-			cancelTask(task);
-		}
-	}
-
-	private void connectionHandlerClosed() {
-		for (Client client : addressMap.values()) {
-			client.disconnect();
-		}
-		LOG.info("Client Manager Stopped");
-	}
-
 	private boolean isStopped() {
 		return !connectionHandler.isOpen();
 	}
@@ -121,6 +117,14 @@ public class ClientManagerImpl implements ClientManager {
 		callback.cancelTask(task);
 	}
 
+	private void disconnectClient(Client client) {
+		/*
+		 * Disconnects the client. This will be noticed by the client listener
+		 * thread, which will handle the rest of the cleanup work.
+		 */
+		client.disconnect();
+	}
+
 	private final class ConnectionAcceptorCallback
 		implements ConnectionAcceptor.Callback<ServerToClientMessage,
 			ClientToServerMessage> {
@@ -130,12 +134,23 @@ public class ClientManagerImpl implements ClientManager {
 			Client client = new ClientImpl(connection, taskIdGenerator);
 			LOG.info("{} connected", client);
 			addressMap.put(client.getAddress(), client);
+			// Start a new thread to listen to the client
 			connectionThreadPool.submit(new ClientListener(client));
 		}
 
 		@Override
 		public void connectionHandlerClosed() {
-			ClientManagerImpl.this.connectionHandlerClosed();
+			/*
+			 * Disconnect all currently connected clients. Since this method is
+			 * called by the only thread responsible for accepting new
+			 * connections, we can safely assume that the collection will
+			 * remain up to date without having to worry about new clients being
+			 * added concurrently.
+			 */
+			for (Client client : addressMap.values()) {
+				disconnectClient(client);
+			}
+			LOG.info("Client Manager Stopped");
 		}
 	}
 
@@ -174,7 +189,18 @@ public class ClientManagerImpl implements ClientManager {
 
 		@Override
 		public void clientDisconnected() {
-			ClientManagerImpl.this.clientDisconnected(client);
-		}	
+			addressMap.remove(client.getAddress());
+			/*
+			 * Since this method is called by the only thread responsible for
+			 * accepting new tasks from the client, we can be sure that the set
+			 * of active tasks will be up to date and won't change any more.
+			 * This allows us to simply iterate over it and cancel each task,
+			 * without having to worry about any new tasks being added
+			 * concurrently.
+			 */
+			for (TaskId task : client.getActiveTasks()) {
+				cancelTask(task);
+			}
+		}
 	}
 }
