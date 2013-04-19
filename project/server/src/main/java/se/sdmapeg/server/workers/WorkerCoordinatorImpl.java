@@ -33,7 +33,6 @@ public class WorkerCoordinatorImpl implements WorkerCoordinator {
 	private final ConnectionHandler<ServerToWorkerMessage,
 			WorkerToServerMessage> connectionHandler;
 	private final WorkerCoordinatorCallback callback;
-	private final WorkerCallback workerCallback = new WorkerEventCallback();
 	private final Map<TaskId, Task<?>> taskMap = new ConcurrentHashMap<>();
 	private final Map<TaskId, Worker> taskAssignmentMap =
 		new ConcurrentHashMap<>();
@@ -240,7 +239,7 @@ public class WorkerCoordinatorImpl implements WorkerCoordinator {
 		@Override
 		public void connectionReceived(Connection<ServerToWorkerMessage,
 				WorkerToServerMessage> connection) {
-			Worker worker = new WorkerImpl(connection, workerCallback);
+			Worker worker = new WorkerImpl(connection);
 			LOG.info("{} connected", worker);
 			addressMap.put(worker.getAddress(), worker);
 			connectionThreadPool.submit(new WorkerListener(worker));
@@ -261,15 +260,19 @@ public class WorkerCoordinatorImpl implements WorkerCoordinator {
 
 		@Override
 		public void run() {
-			worker.listen();
+			worker.listen(new WorkerEventCallback(worker));
 		}
 	}
 
 	private final class WorkerEventCallback implements WorkerCallback {
+		private final Worker worker;
+
+		public WorkerEventCallback(Worker worker) {
+			this.worker = worker;
+		}
 
 		@Override
-		public void taskCompleted(Worker worker, TaskId taskId,
-				Result<?> result) {
+		public void taskCompleted(TaskId taskId, Result<?> result) {
 			taskAssignmentMap.remove(taskId);
 			taskMap.remove(taskId);
 			LOG.info("Task {} completed by {}", taskId, worker);
@@ -277,7 +280,7 @@ public class WorkerCoordinatorImpl implements WorkerCoordinator {
 		}
 
 		@Override
-		public void taskStolen(Worker worker, TaskId taskId) {
+		public void taskStolen(TaskId taskId) {
 			LOG.info("Task {} stolen from {}", taskId, worker);
 			reassignTask(taskId);
 		}
@@ -292,7 +295,7 @@ public class WorkerCoordinatorImpl implements WorkerCoordinator {
 		}
 
 		@Override
-		public void workRequested(Worker worker) {
+		public void workRequested() {
 			stealTasks(worker.getParallellWorkCapacity());
 			LOG.info("Work requested by {}", worker);
 		}

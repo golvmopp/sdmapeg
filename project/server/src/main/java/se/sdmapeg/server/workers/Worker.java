@@ -74,15 +74,11 @@ interface Worker {
 
 	/**
 	 * Continually listens to input from this Worker, and calls the appropriate
-	 * methods of the callback when an input has been received. The methods of
-	 * the callback will only be called while a thread is running this method,
-	 * and will only ever be called by that thread, if the callback is not
-	 * shared with other objects. This method will keep running until this
-	 * Worker is disconnected, and will always end with calling the
-	 * workerDisconnected method of the callback with this Worker as the
-	 * argument.
+	 * methods of the specified callback when an input has been received. This
+	 * method will keep running until this Worker is disconnected, and will
+	 * always end with calling the workerDisconnected method of the callback.
 	 */
-	void listen();
+	void listen(WorkerCallback callback);
 
 	/**
 	 * Disconnects the worker.
