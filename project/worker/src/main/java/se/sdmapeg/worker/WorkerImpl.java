@@ -71,6 +71,7 @@ public class WorkerImpl implements Worker {
 			return;
 		}
 		futureTask.cancel(true);
+		LOG.info("Cancelled task {}", taskId);
 	}
 
 	private void runTask(TaskId taskId, Task<?> task) {
