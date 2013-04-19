@@ -110,12 +110,16 @@ public class WorkerImpl implements Worker {
 	    Set<Runnable> runnables = taskExecutor.stealTasks(desired);
 	    Set<TaskId> stolenTasks = new HashSet<>();
 	    for (Runnable runnable : runnables) {
+			LOG.info("Entered loop");
 			TaskId taskId = idMap.remove(runnable);
+			LOG.info("Found task ID", taskId);
 			taskMap.remove(taskId);
+			LOG.info("Removed task {}");
 			if (taskId != null) {
 			    stolenTasks.add(taskId);
+				LOG.info("Added task to stolen tasks");
 			}
-	    } 
+	    }
 		LOG.info("Stole {} tasks from queue", stolenTasks.size());
 	    WorkerToServerMessage message = 
 	    		WorkStealingResponse.newWorkStealingResponse(stolenTasks);
