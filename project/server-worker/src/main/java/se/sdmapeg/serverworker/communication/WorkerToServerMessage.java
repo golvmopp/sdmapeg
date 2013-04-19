@@ -29,5 +29,7 @@ public interface WorkerToServerMessage extends Message {
 		 * @param message the message to handle
 		 */
 		T handle(WorkerIdentification message);
+
+		T handle(WorkStealingResponse workStealingResponse);
 	}
 }
