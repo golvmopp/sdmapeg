@@ -106,12 +106,14 @@ public class WorkerImpl implements Worker {
 	}
 
 	private void stealTasks(int desired) {
+		LOG.info("Attempting to steal {} tasks from queue", desired);
 	    Set<Runnable> runnables = taskExecutor.stealTasks(desired);	
 	    Set<TaskId> stolenTasks = new HashSet<>();
 	    for (Runnable runnable : runnables) {
 			TaskId taskId = idMap.remove(runnable);
 			taskMap.remove(taskId);
 			if (taskId != null) {
+				LOG.info("Task {} stolen from queue");
 			    stolenTasks.add(taskId);
 			}
 	    } 
