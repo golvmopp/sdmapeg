@@ -13,12 +13,14 @@ import org.slf4j.LoggerFactory;
 import se.sdmapeg.client.gui.ClientView;
 import se.sdmapeg.common.IdGenerator;
 import se.sdmapeg.common.communication.CommunicationException;
+import se.sdmapeg.common.communication.Connection;
 import se.sdmapeg.common.communication.ConnectionClosedException;
 import se.sdmapeg.common.communication.ConnectionImpl;
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.serverclient.ClientTaskId;
 import se.sdmapeg.serverclient.ClientTaskIdGenerator;
+import se.sdmapeg.serverclient.communication.ClientToServerMessage;
 import se.sdmapeg.serverclient.communication.ResultMessage;
 import se.sdmapeg.serverclient.communication.ServerToClientMessage;
 import se.sdmapeg.serverclient.communication.TaskMessage;
@@ -35,7 +37,9 @@ public class ClientImpl implements Client {
 
 	private ClientImpl(ClientView view, String host) throws CommunicationException {
 		try {
-			server = ServerImpl.newServer(ConnectionImpl.newConnection(new Socket(host, SERVER_PORT)));
+			Connection<ClientToServerMessage, ServerToClientMessage> connection =
+				ConnectionImpl.newConnection(new Socket(host, SERVER_PORT));
+			server = ServerImpl.newServer(connection);
 		} catch (CommunicationException|IOException e) {
 			throw new CommunicationException();
 		}

@@ -7,7 +7,10 @@ import java.net.UnknownHostException;
 import javax.swing.JOptionPane;
 
 import se.sdmapeg.common.communication.CommunicationException;
+import se.sdmapeg.common.communication.Connection;
 import se.sdmapeg.common.communication.ConnectionImpl;
+import se.sdmapeg.serverworker.communication.ServerToWorkerMessage;
+import se.sdmapeg.serverworker.communication.WorkerToServerMessage;
 
 public class Main {
 	private static final int SERVER_PORT = 6667;
@@ -20,8 +23,9 @@ public class Main {
 		String host = JOptionPane.showInputDialog("Address:", "server.sdmapeg.se");
 		Server server;
 		try {
-			server = ServerImpl.newServer(ConnectionImpl
-					.newConnection(new Socket(host, SERVER_PORT)));
+			Connection<WorkerToServerMessage, ServerToWorkerMessage> connection =
+				ConnectionImpl.newConnection(new Socket(host, SERVER_PORT));
+			server = ServerImpl.newServer(connection);
 		} catch (CommunicationException | IOException e) {
 			throw new CommunicationException();
 		}
