@@ -107,24 +107,24 @@ public class WorkerImpl implements Worker {
 
 	private void stealTasks(int desired) {
 		LOG.info("Attempting to steal {} tasks from queue", desired);
-	    Set<Runnable> runnables = taskExecutor.stealTasks(desired);	
+	    Set<Runnable> runnables = taskExecutor.stealTasks(desired);
 	    Set<TaskId> stolenTasks = new HashSet<>();
 	    for (Runnable runnable : runnables) {
 			TaskId taskId = idMap.remove(runnable);
 			taskMap.remove(taskId);
 			if (taskId != null) {
-				LOG.info("Task {} stolen from queue");
 			    stolenTasks.add(taskId);
 			}
 	    } 
+		LOG.info("Stole {} tasks from queue", stolenTasks.size());
 	    WorkerToServerMessage message = 
 	    		WorkStealingResponse.newWorkStealingResponse(stolenTasks);
 	    try {
 			LOG.info("Sending stolen tasks {} to server", stolenTasks);
 			server.send(message);
 		} catch (CommunicationException ex) {
-			server.disconnect();
 			LOG.error("Connection to server lost");
+			server.disconnect();
 		}
 	}
 	
