@@ -7,12 +7,14 @@ import java.net.SocketException;
 import se.sdmapeg.common.communication.CommunicationException;
 import se.sdmapeg.common.communication.Connection;
 import se.sdmapeg.common.communication.ConnectionImpl;
+import se.sdmapeg.common.communication.Message;
 
 /**
  * Implementation of the ConnectionHandler interface.
  *
  */
-public final class ConnectionHandlerImpl implements ConnectionHandler {
+public final class ConnectionHandlerImpl<S extends Message, R extends Message>
+		implements ConnectionHandler<S, R> {
 	private final ServerSocket serverSocket;
 
 	private ConnectionHandlerImpl(int port) throws CommunicationException {
@@ -29,7 +31,8 @@ public final class ConnectionHandlerImpl implements ConnectionHandler {
 	}
 
 	@Override
-	public Connection accept() throws CommunicationException, SocketException {
+	public Connection<S, R> accept() throws CommunicationException,
+											SocketException {
 		try {
 			return ConnectionImpl.newConnection(serverSocket.accept());
 		} catch (SocketException e) {
@@ -44,8 +47,8 @@ public final class ConnectionHandlerImpl implements ConnectionHandler {
 		return !serverSocket.isClosed();
 	}
 
-	public static ConnectionHandler newConnectionHandler(int port) throws
-			CommunicationException {
-		return new ConnectionHandlerImpl(port);
+	public static <S extends Message, R extends Message> ConnectionHandler<S, R>
+			newConnectionHandler(int port) throws CommunicationException {
+		return new ConnectionHandlerImpl<>(port);
 	}
 }

@@ -84,6 +84,7 @@ public final class ConnectionImpl<S extends Message, R extends Message>
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public R receive() throws CommunicationException,
 			ConnectionClosedException {
 		try {
@@ -120,8 +121,8 @@ public final class ConnectionImpl<S extends Message, R extends Message>
 	 * @throws CommunicationException	if socket is not open and connected or
 	 *									an error occurs during initialisation.
 	 */
-	public static Connection newConnection(Socket socket)
-			throws CommunicationException {
-		return new ConnectionImpl(socket);
+	public static <S extends Message, R extends Message> Connection<S, R>
+			newConnection(Socket socket) throws CommunicationException {
+		return new ConnectionImpl<>(socket);
 	}
 }
