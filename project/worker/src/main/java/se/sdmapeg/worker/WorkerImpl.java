@@ -20,6 +20,8 @@ import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.common.tasks.TaskPerformer;
 import se.sdmapeg.serverworker.communication.ResultMessage;
 import se.sdmapeg.serverworker.communication.ServerToWorkerMessage;
+import se.sdmapeg.serverworker.communication.WorkStealingRequest;
+import se.sdmapeg.serverworker.communication.WorkStealingResponse;
 import se.sdmapeg.serverworker.TaskId;
 import se.sdmapeg.serverworker.communication.TaskMessage;
 import se.sdmapeg.serverworker.communication.WorkerToServerMessage;
@@ -115,7 +117,16 @@ public class WorkerImpl implements Worker {
 			if (taskId != null) {
 			    stolenTasks.add(taskId);
 			}
-	    } // TODO: Send stolen tasks to server
+	    } 
+	    WorkerToServerMessage message = 
+	    		WorkStealingResponse.newWorkStealingResponse(stolenTasks);
+	    try {
+			LOG.info("Sending stolen tasks {} to server", stolenTasks);
+			server.send(message);
+		} catch (CommunicationException ex) {
+			server.disconnect();
+			LOG.error("Connection to server lost");
+		}
 	}
 	
 	public static WorkerImpl newWorkerImpl(int poolSize, Server server,
@@ -141,6 +152,12 @@ public class WorkerImpl implements Worker {
 		@Override
 		public Void handle(TaskMessage message) {
 			runTask(message.getTaskId(), message.getTask());
+			return null;
+		}
+
+		@Override
+		public Void handle(WorkStealingRequest message) {
+			stealTasks(message.getDesired());
 			return null;
 		}
 	}
