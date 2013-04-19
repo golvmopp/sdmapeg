@@ -16,7 +16,9 @@ import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.serverworker.TaskId;
 import se.sdmapeg.serverworker.communication.ResultMessage;
 import se.sdmapeg.serverworker.communication.ServerToWorkerMessage;
+import se.sdmapeg.serverworker.communication.TaskCancellationMessage;
 import se.sdmapeg.serverworker.communication.TaskMessage;
+import se.sdmapeg.serverworker.communication.WorkStealingRequest;
 import se.sdmapeg.serverworker.communication.WorkStealingResponse;
 import se.sdmapeg.serverworker.communication.WorkerIdentification;
 import se.sdmapeg.serverworker.communication.WorkerToServerMessage;
@@ -60,17 +62,13 @@ final class WorkerImpl implements Worker {
 	@Override
 	public void cancelTask(TaskId taskId) {
 		if (activeTasks.remove(taskId)) {
-			// TODO: Send message to cancel task here
+			send(TaskCancellationMessage.newTaskCancellationMessage(taskId));
 		}
 	}
 
 	@Override
 	public void stealTasks(int max) {
-		/*
-		 * Implementing this as a no-op is completely valid, as per the
-		 * contract.
-		 */
-		// TODO: Add code to actually do something here
+		send(WorkStealingRequest.newWorkerStealingRequest(max));
 	}
 
 	@Override
