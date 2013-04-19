@@ -4,16 +4,29 @@ import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.serverworker.TaskId;
 
 /**
- *
- * @author niclas
+ * A callback to be notified by a Client when an event occurs.
  */
 interface ClientCallback {
 
-	void taskReceived(Client client, TaskId taskId,
-					  Task<?> task);
+	/**
+	 * Notifies this callback that a task has been received from the client.
+	 *
+	 * @param taskId the ID of the received task
+	 * @param task the received task
+	 */
+	void taskReceived(TaskId taskId, Task<?> task);
 
-	void taskCancelled(Client client, TaskId taskId);
+	/**
+	 * Notifies this callback that a request to cancel the task with the
+	 * specified TaskId has been received from the client.
+	 *
+	 * @param taskId the ID of the task requested to be cancelled
+	 */
+	void taskCancelled(TaskId taskId);
 
-	void clientDisconnected(Client client);
+	/**
+	 * Notifies this callback that the client has disconnected.
+	 */
+	void clientDisconnected();
 	
 }

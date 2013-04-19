@@ -36,15 +36,11 @@ interface Client {
 
 	/**
 	 * Continually listens to input from this Client, and calls the appropriate
-	 * methods of the callback when an input has been received. The methods of
-	 * the callback will only be called while a thread is running this method,
-	 * and will only ever be called by that thread, if the callback is not
-	 * shared with other objects. This method will keep running until this
-	 * Client is disconnected, and will always end with calling the
-	 * clientDisconnected method of the callback with this Client as the
-	 * argument.
+	 * methods of the specified  callback when an input has been received.
+	 * This method will keep running until this Client is disconnected, and will
+	 * always end with calling the clientDisconnected method of the callback.
 	 */
-	void listen();
+	void listen(ClientCallback callback);
 
 	/**
 	 * Notifies the client that the task with the specified TaskId has been

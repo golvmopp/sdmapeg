@@ -18,6 +18,7 @@ import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.serverclient.ClientTaskId;
 import se.sdmapeg.serverclient.communication.ClientIdentification;
 import se.sdmapeg.serverclient.communication.ClientToServerMessage;
+import se.sdmapeg.serverclient.communication.ClientToServerMessage.Handler;
 import se.sdmapeg.serverclient.communication.ResultMessage;
 import se.sdmapeg.serverclient.communication.ServerToClientMessage;
 import se.sdmapeg.serverclient.communication.TaskCancellationMesage;
@@ -25,15 +26,13 @@ import se.sdmapeg.serverclient.communication.TaskMessage;
 import se.sdmapeg.serverworker.TaskId;
 
 /**
- *
- * @author niclas
+ * A Client representation using an underlying Connection to communicate with
+ * the actual client.
  */
 class ClientImpl implements Client {
 	private static final Logger LOG = LoggerFactory.getLogger(ClientImpl.class);
 	private final Connection<ServerToClientMessage, ClientToServerMessage> connection;
 	private final IdGenerator<TaskId> taskIdGenerator;
-	private final ClientCallback callback;
-	private final MessageHandler messageHandler;
 	private final Map<TaskId, ClientTaskId> taskIdMap =
 		new ConcurrentHashMap<>();
 	private final Map<ClientTaskId, TaskId> clientTaskIdMap =
@@ -41,13 +40,10 @@ class ClientImpl implements Client {
 	
 
 	public ClientImpl(Connection<ServerToClientMessage,
-			ClientToServerMessage> connection,
-							 IdGenerator<TaskId> taskIdGenerator,
-							 ClientCallback callback) {
+								 ClientToServerMessage> connection,
+			IdGenerator<TaskId> taskIdGenerator) {
 		this.connection = connection;
 		this.taskIdGenerator = taskIdGenerator;
-		this.callback = callback;
-		this.messageHandler = new MessageHandler();
 	}
 
 	@Override
@@ -56,12 +52,14 @@ class ClientImpl implements Client {
 	}
 
 	@Override
-	public void listen() {
+	public void listen(ClientCallback callback) {
 		try {
 			LOG.info("Listening to {}", this);
+			ClientToServerMessage.Handler<Void> messageHandler =
+				new MessageHandler(callback);
 			while (true) {
 				ClientToServerMessage message = connection.receive();
-				handleMessage(message);
+				handleMessage(message, messageHandler);
 			}
 		} catch (ConnectionClosedException ex) {
 			LOG.info("{} disconnected", this);
@@ -69,12 +67,8 @@ class ClientImpl implements Client {
 			LOG.error("An error occurred while listening for messages", ex);
 		} finally {
 			disconnect();
-			callback.clientDisconnected(ClientImpl.this);
+			callback.clientDisconnected();
 		}
-	}
-
-	private void handleMessage(ClientToServerMessage message) {
-		message.accept(messageHandler);
 	}
 
 	@Override
@@ -119,14 +113,24 @@ class ClientImpl implements Client {
 		return "Client{" + connection.getAddress() + '}';
 	}
 
+	private static void handleMessage(ClientToServerMessage message,
+							   Handler<Void> messageHandler) {
+		message.accept(messageHandler);
+	}
+
 	private final class MessageHandler
 			implements ClientToServerMessage.Handler<Void> {
+		private final ClientCallback callback;
+
+		public MessageHandler(ClientCallback callback) {
+			this.callback = callback;
+		}
 
 		@Override
 		public Void handle(ClientIdentification message) {
 			LOG.error("Received unexpected message type");
 			disconnect();
-			callback.clientDisconnected(ClientImpl.this);
+			callback.clientDisconnected();
 			return null;
 		}
 
@@ -137,7 +141,7 @@ class ClientImpl implements Client {
 			TaskId taskId = taskIdGenerator.newId();
 			taskIdMap.put(taskId, clientTaskId);
 			clientTaskIdMap.put(clientTaskId, taskId);
-			callback.taskReceived(ClientImpl.this, taskId, task);
+			callback.taskReceived(taskId, task);
 			return null;
 		}
 
@@ -145,7 +149,7 @@ class ClientImpl implements Client {
 		public Void handle(TaskCancellationMesage mesage) {
 			ClientTaskId clientTaskId = mesage.getTaskId();
 			TaskId taskId = clientTaskIdMap.get(clientTaskId);
-			callback.taskCancelled(ClientImpl.this, taskId);
+			callback.taskCancelled(taskId);
 			return null;
 		}
 	}
