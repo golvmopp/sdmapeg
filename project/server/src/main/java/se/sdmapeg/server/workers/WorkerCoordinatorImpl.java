@@ -105,13 +105,13 @@ public class WorkerCoordinatorImpl implements WorkerCoordinator {
 	}
 
 	@Override
-	public WorkerCoordinator.State getState() {
+	public WorkerCoordinatorState getState() {
 		if (isStopped()) {
-			return WorkerCoordinator.State.STOPPED;
+			return WorkerCoordinatorState.STOPPED;
 		} else if (isStaretd()) {
-			return WorkerCoordinator.State.STARTED;
+			return WorkerCoordinatorState.STARTED;
 		} else {
-			return WorkerCoordinator.State.CREATED;
+			return WorkerCoordinatorState.CREATED;
 		}
 	}
 

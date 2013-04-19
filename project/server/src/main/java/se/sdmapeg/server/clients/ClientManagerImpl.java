@@ -86,13 +86,13 @@ public class ClientManagerImpl implements ClientManager {
 	}
 
 	@Override
-	public ClientManager.State getState() {
+	public ClientManagerState getState() {
 		if (isStopped()) {
-			return ClientManager.State.STOPPED;
+			return ClientManagerState.STOPPED;
 		} else if (isStarted()) {
-			return ClientManager.State.STARTED;
+			return ClientManagerState.STARTED;
 		} else {
-			return ClientManager.State.CREATED;
+			return ClientManagerState.CREATED;
 		}
 	}
 
