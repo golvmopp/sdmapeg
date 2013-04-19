@@ -17,6 +17,7 @@ import se.sdmapeg.serverworker.TaskId;
 import se.sdmapeg.serverworker.communication.ResultMessage;
 import se.sdmapeg.serverworker.communication.ServerToWorkerMessage;
 import se.sdmapeg.serverworker.communication.TaskMessage;
+import se.sdmapeg.serverworker.communication.WorkStealingResponse;
 import se.sdmapeg.serverworker.communication.WorkerIdentification;
 import se.sdmapeg.serverworker.communication.WorkerToServerMessage;
 
@@ -190,22 +191,12 @@ final class WorkerImpl implements Worker {
 			}
 			return null;
 		}
-	}
-
-	private enum WorkerIdentificationExtractor
-			implements WorkerToServerMessage.Handler<WorkerIdentification> {
-		INSTANCE;
 
 		@Override
-		public WorkerIdentification handle(ResultMessage message) {
-			throw new IllegalArgumentException();
+		public Void handle(WorkStealingResponse message) {
+			// TODO: get the stolen tasks from the message and notify the callback.
+			return null;
 		}
-
-		@Override
-		public WorkerIdentification handle(WorkerIdentification message) {
-			return message;
-		}
-		
 	}
 
 	private static final class WorkerData {
