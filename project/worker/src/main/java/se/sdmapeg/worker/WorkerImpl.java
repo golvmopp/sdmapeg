@@ -18,13 +18,8 @@ import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.SimpleFailure;
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.common.tasks.TaskPerformer;
-import se.sdmapeg.serverworker.communication.ResultMessage;
-import se.sdmapeg.serverworker.communication.ServerToWorkerMessage;
-import se.sdmapeg.serverworker.communication.WorkStealingRequest;
-import se.sdmapeg.serverworker.communication.WorkStealingResponse;
+import se.sdmapeg.serverworker.communication.*;
 import se.sdmapeg.serverworker.TaskId;
-import se.sdmapeg.serverworker.communication.TaskMessage;
-import se.sdmapeg.serverworker.communication.WorkerToServerMessage;
 
 /**
  * Actual implementation of the Worker in the worker module.
@@ -152,6 +147,12 @@ public class WorkerImpl implements Worker {
 		@Override
 		public Void handle(TaskMessage message) {
 			runTask(message.getTaskId(), message.getTask());
+			return null;
+		}
+
+		@Override
+		public Void handle(TaskCancellationMessage message) {
+			cancelTask(message.getTaskId());
 			return null;
 		}
 
