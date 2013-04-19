@@ -1,8 +1,7 @@
 package se.sdmapeg.common.tasks;
 
-import java.util.concurrent.ExecutionException;
-
-public class PythonTask implements Task {
+public class PythonTask implements Task<String> {
+	private static final long serialVersionUID = -2539795844520824496L;
 	private String pythonCode;
 
 	private PythonTask(String pythonCode) {
@@ -14,12 +13,12 @@ public class PythonTask implements Task {
 	}
 
 	@Override
-	public Result<String> perform(TaskPerformer taskPerformer) throws ExecutionException {
+	public Result<String> perform(TaskPerformer taskPerformer) {
 		return taskPerformer.performPythonTask(this);
 	}
 
 	@Override
-	public Class resultType() {
+	public Class<String> resultType() {
 		return String.class;
 	}
 
