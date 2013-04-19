@@ -69,6 +69,7 @@ final class WorkerImpl implements Worker {
 
 	@Override
 	public void stealTasks(int max) {
+		LOG.info("Sending task stealing request to {}", this);
 		send(WorkStealingRequest.newWorkerStealingRequest(max));
 	}
 

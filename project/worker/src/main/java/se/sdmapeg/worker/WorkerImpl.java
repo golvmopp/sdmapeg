@@ -29,6 +29,7 @@ public class WorkerImpl implements Worker {
     private final TaskExecutor taskExecutor;
 	private final Server server;
 	private final TaskPerformer taskPerformer;
+	private final int poolSize;
 	private final Map<TaskId, FutureTask<Void>> taskMap =
 		new ConcurrentHashMap<>();
 	private final Map<Runnable, TaskId> idMap = new ConcurrentHashMap<>();
@@ -41,6 +42,7 @@ public class WorkerImpl implements Worker {
 		this.taskExecutor = TaskExecutor.newTaskQueue(poolSize);
 		this.server = server;
 		this.taskPerformer = taskPerformer;
+		this.poolSize = poolSize;
 	}
 
 	private void listen() {
@@ -186,6 +188,12 @@ public class WorkerImpl implements Worker {
 	@Override
 	public void start() {
 	    serverListenerExecutor.submit(new MessageListener());
+		try {
+			server.send(new WorkerIdentification(poolSize));
+		} catch (CommunicationException ex) {
+			server.disconnect();
+			LOG.error("Connection to server lost");
+		}
 	}
 
 	@Override
