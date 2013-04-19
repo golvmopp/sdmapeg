@@ -2,18 +2,17 @@ package se.sdmapeg.server.workers;
 
 import java.net.InetAddress;
 import java.util.Set;
-import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.serverworker.TaskId;
 
 /**
- * Represents a worker. Handles communication between Server and Worker.
+ * Interface for representing a worker connected to the server.
  */
 interface Worker {
 	/**
-	 * returns the address of the worker.
+	 * Returns the address of this worker.
 	 *
-	 * @return the address of the worker
+	 * @return the address of this worker
 	 */
 	InetAddress getAddress();
 
@@ -75,15 +74,11 @@ interface Worker {
 
 	/**
 	 * Continually listens to input from this Worker, and calls the appropriate
-	 * methods of the Callback when an input has been received. The methods of
-	 * the callback will only be called while a thread is running this method,
-	 * and will only ever be called by that thread, if the callback is not
-	 * shared with other objects. This method will keep running until this
-	 * Worker is disconnected, and will always end with calling the
-	 * workerDisconnected method of the Callback with this Worker as the
-	 * argument.
+	 * methods of the specified callback when an input has been received. This
+	 * method will keep running until this Worker is disconnected, and will
+	 * always end with calling the workerDisconnected method of the callback.
 	 */
-	void listen();
+	void listen(WorkerCallback callback);
 
 	/**
 	 * Disconnects the worker.
@@ -104,41 +99,4 @@ interface Worker {
 	 * @return whether this Worker is currently accepting new tasks 
 	 */
 	boolean isAcceptingWork();
-
-	/**
-	 * A callback for providing asynchronous responses to commands sent to a
-	 * Worker.
-	 */
-	interface Callback {
-		/**
-		 * Called to indicate that the specified Worker has completed the task
-		 * with the specified TaskId.
-		 *
-		 * @param worker the Worker which completed the task
-		 * @param taskId the id of the completed task
-		 * @param result the result of the completed task
-		 */
-		void taskCompleted(Worker worker, TaskId taskId, Result<?> result);
-		/**
-		 * Called to indicate that the task with the specified TaskId was
-		 * successfully stolen from the specified Worker.
-		 *
-		 * @param worker the Worker from which the task was stolen
-		 * @param taskId the id of the stolen task
-		 */
-		void taskStolen(Worker worker, TaskId taskId);
-
-		/**
-		 * Called to indicate that the specified Worker has disconnected.
-		 *
-		 * @param worker the Worker which was disconnected
-		 */
-		void workerDisconnected(Worker worker);
-
-		/**
-		 * Called to indicate that the specified worker has a shortage of work
-		 * and is requesting more tasks to perform.
-		 */
-		void workRequested(Worker worker);
-	}
 }

@@ -1,9 +1,8 @@
 package se.sdmapeg.server.clients;
 
+import java.net.InetAddress;
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.serverworker.TaskId;
-
-import java.net.InetAddress;
 
 /**
  * Interface for classes managing clients.
@@ -38,23 +37,5 @@ public interface ClientManager {
 	/**
 	 * Returns the current state of this client manager.
 	 */
-	State getState();
-
-	/**
-	 * Enum representing the state of a client manager.
-	 */
-	public enum State {
-		/**
-		 * Indicates that a client manager has been created but not yet started.
-		 */
-		CREATED,
-		/**
-		 * Indicates that a client manager has been created and started.
-		 */
-		STARTED,
-		/**
-		 * Indicates that a client manager has been stopped.
-		 */
-		STOPPED;
-	}
+	ClientManagerState getState();
 }

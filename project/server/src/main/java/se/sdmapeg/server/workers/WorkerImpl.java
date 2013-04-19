@@ -17,15 +17,18 @@ import se.sdmapeg.serverworker.TaskId;
 import se.sdmapeg.serverworker.communication.ResultMessage;
 import se.sdmapeg.serverworker.communication.ServerToWorkerMessage;
 import se.sdmapeg.serverworker.communication.TaskMessage;
+import se.sdmapeg.serverworker.communication.WorkStealingResponse;
 import se.sdmapeg.serverworker.communication.WorkerIdentification;
 import se.sdmapeg.serverworker.communication.WorkerToServerMessage;
 
-public final class WorkerImpl implements Worker {
+
+/**
+ * A Worker representation using an underlying Connection to communicate with
+ * the actual worker.
+ */
+final class WorkerImpl implements Worker {
 	private static final Logger LOG = LoggerFactory.getLogger(WorkerImpl.class);
 	private final Connection<ServerToWorkerMessage, WorkerToServerMessage> connection;
-	private final Worker.Callback callback;
-	private final WorkerToServerMessage.Handler<Void> messageHandler =
-		new MessageHander();
 	private final Set<TaskId> activeTasks = Collections.newSetFromMap(
 			new ConcurrentHashMap<TaskId, Boolean>());
 	private final Object taskAssignmentLock = new Object();
@@ -33,9 +36,8 @@ public final class WorkerImpl implements Worker {
 	private volatile WorkerData workerData = WorkerData.getDefaultWorkerData();
 
 	public WorkerImpl(Connection<ServerToWorkerMessage,
-			WorkerToServerMessage> connection, Callback callback) {
+								 WorkerToServerMessage> connection) {
 		this.connection = connection;
-		this.callback = callback;
 	}
 
 	@Override
@@ -101,12 +103,14 @@ public final class WorkerImpl implements Worker {
 	}
 
 	@Override
-	public void listen() {
+	public void listen(WorkerCallback callback) {
 		LOG.info("Listening to {}", this);
+		WorkerToServerMessage.Handler<Void> messageHandler = new MessageHander(
+				callback);
 		try {
 			while (true) {
 				WorkerToServerMessage message = connection.receive();
-				handleMessage(message);
+				handleMessage(message, messageHandler);
 			}
 		} catch (ConnectionClosedException ex) {
 			LOG.info("{} disconnected", this);
@@ -121,7 +125,8 @@ public final class WorkerImpl implements Worker {
 		}
 	}
 
-	private void handleMessage(WorkerToServerMessage message) {
+	private void handleMessage(WorkerToServerMessage message,
+			WorkerToServerMessage.Handler<Void> messageHandler) {
 		message.accept(messageHandler);
 	}
 
@@ -142,11 +147,12 @@ public final class WorkerImpl implements Worker {
 		}
 	}
 
-	private void completeTask(TaskId taskId, Result<?> result) {
+	private void completeTask(TaskId taskId, Result<?> result,
+			WorkerCallback callback) {
 		activeTasks.remove(taskId);
-		callback.taskCompleted(this, taskId, result);
+		callback.taskCompleted(taskId, result);
 		if (!isWorkingAtFullCapacity()) {
-			requestWork();
+			requestWork(callback);
 		}
 	}
 
@@ -154,8 +160,8 @@ public final class WorkerImpl implements Worker {
 		return getLoad() >= 0 || !isAcceptingWork();
 	}
 
-	private void requestWork() {
-		callback.workRequested(this);
+	private void requestWork(WorkerCallback callback) {
+		callback.workRequested();
 	}
 
 	private static WorkerData extractWorkerData(WorkerIdentification message) {
@@ -163,12 +169,17 @@ public final class WorkerImpl implements Worker {
 	}
 
 	private final class MessageHander implements WorkerToServerMessage.Handler<Void> {
+		private final WorkerCallback callback;
+
+		public MessageHander(WorkerCallback callback) {
+			this.callback = callback;
+		}
 
 		@Override
 		public Void handle(ResultMessage message) {
 			TaskId taskId = message.getId();
 			Result<?> result = message.getResult();
-			completeTask(taskId, result);
+			completeTask(taskId, result, callback);
 			return null;
 		}
 
@@ -176,26 +187,16 @@ public final class WorkerImpl implements Worker {
 		public Void handle(WorkerIdentification message) {
 			workerData = extractWorkerData(message);
 			if (!isWorkingAtFullCapacity()) {
-				requestWork();
+				requestWork(callback);
 			}
 			return null;
 		}
-	}
-
-	private enum WorkerIdentificationExtractor
-			implements WorkerToServerMessage.Handler<WorkerIdentification> {
-		INSTANCE;
 
 		@Override
-		public WorkerIdentification handle(ResultMessage message) {
-			throw new IllegalArgumentException();
+		public Void handle(WorkStealingResponse message) {
+			// TODO: get the stolen tasks from the message and notify the callback.
+			return null;
 		}
-
-		@Override
-		public WorkerIdentification handle(WorkerIdentification message) {
-			return message;
-		}
-		
 	}
 
 	private static final class WorkerData {

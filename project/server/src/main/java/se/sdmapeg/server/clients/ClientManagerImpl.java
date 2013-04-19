@@ -29,8 +29,6 @@ public class ClientManagerImpl implements ClientManager {
 			ClientToServerMessage> connectionHandler;
 	private final IdGenerator<TaskId> taskIdGenerator;
 	private final ClientManagerCallback callback;
-	private final Client.Callback clientCallback =
-		new ClientCallback();
 	private final Map<TaskId, Client> taskMap =
 		new ConcurrentHashMap<>();
 	private final Map<InetAddress, Client> addressMap =
@@ -79,20 +77,20 @@ public class ClientManagerImpl implements ClientManager {
 	@Override
 	public void start() {
 		if (started.compareAndSet(false, true)) {
-			connectionThreadPool.submit(new ConnectionAcceptor(
+			connectionThreadPool.submit(new ConnectionAcceptor<>(
 					connectionHandler, new ConnectionAcceptorCallback()));
 			LOG.info("Client Manager Started");
 		}
 	}
 
 	@Override
-	public ClientManager.State getState() {
+	public ClientManagerState getState() {
 		if (isStopped()) {
-			return ClientManager.State.STOPPED;
+			return ClientManagerState.STOPPED;
 		} else if (isStarted()) {
-			return ClientManager.State.STARTED;
+			return ClientManagerState.STARTED;
 		} else {
-			return ClientManager.State.CREATED;
+			return ClientManagerState.CREATED;
 		}
 	}
 
@@ -129,8 +127,7 @@ public class ClientManagerImpl implements ClientManager {
 		@Override
 		public void connectionReceived(Connection<ServerToClientMessage,
 				ClientToServerMessage> connection) {
-			Client client = new ClientImpl(connection, taskIdGenerator,
-					clientCallback);
+			Client client = new ClientImpl(connection, taskIdGenerator);
 			LOG.info("{} connected", client);
 			addressMap.put(client.getAddress(), client);
 			connectionThreadPool.submit(new ClientListener(client));
@@ -151,28 +148,32 @@ public class ClientManagerImpl implements ClientManager {
 
 		@Override
 		public void run() {
-			client.listen();
+			client.listen(new ClientEventCallback(client));
 		}
 	}
 
-	private final class ClientCallback implements Client.Callback {
+	private final class ClientEventCallback implements ClientCallback {
+		private final Client client;
+
+		public ClientEventCallback(Client client) {
+			this.client = client;
+		}
 
 		@Override
-		public void taskReceived(Client client, TaskId taskId,
-				Task<?> task) {
+		public void taskReceived(TaskId taskId, Task<?> task) {
 			taskMap.put(taskId, client);
 			LOG.info("Task {} received from {}", taskId, client);
 			callback.handleTask(taskId, task);
 		}
 
 		@Override
-		public void taskCancelled(Client client, TaskId taskId) {
+		public void taskCancelled(TaskId taskId) {
 			LOG.info("Task {} cancelled by {}", taskId, client);
 			cancelTask(taskId);
 		}
 
 		@Override
-		public void clientDisconnected(Client client) {
+		public void clientDisconnected() {
 			ClientManagerImpl.this.clientDisconnected(client);
 		}	
 	}
