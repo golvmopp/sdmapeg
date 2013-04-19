@@ -23,5 +23,7 @@ public interface ServerToWorkerMessage extends Message {
 	    T handle(TaskMessage message);
 
 		T handle(TaskCancellationMessage message);
+
+	    T handle(WorkStealingRequest message);
 	}
 }

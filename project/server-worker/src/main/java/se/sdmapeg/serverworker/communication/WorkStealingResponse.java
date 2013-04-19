@@ -23,7 +23,7 @@ public class WorkStealingResponse implements WorkerToServerMessage {
 		return Collections.unmodifiableSet(stolenIds);
 	}
 
-	public WorkStealingResponse newWorkStealingResponse(Set<TaskId> stolenIds) {
+	public static WorkStealingResponse newWorkStealingResponse(Set<TaskId> stolenIds) {
 		return new WorkStealingResponse(stolenIds);
 	}
 }
