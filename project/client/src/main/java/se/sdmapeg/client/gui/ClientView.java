@@ -11,6 +11,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 
 import se.sdmapeg.client.ClientImpl;
+import se.sdmapeg.client.gui.tasks.PythonEditor;
 import se.sdmapeg.common.tasks.PythonTask;
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.Task;
