@@ -1,6 +1,6 @@
 package se.sdmapeg.client.gui;
 
-import java.awt.BorderLayout;
+import java.awt.*;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -8,15 +8,20 @@ import javax.swing.JPanel;
 import se.sdmapeg.client.Client;
 
 public class TaskListView extends JFrame {
-	
 	private final Client client;
 	
-	public TaskListView(Client client){
+	private TaskListView(Client client){
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.client = client;
-		JPanel mainPanel = new JPanel(new BorderLayout());
+
+		setLayout(new BorderLayout());
 		JPanel centerList = new JPanel(new BorderLayout());
-		this.add(mainPanel);
+		add(centerList, BorderLayout.CENTER);
+
+		JPanel connectionBar = new JPanel(new FlowLayout());
+		add(connectionBar, BorderLayout.SOUTH);
+
+
 	}
 
 	@Override
@@ -25,4 +30,7 @@ public class TaskListView extends JFrame {
 		super.dispose();
 	}
 
+	public static TaskListView newTaskListView(Client client) {
+		return new TaskListView(client);
+	}
 }
