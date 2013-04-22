@@ -1,6 +1,7 @@
 package se.sdmapeg.worker;
 
 import se.sdmapeg.common.tasks.*;
+import se.sdmapeg.worker.taskperformers.FindNextInteger;
 import se.sdmapeg.worker.taskperformers.PythonTaskPerformer;
 
 import java.util.concurrent.ExecutionException;
@@ -18,4 +19,9 @@ public final class TaskPerformerImpl implements TaskPerformer {
 		    return new SimpleFailure<>(e);
 	    }
     }
+
+	@Override
+	public Result<Integer> performFindNextIntTask(NextIntTask nextIntTask) {
+		return new SimpleResult<>(Integer.valueOf(FindNextInteger.execute(nextIntTask.getStart())));
+	}
 }
