@@ -12,6 +12,7 @@ import se.sdmapeg.common.communication.ConnectionClosedException;
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.serverclient.ClientTaskId;
 import se.sdmapeg.serverclient.communication.ClientToServerMessage;
+import se.sdmapeg.serverclient.communication.ClientToServerMessageFactory;
 import se.sdmapeg.serverclient.communication.ResultMessage;
 import se.sdmapeg.serverclient.communication.ServerToClientMessage;
 import se.sdmapeg.serverclient.communication.TaskCancellationMessage;
@@ -44,13 +45,13 @@ public final class ServerImpl implements Server {
 	@Override
 	public void performTask(ClientTaskId taskId, Task<?> task) {
 		LOG.info("Sending request to perform task {} to {}", taskId, this);
-		send(TaskMessage.newTaskMessage(task, taskId));
+		send(ClientToServerMessageFactory.newTaskMessageImpl(task, taskId));
 	}
 
 	@Override
 	public void cancelTask(ClientTaskId taskId) {
 		LOG.info("Sending request to cancel task {} to {}", taskId, this);
-		send(TaskCancellationMessage.newTaskCancellationMessage(taskId));
+		send(ClientToServerMessageFactory.newTaskCancellationMessagImpl(taskId));
 	}
 
 	@Override

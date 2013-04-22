@@ -14,14 +14,7 @@ import se.sdmapeg.common.communication.ConnectionClosedException;
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.serverworker.TaskId;
-import se.sdmapeg.serverworker.communication.ResultMessage;
-import se.sdmapeg.serverworker.communication.ServerToWorkerMessage;
-import se.sdmapeg.serverworker.communication.TaskCancellationMessage;
-import se.sdmapeg.serverworker.communication.TaskMessage;
-import se.sdmapeg.serverworker.communication.WorkStealingRequest;
-import se.sdmapeg.serverworker.communication.WorkStealingResponse;
-import se.sdmapeg.serverworker.communication.WorkerIdentification;
-import se.sdmapeg.serverworker.communication.WorkerToServerMessage;
+import se.sdmapeg.serverworker.communication.*;
 
 
 /**
@@ -55,7 +48,7 @@ final class WorkerImpl implements Worker {
 			}
 			activeTasks.add(taskId);
 		}
-		send(TaskMessage.newTaskMessage(task, taskId));
+		send(ServerToWorkerMessageFactory.newTaskMessage(task, taskId));
 		return true;
 	}
 
@@ -63,14 +56,14 @@ final class WorkerImpl implements Worker {
 	public void cancelTask(TaskId taskId) {
 		if (activeTasks.remove(taskId)) {
 			LOG.info("Sending task cancellation message to {}", this);
-			send(TaskCancellationMessage.newTaskCancellationMessage(taskId));
+			send(ServerToWorkerMessageFactory.newTaskCancellationMessage(taskId));
 		}
 	}
 
 	@Override
 	public void stealTasks(int max) {
 		LOG.info("Sending task stealing request to {}", this);
-		send(WorkStealingRequest.newWorkerStealingRequest(max));
+		send(ServerToWorkerMessageFactory.newWorkStealingRequest(max));
 	}
 
 	@Override

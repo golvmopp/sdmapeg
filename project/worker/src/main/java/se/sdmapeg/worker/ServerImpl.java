@@ -1,8 +1,7 @@
 package se.sdmapeg.worker;
 
 import se.sdmapeg.common.communication.Connection;
-import se.sdmapeg.serverworker.communication.ServerToWorkerMessage;
-import se.sdmapeg.serverworker.communication.WorkerToServerMessage;
+import se.sdmapeg.serverworker.communication.*;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -14,13 +13,7 @@ import se.sdmapeg.common.communication.CommunicationException;
 import se.sdmapeg.common.communication.ConnectionClosedException;
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.serverworker.TaskId;
-import se.sdmapeg.serverworker.communication.ResultMessage;
 import se.sdmapeg.serverworker.communication.ServerToWorkerMessage.Handler;
-import se.sdmapeg.serverworker.communication.TaskCancellationMessage;
-import se.sdmapeg.serverworker.communication.TaskMessage;
-import se.sdmapeg.serverworker.communication.WorkStealingRequest;
-import se.sdmapeg.serverworker.communication.WorkStealingResponse;
-import se.sdmapeg.serverworker.communication.WorkerIdentification;
 
 /**
  * Implementation of Server interface.
@@ -88,19 +81,19 @@ public final class ServerImpl implements Server {
 	@Override
 	public void taskCompleted(TaskId taskId, Result<?> result) {
 		LOG.info("Sending result for task {} to {}", taskId, this);
-		send(ResultMessage.newResultMessage(taskId, result));
+		send(WorkerToServerMessageFactory.newResultMessage(taskId, result));
 	}
 
 	@Override
 	public void tasksStolen(Set<TaskId> tasks) {
 		LOG.info("Sending stolen tasks {} to {}", tasks, this);
-		send(WorkStealingResponse.newWorkStealingResponse(tasks));
+		send(WorkerToServerMessageFactory.newWorkStealingResponse(tasks));
 	}
 
 	@Override
 	public void identify(int parallelWorkCapacity) {
 		LOG.info("Sending identification message to {}");
-		send(WorkerIdentification.newWorkerIdentification(parallelWorkCapacity));
+		send(WorkerToServerMessageFactory.newWorkerIdentification(parallelWorkCapacity));
 	}
 
 	/**
