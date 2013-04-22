@@ -9,6 +9,10 @@ import java.util.Set;
 
 public final class WorkerToServerMessageFactory {
 
+	/**
+	 * Returns a WorkStealingResponse.
+	 * @return a WorkStealingResponse
+	 */
 	public static WorkStealingResponse newWorkStealingResponse(Set<TaskId> stolenIds) {
 		return new WorkStealingResponseImpl(stolenIds);
 	}

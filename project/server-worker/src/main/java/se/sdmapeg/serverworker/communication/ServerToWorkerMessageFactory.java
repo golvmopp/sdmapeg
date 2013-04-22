@@ -5,6 +5,10 @@ import se.sdmapeg.serverworker.TaskId;
 
 public final class ServerToWorkerMessageFactory {
 
+	/**
+	 * Returns a TaskCancellationMessage.
+	 * @return a TaskCancellationMessage
+	 */
 	public static ServerToWorkerMessage newTaskCancellationMessage(TaskId taskId) {
 		return new TaskCancellationMessageImpl(taskId);
 	}
@@ -21,7 +25,11 @@ public final class ServerToWorkerMessageFactory {
 		return new TaskMessageImpl(task, taskID);
 	}
 
-	public static WorkStealingRequest newWorkerStealingRequest(int desired){
+	/**
+	 * Returns a WorkStealingRequest.
+	 * @return a WorkStealingRequest
+	 */
+	public static WorkStealingRequest newWorkStealingRequest(int desired){
 		return new WorkStealingRequestImpl(desired);
 	}
 

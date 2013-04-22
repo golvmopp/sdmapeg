@@ -6,14 +6,26 @@ import se.sdmapeg.serverclient.ClientTaskId;
 
 public final class ClientToServerMessageFactory {
 
+	/**
+	 * Returns an instance of ClientIdentification.
+	 * @return an instance of ClientIdentification
+	 */
 	public static ClientToServerMessage newClientIdentification() {
 		return new ClientIdentificationImpl();
 	}
 
-	public static ClientToServerMessage newTaskCancellationmessagImpl(ClientTaskId clientTaskId) {
+	/**
+	 * Returns a TaskCancellationMessage.
+	 * @return a TaskCancellationMessage
+	 */
+	public static ClientToServerMessage newTaskCancellationMessagImpl(ClientTaskId clientTaskId) {
 		return new TaskCancellationMessageImpl(clientTaskId);
 	}
 
+	/**
+	 * Returns a TaskMessage.
+	 * @return a TaskMessage
+	 */
 	public static ClientToServerMessage newTaskMessageImpl(Task<?> task, ClientTaskId clientTaskId) {
 		return new TaskMessageImpl(task, clientTaskId);
 	}

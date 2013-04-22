@@ -5,6 +5,10 @@ import se.sdmapeg.serverclient.ClientTaskId;
 
 public final class ServerToClientMessageFactory {
 
+	/**
+	 * Returns a ResultMessage.
+	 * @return a ResultMessage
+	 */
 	public static ServerToClientMessage newResultMessage(ClientTaskId clientTaskId, Result<?> result) {
 		return new ResultMessageImpl(clientTaskId, result);
 	}
