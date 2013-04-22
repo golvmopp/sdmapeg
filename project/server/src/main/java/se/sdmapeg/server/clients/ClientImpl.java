@@ -74,7 +74,7 @@ final class ClientImpl implements Client {
 		if (clientTaskId == null) {
 			return;
 		}
-		send(ResultMessage.newResultMessage(clientTaskId, result));
+		send(ServerToClientMessageFactory.newResultMessage(clientTaskId, result));
 	}
 
 	@Override
