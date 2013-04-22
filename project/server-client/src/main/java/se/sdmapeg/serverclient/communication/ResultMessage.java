@@ -42,7 +42,7 @@ public final class ResultMessage implements ServerToClientMessage {
 	 * @param result The Result to be sent back to the client
 	 * @return the new ResultMessage
 	 */
-	public static ResultMessage newResultMessage(ClientTaskId id, Result<?> result) {
+	public static ServerToClientMessage newResultMessage(ClientTaskId id, Result<?> result) {
 		return new ResultMessage(id, result);
 	}
 }

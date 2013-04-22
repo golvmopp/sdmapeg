@@ -22,7 +22,7 @@ public class TaskCancellationMessage implements ClientToServerMessage {
 		return handler.handle(this);
 	}
 
-	public static TaskCancellationMessage newTaskCancellationMessage(ClientTaskId taskId) {
+	public static ClientToServerMessage newTaskCancellationMessage(ClientTaskId taskId) {
 		return new TaskCancellationMessage(taskId);
 	}
 }
