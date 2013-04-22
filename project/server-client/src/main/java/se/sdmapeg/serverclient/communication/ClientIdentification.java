@@ -12,4 +12,7 @@ public final class ClientIdentification implements ClientToServerMessage {
 		return handler.handle(this);
 	}
 
+	public static ClientToServerMessage newClientIdentification() {
+		return new ClientIdentification();
+	}
 }

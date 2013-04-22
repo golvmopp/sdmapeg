@@ -1,4 +1,4 @@
-package se.sdmapeg.client.gui;
+package se.sdmapeg.client.gui.tasks;
 
 import java.awt.BorderLayout;
 import java.awt.Font;

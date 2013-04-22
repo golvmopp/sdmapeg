@@ -11,6 +11,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 
 import se.sdmapeg.client.ClientImpl;
+import se.sdmapeg.client.gui.tasks.PythonEditor;
 import se.sdmapeg.common.tasks.PythonTask;
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.Task;
@@ -62,7 +63,7 @@ public class ClientView implements ActionListener {
 	}
 
 	public void showConnectionError() {
-		JOptionPane.showMessageDialog(frame, "Connection to server was lost.");
+		JOptionPane.showMessageDialog(null, "Connection to server was lost.");
 	}
 
 	public void showResult(Result<?> result) {

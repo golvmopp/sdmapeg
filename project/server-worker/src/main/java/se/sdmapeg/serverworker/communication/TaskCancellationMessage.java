@@ -22,7 +22,7 @@ public class TaskCancellationMessage implements ServerToWorkerMessage {
 		return handler.handle(this);
 	}
 
-	public static TaskCancellationMessage newTaskCancellationMessage(TaskId taskId) {
+	public static ServerToWorkerMessage newTaskCancellationMessage(TaskId taskId) {
 		return new TaskCancellationMessage(taskId);
 	}
 }
