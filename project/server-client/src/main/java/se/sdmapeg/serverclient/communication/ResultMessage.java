@@ -8,17 +8,17 @@ import se.sdmapeg.serverclient.ClientTaskId;
  */
 public interface ResultMessage extends ServerToClientMessage {
 	@Override
-	public <T> T accept(Handler<T> handler);
+	<T> T accept(Handler<T> handler);
 
 	/**
 	 * Returns the ClientTaskId of this ResultMessage.
 	 * @return the ClientTaskId of this ResultMessage
 	 */
-	public ClientTaskId getId();
+	ClientTaskId getId();
 
 	/**
 	 * Returns the Result of this ResultMessage.
 	 * @return the Result of this ResultMessage
 	 */
-	public Result<?> getResult();
+	Result<?> getResult();
 }
