@@ -12,13 +12,10 @@ import java.util.concurrent.FutureTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import se.sdmapeg.common.communication.CommunicationException;
-import se.sdmapeg.common.communication.ConnectionClosedException;
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.SimpleFailure;
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.common.tasks.TaskPerformer;
-import se.sdmapeg.serverworker.communication.*;
 import se.sdmapeg.serverworker.TaskId;
 
 /**
@@ -46,22 +43,7 @@ public class WorkerImpl implements Worker {
 	}
 
 	private void listen() {
-	    
-		try {
-		    while (true) {
-			ServerToWorkerMessage message = server.receive();
-			// Send a message handler to the accept method, and let the
-			// message worry about calling the right method.
-			message.accept(new MessageHandler());
-		    }
-		} catch (ConnectionClosedException ex) {
-		    server.disconnect();
-		    LOG.warn("Connection closed.");
-		} catch (CommunicationException ex) {
-			LOG.warn("Communication error.");
-		    server.disconnect();
-		}
-	
+	    server.listen(null);
 	}
 
 	private void cancelTask(TaskId taskId) {
@@ -74,7 +56,7 @@ public class WorkerImpl implements Worker {
 		LOG.info("Cancelled task {}", taskId);
 	}
 
-	private void runTask(TaskId taskId, Task<?> task) {
+	private void performTask(TaskId taskId, Task<?> task) {
 		FutureTask<Void> futureTask = new FutureTask<>(new TaskRunner(taskId,
 				task), null);
 		LOG.info("Queueing task {}", taskId);
@@ -83,7 +65,7 @@ public class WorkerImpl implements Worker {
 		taskExecutor.submit(futureTask);
 	}
 
-	private <R> Result<R> performTask(Task<R> task) {
+	private <R> Result<R> runTask(Task<R> task) {
 		Result<R> result;
 		try {
 			result = task.perform(taskPerformer);
@@ -94,16 +76,9 @@ public class WorkerImpl implements Worker {
 	}
 
 	private void completeTask(TaskId taskId, Result<?> result) {
-	    WorkerToServerMessage resultMessage = ResultMessage.newResultMessage(taskId, result);
 	    FutureTask<Void> futureTask = taskMap.remove(taskId); 
 	    idMap.remove(futureTask);
-		try {
-		server.send(resultMessage);
-		LOG.info("Sending result for {}", taskId);
-		} catch (CommunicationException ex) {
-			server.disconnect();
-			LOG.error("Disconnected from server before the result could be sent");
-		}
+		server.taskCompleted(taskId, result);
 	}
 
 	private void stealTasks(int desired) {
@@ -118,15 +93,7 @@ public class WorkerImpl implements Worker {
 			}
 	    }
 		LOG.info("Stole {} tasks from queue", stolenTasks.size());
-	    WorkerToServerMessage message = 
-	    		WorkStealingResponse.newWorkStealingResponse(stolenTasks);
-	    try {
-			LOG.info("Sending stolen tasks {} to server", stolenTasks);
-			server.send(message);
-		} catch (CommunicationException ex) {
-			LOG.error("Connection to server lost");
-			server.disconnect();
-		}
+		server.tasksStolen(stolenTasks);
 	}
 	
 	public static WorkerImpl newWorkerImpl(int poolSize, Server server,
@@ -138,38 +105,33 @@ public class WorkerImpl implements Worker {
 		@Override
 		public void run() {
 			try {
-				listen();
+				server.listen(new ServerEventCallback());
 			} catch (Exception ex) {
 				LOG.error("An uncaught exception was encountered", ex);
 			}
 		}
 	}
 
-	/* 
-	 * This class handles messages received from the server. It should have one
-	 * method for every concrete message type. Each method should typically be
-	 * short, delegating work to other methods, and then return null at the end.
-	 */
-	private final class MessageHandler
-			implements ServerToWorkerMessage.Handler<Void> {
-
+	private final class ServerEventCallback implements ServerCallback {
 		@Override
-		public Void handle(TaskMessage message) {
-			runTask(message.getTaskId(), message.getTask());
-			return null;
+		public void taskReceived(TaskId taskId, Task<?> task) {
+			performTask(taskId, task);
 		}
 
 		@Override
-		public Void handle(TaskCancellationMessage message) {
-			cancelTask(message.getTaskId());
-			return null;
+		public void taskCancelled(TaskId taskId) {
+			cancelTask(taskId);
 		}
 
 		@Override
-		public Void handle(WorkStealingRequest message) {
-			stealTasks(message.getDesired());
-			return null;
+		public void workStealingRequested(int desired) {
+			stealTasks(desired);
 		}
+
+		@Override
+		public void connectionClosed() {
+			stop();
+		}		
 	}
 
 	/**
@@ -187,7 +149,7 @@ public class WorkerImpl implements Worker {
 		@Override
 		public void run() {
 			LOG.info("Performing task {}", taskId );
-			Result<?> result = performTask(task);
+			Result<?> result = runTask(task);
 			completeTask(taskId, result);
 		}
 	}
@@ -195,12 +157,7 @@ public class WorkerImpl implements Worker {
 	@Override
 	public void start() {
 	    serverListenerExecutor.submit(new MessageListener());
-		try {
-			server.send(new WorkerIdentification(poolSize));
-		} catch (CommunicationException ex) {
-			server.disconnect();
-			LOG.error("Connection to server lost");
-		}
+		server.identify(poolSize);
 	}
 
 	@Override
@@ -208,6 +165,5 @@ public class WorkerImpl implements Worker {
 	    server.disconnect();
 	    serverListenerExecutor.shutdown();
 		taskExecutor.shutDown();
-	    //TODO: Work out better soloution. 
 	}
 }
