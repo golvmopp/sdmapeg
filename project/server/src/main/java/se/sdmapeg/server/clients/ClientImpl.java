@@ -49,10 +49,10 @@ final class ClientImpl implements Client {
 
 	@Override
 	public void listen(ClientCallback callback) {
+		LOG.info("Listening to {}", this);
+		ClientToServerMessage.Handler<Void> messageHandler = new MessageHandler(
+				callback);
 		try {
-			LOG.info("Listening to {}", this);
-			ClientToServerMessage.Handler<Void> messageHandler =
-				new MessageHandler(callback);
 			while (true) {
 				ClientToServerMessage message = connection.receive();
 				handleMessage(message, messageHandler);
