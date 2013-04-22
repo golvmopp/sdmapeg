@@ -40,6 +40,7 @@ public class ClientImpl implements Client {
 		} catch (CommunicationException|IOException e) {
 			throw new CommunicationException();
 		}
+		LOG.info("Connected to {}", server);
 		serverListenerExecutor = Executors.newSingleThreadExecutor();
 		taskMap = new ConcurrentHashMap<>();
 		resultMap = new ConcurrentHashMap<>();
@@ -49,7 +50,7 @@ public class ClientImpl implements Client {
 	}
 
 	@Override
-	public ClientTaskId addTask(Task task) {
+	public ClientTaskId addTask(Task<?> task) {
 		ClientTaskId id = idGenerator.newId();
 		taskMap.put(id, task);
 		return id;
@@ -57,11 +58,7 @@ public class ClientImpl implements Client {
 
 	@Override
 	public void sendTask(ClientTaskId clientTaskId) {
-		try {
-			server.send(TaskMessage.newTaskMessage(taskMap.get(clientTaskId), clientTaskId));
-		} catch (CommunicationException e) {
-			LOG.warn("Connection was closed before this task could be sent.");
-		}
+		server.performTask(clientTaskId, taskMap.get(clientTaskId));
 	}
 
 	@Override
@@ -69,29 +66,14 @@ public class ClientImpl implements Client {
 		serverListenerExecutor.execute(new Runnable() {
 			@Override
 			public void run() {
-				try {
-					while (true) {
-						ServerToClientMessage message = server.receive();
-						message.accept(new ServerMessageHandler());
-					}
-				} catch (ConnectionClosedException e) {
-					LOG.info("Connection to server was closed.");
-				} catch (CommunicationException e) {
-					LOG.error("An error occurred while listening for messages.", e);
-				} finally {
-					view.showConnectionError();
-				}
+				server.listen(new ServerEventCallback());
 			}
 		});
 	}
 
 	@Override
 	public void abortTask(ClientTaskId clientTaskId) {
-		try {
-			server.send(TaskCancellationMessage.newTaskCancellationMessage(clientTaskId));
-		} catch (CommunicationException e) {
-			LOG.error("Connection was lost before task could be aborted.");
-		}
+		server.cancelTask(clientTaskId);
 	}
 
 	@Override
@@ -113,13 +95,16 @@ public class ClientImpl implements Client {
 		return new ClientImpl(view, host);
 	}
 
-	private final class ServerMessageHandler implements ServerToClientMessage.Handler<Void> {
+	private final class ServerEventCallback implements ServerCallback {
+
 		@Override
-		public Void handle(ResultMessage message) {
-			ClientTaskId id = message.getId();
-			Result<?> result = message.getResult();
-			handleResult(id, result);
-			return null;
+		public void resultReceived(ClientTaskId taskId, Result<?> result) {
+			handleResult(taskId, result);
+		}
+
+		@Override
+		public void connectionClosed() {
+			shutDown();
 		}
 	}
 }

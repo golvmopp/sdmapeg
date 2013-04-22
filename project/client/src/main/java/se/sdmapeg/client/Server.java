@@ -4,6 +4,8 @@ import java.net.InetAddress;
 
 import se.sdmapeg.common.communication.CommunicationException;
 import se.sdmapeg.common.communication.ConnectionClosedException;
+import se.sdmapeg.common.tasks.Task;
+import se.sdmapeg.serverclient.ClientTaskId;
 import se.sdmapeg.serverclient.communication.ClientToServerMessage;
 import se.sdmapeg.serverclient.communication.ServerToClientMessage;
 
@@ -19,26 +21,29 @@ public interface Server {
 	InetAddress getAddress();
 
 	/**
-	 * Sends a message from the client to the server.
+	 * Requests the server to perform the specified task.
 	 *
-	 * @param message message to send
-	 * @throws CommunicationException if an error occurred
-	 * @throws ConnectionClosedException if the connection was closed
+	 * @param taskId the client-side ID of the task requested to be performed
+	 * @param task the task requested to be performed
 	 */
-	void send(ClientToServerMessage message) throws CommunicationException,
-													ConnectionClosedException;
+	void performTask(ClientTaskId taskId, Task<?> task);
 
 	/**
-	 * Receives a message from the server. This method blocks until a message
-	 * has been received.
+	 * Requests the server to cancel the task with the specified ID.
 	 *
-	 * @return received message.
-	 * @throws CommunicationException if an error occurred
-	 * @throws ConnectionClosedException if the connection was closed
+	 * @param taskId the client-side ID of the task to be cancelled
 	 */
-	ServerToClientMessage receive() throws CommunicationException,
-										   ConnectionClosedException;
+	void cancelTask(ClientTaskId taskId);
 
+	/**
+	 * Continually listens to input from this Server, and calls the appropriate
+	 * methods of the specified  callback when an input has been received.
+	 * This method will keep running until the connection to this Server is
+	 * closed, and will always end with calling the connectionClosed method of
+	 * the callback.
+	 */
+	void listen(ServerCallback callback);
+	
 	/**
 	 * Disconnects from the server. If no connection is open, no action is
 	 * performed.

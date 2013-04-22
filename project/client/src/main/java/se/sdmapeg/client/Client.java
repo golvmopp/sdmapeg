@@ -7,7 +7,7 @@ import se.sdmapeg.serverclient.ClientTaskId;
  * Interface for representing the actual client.
  */
 public interface Client {
-	ClientTaskId addTask(Task task);
+	ClientTaskId addTask(Task<?> task);
 
 	void sendTask(ClientTaskId clientTaskId);
 
