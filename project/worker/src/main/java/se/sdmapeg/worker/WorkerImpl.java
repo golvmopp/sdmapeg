@@ -188,62 +188,68 @@ public class WorkerImpl implements Worker {
 
 		@Override
 		public void taskAdded(final TaskId taskId) {
-			for (final WorkerListener listener : listeners) {
-				listenerEventExecutor.execute(new Runnable() {
-					@Override
-					public void run() {
-						listener.taskAdded(taskId);
-					}
-				});
-			}
+			// This class would look so much nicer with lambda expressions :(
+			notifyListeners(new Notifier() {
+				@Override
+				public void notifyListener(WorkerListener listener) {
+					listener.taskAdded(taskId);
+				}
+			});
 		}
 
 		@Override
 		public void taskStarted(final TaskId taskId) {
-			for (final WorkerListener listener : listeners) {
-				listenerEventExecutor.execute(new Runnable() {
-					@Override
-					public void run() {
-						listener.taskStarted(taskId);
-					}
-				});
-			}
+			notifyListeners(new Notifier() {
+				@Override
+				public void notifyListener(WorkerListener listener) {
+					listener.taskStarted(taskId);
+				}
+			});
 		}
 
 		@Override
 		public void taskFinished(final TaskId taskId) {
-			for (final WorkerListener listener : listeners) {
-				listenerEventExecutor.execute(new Runnable() {
-					@Override
-					public void run() {
-						listener.taskFinished(taskId);
-					}
-				});
-			}
+			notifyListeners(new Notifier() {
+				@Override
+				public void notifyListener(WorkerListener listener) {
+					listener.taskFinished(taskId);
+				}
+			});
 		}
 
 		@Override
 		public void taskCancelled(final TaskId taskId) {
+			notifyListeners(new Notifier() {
+				@Override
+				public void notifyListener(WorkerListener listener) {
+					listener.taskCancelled(taskId);
+				}
+			});
+		}
+
+		@Override
+		public void taskStolen(final TaskId taskId) {
+			notifyListeners(new Notifier() {
+				@Override
+				public void notifyListener(WorkerListener listener) {
+					listener.taskStolen(taskId);
+				}
+			});
+		}
+
+		private void notifyListeners(final Notifier notifier) {
 			for (final WorkerListener listener : listeners) {
 				listenerEventExecutor.execute(new Runnable() {
 					@Override
 					public void run() {
-						listener.taskCancelled(taskId);
+						notifier.notifyListener(listener);
 					}
 				});
 			}
 		}
 
-		@Override
-		public void taskStolen(final TaskId taskId) {
-			for (final WorkerListener listener : listeners) {
-				listenerEventExecutor.execute(new Runnable() {
-					@Override
-					public void run() {
-						listener.taskCancelled(taskId);
-					}
-				});
-			}
+		private interface Notifier {
+			void notifyListener(WorkerListener listener);
 		}
 	}
 }
