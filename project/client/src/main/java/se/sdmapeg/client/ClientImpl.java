@@ -22,7 +22,7 @@ import se.sdmapeg.serverclient.ClientTaskId;
 import se.sdmapeg.serverclient.ClientTaskIdGenerator;
 import se.sdmapeg.serverclient.communication.*;
 
-public class ClientImpl implements Client {
+public final class ClientImpl implements Client {
 	private static final Logger LOG = LoggerFactory.getLogger(ClientImpl.class);
 	private static final int SERVER_PORT = 6666;
 	private final ExecutorService serverListenerExecutor;

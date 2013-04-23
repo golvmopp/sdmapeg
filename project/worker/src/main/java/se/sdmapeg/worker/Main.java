@@ -12,9 +12,13 @@ import se.sdmapeg.common.communication.ConnectionImpl;
 import se.sdmapeg.serverworker.communication.ServerToWorkerMessage;
 import se.sdmapeg.serverworker.communication.WorkerToServerMessage;
 
-public class Main {
+public final class Main {
 	private static final int SERVER_PORT = 6667;
 
+	private Main() {
+		// Prevent instantiation
+		throw new AssertionError();
+	}
 	/**
 	 * @param args
 	 * @throws CommunicationException

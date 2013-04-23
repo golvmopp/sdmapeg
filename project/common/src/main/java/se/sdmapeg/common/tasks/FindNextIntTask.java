@@ -1,6 +1,6 @@
 package se.sdmapeg.common.tasks;
 
-public class FindNextIntTask implements Task<Integer> {
+public final class FindNextIntTask implements Task<Integer> {
 	private static final long serialVersionUID = 5013770542226098887L;
 	private int start;
 	

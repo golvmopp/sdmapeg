@@ -21,7 +21,7 @@ import se.sdmapeg.serverworker.TaskId;
 /**
  * Actual implementation of the Worker in the worker module.
  */
-public class WorkerImpl implements Worker {
+public final class WorkerImpl implements Worker {
 	private final ExecutorService serverListenerExecutor;
     private final TaskExecutor taskExecutor;
 	private final Server server;

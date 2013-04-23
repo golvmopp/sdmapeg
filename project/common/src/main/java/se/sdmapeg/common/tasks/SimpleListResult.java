@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class SimpleListResult<R extends Serializable> implements Result<List<R>> {
+public final class SimpleListResult<R extends Serializable> implements Result<List<R>> {
 	private static final long serialVersionUID = 32757656275068214L;
 	private final ArrayList<R> list;
 	
