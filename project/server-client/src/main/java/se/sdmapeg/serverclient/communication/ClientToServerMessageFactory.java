@@ -17,7 +17,7 @@ public final class ClientToServerMessageFactory {
 	 * Returns a TaskCancellationMessage.
 	 * @return a TaskCancellationMessage
 	 */
-	public static ClientToServerMessage newTaskCancellationMessagImpl(ClientTaskId clientTaskId) {
+	public static ClientToServerMessage newTaskCancellationMessage(ClientTaskId clientTaskId) {
 		return new TaskCancellationMessageImpl(clientTaskId);
 	}
 
@@ -25,7 +25,7 @@ public final class ClientToServerMessageFactory {
 	 * Returns a TaskMessage.
 	 * @return a TaskMessage
 	 */
-	public static ClientToServerMessage newTaskMessageImpl(Task<?> task, ClientTaskId clientTaskId) {
+	public static ClientToServerMessage newTaskMessage(Task<?> task, ClientTaskId clientTaskId) {
 		return new TaskMessageImpl(task, clientTaskId);
 	}
 

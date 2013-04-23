@@ -45,13 +45,13 @@ public final class ServerImpl implements Server {
 	@Override
 	public void performTask(ClientTaskId taskId, Task<?> task) {
 		LOG.info("Sending request to perform task {} to {}", taskId, this);
-		send(ClientToServerMessageFactory.newTaskMessageImpl(task, taskId));
+		send(ClientToServerMessageFactory.newTaskMessage(task, taskId));
 	}
 
 	@Override
 	public void cancelTask(ClientTaskId taskId) {
 		LOG.info("Sending request to cancel task {} to {}", taskId, this);
-		send(ClientToServerMessageFactory.newTaskCancellationMessagImpl(taskId));
+		send(ClientToServerMessageFactory.newTaskCancellationMessage(taskId));
 	}
 
 	@Override
