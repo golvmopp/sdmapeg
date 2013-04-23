@@ -3,7 +3,7 @@ package se.sdmapeg.common.communication;
 /**
  * CommunicationException thrown to indicate that a connection was closed.
  */
-public class ConnectionClosedException extends CommunicationException {
+public final class ConnectionClosedException extends CommunicationException {
 	/**
 	 * Creates a new instance of
 	 * <code>ConnectionClosedException</code> without detail message.

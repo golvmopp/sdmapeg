@@ -20,7 +20,7 @@ import se.sdmapeg.serverworker.TaskId;
 /**
  * Actual implementation of the Worker in the worker module.
  */
-public class WorkerImpl implements Worker {
+public final class WorkerImpl implements Worker {
 	private static final Logger LOG = LoggerFactory.getLogger(WorkerImpl.class);
 	private final Listeners listeners = new Listeners();
 	private final ExecutorService serverListenerExecutor;

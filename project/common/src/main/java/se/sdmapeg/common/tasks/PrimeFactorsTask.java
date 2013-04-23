@@ -2,7 +2,7 @@ package se.sdmapeg.common.tasks;
 
 import java.util.List;
 
-public class PrimeFactorsTask implements Task<List<Long>> {
+public final class PrimeFactorsTask implements Task<List<Long>> {
 	private long number;
 	
 	private static final long serialVersionUID = -4992273066048325517L;

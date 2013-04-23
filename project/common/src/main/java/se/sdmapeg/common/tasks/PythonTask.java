@@ -1,6 +1,6 @@
 package se.sdmapeg.common.tasks;
 
-public class PythonTask implements Task<String> {
+public final class PythonTask implements Task<String> {
 	private static final long serialVersionUID = -2539795844520824496L;
 	private String pythonCode;
 
