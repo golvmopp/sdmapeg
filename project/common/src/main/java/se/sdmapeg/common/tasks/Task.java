@@ -17,7 +17,7 @@ public interface Task<R> extends Serializable {
 	 * @param taskPerformer the TaskPerformer to perform this task.
 	 * @return the result of the task.
 	 */
-	Result<R> perform(TaskPerformer taskPerformer) throws ExecutionException;
+	Result<R> perform(TaskPerformer taskPerformer);
 
 	/**
 	 * Returns the type of result expected by this task.

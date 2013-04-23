@@ -1,5 +1,7 @@
 package se.sdmapeg.common.tasks;
 
+import java.util.List;
+
 /**
  * Interface for the use of the visitor pattern with tasks.
  *
@@ -7,4 +9,5 @@ package se.sdmapeg.common.tasks;
 public interface TaskPerformer {
     Result<String> performPythonTask(PythonTask pythonCode);
 	Result<Integer> performFindNextIntTask(FindNextIntTask nextIntTask);
+	Result<List<Long>> findPrimeFactors(PrimeFactorsTask primeFactorsTask);
 }
