@@ -1,13 +1,21 @@
 package se.sdmapeg.client.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.LineBorder;
+
+import se.sdmapeg.common.TimeFormatter;
 
 public class TaskPanel extends JPanel {
 
@@ -19,7 +27,9 @@ public class TaskPanel extends JPanel {
 	private final  String typeName;
 	private String name;
 	private TaskState state;
-	private JLabel elapsedTime;
+	private JLabel elapsedTimeLabel;
+	private TimeFormatter timeFormatter;
+	private JButton actionButton;
 	
 	
 	public TaskPanel(String typeName) {
@@ -31,24 +41,28 @@ public class TaskPanel extends JPanel {
 		
 		JPanel centerPanel = new JPanel(new GridLayout(1, 2));
 		JPanel centerPanelText = new JPanel(new GridLayout(3, 1));
-		JPanel centerPanelCancel = new JPanel();
 		centerPanel.add(centerPanelText);
-		centerPanel.add(centerPanelCancel);
-		JPanel checkBoxPanel = new JPanel();
-		JPanel closeButtonPanel = new JPanel();
+		JPanel checkBoxPanel = new JPanel(new BorderLayout());
+		JPanel actionButtonPanel = new JPanel(new BorderLayout());
 		
-		centerPanelText.add(new JLabel("" + timeStamp.get(Calendar.HOUR_OF_DAY) + 
-				timeStamp.get(Calendar.MINUTE)));
 		centerPanelText.add(new JLabel(typeName));
-		centerPanelText.add(new JLabel(state.name()));
-		centerPanelText.add(elapsedTime);
+		centerPanelText.add(new JLabel("Created: " + timeStamp.get(Calendar.HOUR_OF_DAY) + 
+				":" + timeStamp.get(Calendar.MINUTE)));
+		elapsedTimeLabel = new JLabel("Elapsed time: 0");
+		centerPanelText.add(elapsedTimeLabel);
+		centerPanel.add(actionButtonPanel, BorderLayout.CENTER);
+		
+		actionButton = new JButton("Send task");
+		actionButtonPanel.add(actionButton);
 		
 		JCheckBox selectBox = new JCheckBox();
-		checkBoxPanel.add(selectBox);
-		
+		checkBoxPanel.add(selectBox, BorderLayout.CENTER );
+		checkBoxPanel.add(Box.createRigidArea(new Dimension(10, 0)), BorderLayout.EAST);
 		this.add(checkBoxPanel, BorderLayout.WEST);
-		this.add(closeButtonPanel, BorderLayout.EAST);
-		this.add(centerPanel, BorderLayout.CENTER);	
+		this.add(centerPanel, BorderLayout.CENTER);
+		this.add(new JButton(), BorderLayout.EAST);
+		
+		this.setBorder(new LineBorder(Color.BLACK));
 	}
 	
 	public TaskPanel(String typeName, String name) {
@@ -56,8 +70,13 @@ public class TaskPanel extends JPanel {
 		this.name = name;
 	}
 	
-	public void updateTimeStamp() {
-		//TODO: Fix this
+	
+	//TODO: Remove this when done. Duh. 
+	public static void main(String[] args){
+		JFrame frame = new JFrame();
+		frame.add(new TaskPanel("PythonTask"));
+		frame.pack();
+		frame.setVisible(true);
 	}
 	
 	
