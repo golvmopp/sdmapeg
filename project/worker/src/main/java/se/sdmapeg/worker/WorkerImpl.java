@@ -66,12 +66,7 @@ public class WorkerImpl implements Worker {
 	}
 
 	private <R> Result<R> runTask(Task<R> task) {
-		Result<R> result;
-		try {
-			result = task.perform(taskPerformer);
-		} catch (ExecutionException ex) {
-			result = new SimpleFailure<>(ex);
-		}
+		Result<R> result = task.perform(taskPerformer);
 		return result;
 	}
 

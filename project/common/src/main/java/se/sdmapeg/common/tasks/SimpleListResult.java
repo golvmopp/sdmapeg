@@ -18,7 +18,10 @@ public class SimpleListResult<R extends Serializable> implements Result<List<R>>
 		return Collections.unmodifiableList(list);
 	}
 	
-	public static <R extends Serializable> SimpleListResult<R> newSimpleListResult(List<R> list) {
+	/**
+	 * Creates a new SimpleListResult with the specified content.
+	 */
+	public static <R extends Serializable> Result<List<R>> newSimpleListResult(List<R> list) {
 		return new SimpleListResult<>(list);
 	}
 

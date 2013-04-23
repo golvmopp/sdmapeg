@@ -23,18 +23,18 @@ public final class TaskPerformerImpl implements TaskPerformer {
     @Override
     public Result<String> performPythonTask(PythonTask pythonCode) {
 	    try {
-		    return new SimpleResult<>(PythonTaskPerformer.execute(pythonCode.getPythonCode()));
+		    return SimpleResult.newSimpleResult(PythonTaskPerformer.execute(pythonCode.getPythonCode()));
 	    } catch (ExecutionException ex) {
-		    return new SimpleFailure<>(ex);
+		    return SimpleFailure.newSimpleFailure(ex);
 	    }
     }
 
 	@Override
 	public Result<Integer> performFindNextIntTask(FindNextIntTask nextIntTask) {
 		try {
-			return new SimpleResult<>(Integer.valueOf(FindNextInteger.findNextInteger(nextIntTask.getStart())));
+			return SimpleResult.newSimpleResult(Integer.valueOf(FindNextInteger.findNextInteger(nextIntTask.getStart())));
 		} catch (ExecutionException ex) {
-			return new SimpleFailure<>(ex);
+			return SimpleFailure.newSimpleFailure(ex);
 		}
 	}
 
@@ -43,7 +43,7 @@ public final class TaskPerformerImpl implements TaskPerformer {
 		try {
 			return SimpleListResult.newSimpleListResult(PrimeFactors.findPrimeFactors(primeFactorsTask.getNumber()));
 		} catch (ExecutionException ex) {
-			return new SimpleFailure<>(ex);
+			return SimpleFailure.newSimpleFailure(ex);
 		}
 	}
 }
