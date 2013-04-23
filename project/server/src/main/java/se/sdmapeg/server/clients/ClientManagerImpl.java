@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
@@ -32,7 +33,7 @@ public final class ClientManagerImpl implements ClientManager {
 	private final ClientManagerCallback callback;
 	private final Map<TaskId, Client> taskMap =
 		new ConcurrentHashMap<>();
-	private final Map<InetAddress, Client> addressMap =
+	private final ConcurrentMap<InetAddress, Client> addressMap =
 		new ConcurrentHashMap<>();
 	private final AtomicBoolean started = new AtomicBoolean(false);
 
@@ -154,10 +155,15 @@ public final class ClientManagerImpl implements ClientManager {
 		public void connectionReceived(Connection<ServerToClientMessage,
 				ClientToServerMessage> connection) {
 			Client client = ClientImpl.newClient(connection, taskIdGenerator);
-			LOG.info("{} connected", client);
-			addressMap.put(client.getAddress(), client);
-			// Start a new thread to listen to the client
-			connectionThreadPool.submit(new ClientListener(client));
+			if (addressMap.putIfAbsent(client.getAddress(), client) == null) {
+				LOG.info("{} connected", client);
+				// Start a new thread to listen to the client
+				connectionThreadPool.submit(new ClientListener(client));
+			} else {
+				LOG.warn("Connection refused: {} attempted to connect, but was"
+						+ " already connected", client);
+				client.disconnect();
+			}
 		}
 
 		@Override
