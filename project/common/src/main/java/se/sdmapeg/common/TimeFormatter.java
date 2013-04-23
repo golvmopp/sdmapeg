@@ -54,7 +54,34 @@ public class TimeFormatter {
      */
     public long getSeconds(){
 	return (date.getTime() - timeOfCreation) / 1000;
-    } 
-    
+    }
+
+	/**
+	 * Returns the elapsed hours since creation as a formatted string.
+	 * @return elapsed hours.
+	 */
+	public String getFormattedHours() {
+		return addLeadingZeros(Long.toString(getHours()), 2);
+	}
+
+	/**
+	 * Returns the elapsed minutes since creation as a formatted string.
+	 * @return elapsed minutes.
+	 */
+	public String getFormattedMinutes() {
+		return addLeadingZeros(Long.toString(getMinutes()), 2);
+	}
+
+	/**
+	 * Returns the elapsed seconds since creation as a formatted string.
+	 * @return elapsed seconds.
+	 */
+	public String getFormattedSeconds() {
+		return addLeadingZeros(Long.toString(getSeconds()), 2);
+	}
+
+	private String addLeadingZeros(String string, int length) {
+		return string.length() == length ? string : addLeadingZeros(0 + string, length);
+	}
 }
 
