@@ -12,6 +12,7 @@ public final class SimpleResult<R extends Serializable> implements Result<R> {
 	/**
 	 * Creates a new SimpleResult with the specified result.
 	 */
+	// TODO make constructor private and create factory method. change all usages
 	public SimpleResult(R result) {
 		this.result = result;
 	}
