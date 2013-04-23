@@ -63,7 +63,7 @@ final class WorkerImpl implements Worker {
 	@Override
 	public void stealTasks(int max) {
 		LOG.info("Sending task stealing request to {}", this);
-		send(ServerToWorkerMessageFactory.newWorkStealingRequest(max));
+		send(ServerToWorkerMessageFactory.newWorkStealingRequestMessage(max));
 	}
 
 	@Override
@@ -157,7 +157,7 @@ final class WorkerImpl implements Worker {
 		callback.workRequested();
 	}
 
-	private static WorkerData extractWorkerData(WorkerIdentification message) {
+	private static WorkerData extractWorkerData(WorkerIdentificationMessage message) {
 		return new WorkerData(message.getParallelWorkCapacity());
 	}
 
@@ -191,7 +191,7 @@ final class WorkerImpl implements Worker {
 		}
 
 		@Override
-		public Void handle(WorkerIdentification message) {
+		public Void handle(WorkerIdentificationMessage message) {
 			workerData = extractWorkerData(message);
 			if (!isWorkingAtFullCapacity()) {
 				requestWork(callback);
@@ -200,7 +200,7 @@ final class WorkerImpl implements Worker {
 		}
 
 		@Override
-		public Void handle(WorkStealingResponse message) {
+		public Void handle(WorkStealingResponseMessage message) {
 			for (TaskId taskId : message.getStolenTasks()) {
 				callback.taskStolen(taskId);
 			}

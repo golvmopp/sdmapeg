@@ -3,7 +3,7 @@ package se.sdmapeg.serverworker.communication;
 /**
  * Message containing relevant information for identifying a Worker.
  */
-public interface WorkerIdentification extends WorkerToServerMessage {
+public interface WorkerIdentificationMessage extends WorkerToServerMessage {
 	@Override
 	<T> T accept(Handler<T> handler);
 

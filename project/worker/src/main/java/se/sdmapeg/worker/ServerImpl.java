@@ -87,13 +87,13 @@ public final class ServerImpl implements Server {
 	@Override
 	public void tasksStolen(Set<TaskId> tasks) {
 		LOG.info("Sending stolen tasks {} to {}", tasks, this);
-		send(WorkerToServerMessageFactory.newWorkStealingResponse(tasks));
+		send(WorkerToServerMessageFactory.newWorkStealingResponseMessage(tasks));
 	}
 
 	@Override
 	public void identify(int parallelWorkCapacity) {
 		LOG.info("Sending identification message to {}");
-		send(WorkerToServerMessageFactory.newWorkerIdentification(parallelWorkCapacity));
+		send(WorkerToServerMessageFactory.newWorkerIdentificationMessage(parallelWorkCapacity));
 	}
 
 	/**
@@ -133,7 +133,7 @@ public final class ServerImpl implements Server {
 		}
 
 		@Override
-		public Void handle(WorkStealingRequest message) {
+		public Void handle(WorkStealingRequestMessage message) {
 			callback.workStealingRequested(message.getDesired());
 			return null;
 		}

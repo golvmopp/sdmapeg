@@ -1,17 +1,16 @@
 package se.sdmapeg.serverclient.communication;
 
-import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.serverclient.ClientTaskId;
 
 public final class ClientToServerMessageFactory {
 
 	/**
-	 * Returns an instance of ClientIdentification.
-	 * @return an instance of ClientIdentification
+	 * Returns an instance of ClientIdentificationMessage.
+	 * @return an instance of ClientIdentificationMessage
 	 */
-	public static ClientToServerMessage newClientIdentification() {
-		return new ClientIdentificationImpl();
+	public static ClientToServerMessage newClientIdentificationMessage() {
+		return new ClientIdentificationMessageImpl();
 	}
 
 	/**
@@ -30,10 +29,10 @@ public final class ClientToServerMessageFactory {
 		return new TaskMessageImpl(task, clientTaskId);
 	}
 
-	private static final class ClientIdentificationImpl implements ClientIdentification {
+	private static final class ClientIdentificationMessageImpl implements ClientIdentificationMessage {
 		private static final long serialVersionUID = 0;
 
-		private ClientIdentificationImpl() {
+		private ClientIdentificationMessageImpl() {
 			super();
 		}
 

@@ -10,11 +10,11 @@ import java.util.Set;
 public final class WorkerToServerMessageFactory {
 
 	/**
-	 * Returns a WorkStealingResponse.
-	 * @return a WorkStealingResponse
+	 * Returns a WorkStealingResponseMessage.
+	 * @return a WorkStealingResponseMessage
 	 */
-	public static WorkStealingResponse newWorkStealingResponse(Set<TaskId> stolenIds) {
-		return new WorkStealingResponseImpl(stolenIds);
+	public static WorkStealingResponseMessage newWorkStealingResponseMessage(Set<TaskId> stolenIds) {
+		return new WorkStealingResponseMessageImpl(stolenIds);
 	}
 
 	/**
@@ -25,9 +25,9 @@ public final class WorkerToServerMessageFactory {
 	 *								performing in parallel
 	 * @return the created message
 	 */
-	public static WorkerToServerMessage newWorkerIdentification(
+	public static WorkerToServerMessage newWorkerIdentificationMessage(
 			int parallelWorkCapacity) {
-		return new WorkerIdentificationImpl(parallelWorkCapacity);
+		return new WorkerIdentificationMessageImpl(parallelWorkCapacity);
 	}
 
 	/**
@@ -40,11 +40,11 @@ public final class WorkerToServerMessageFactory {
 		return new ResultMessageImpl(id, result);
 	}
 
-	private static class WorkStealingResponseImpl implements WorkStealingResponse {
+	private static class WorkStealingResponseMessageImpl implements WorkStealingResponseMessage {
 		private static final long serialVersionUID = 1594015099229454379L;
 		private final Set<TaskId> stolenIds;
 
-		private WorkStealingResponseImpl(Set<TaskId> stolenIds) {
+		private WorkStealingResponseMessageImpl(Set<TaskId> stolenIds) {
 			this.stolenIds = new HashSet<>(stolenIds);
 		}
 
@@ -58,11 +58,11 @@ public final class WorkerToServerMessageFactory {
 		}
 	}
 
-	private static class WorkerIdentificationImpl implements WorkerIdentification {
+	private static class WorkerIdentificationMessageImpl implements WorkerIdentificationMessage {
 		private static final long serialVersionUID = -387238449857548L;
 		private final int parallelWorkCapacity;
 
-		private WorkerIdentificationImpl(int parallelWorkCapacity) {
+		private WorkerIdentificationMessageImpl(int parallelWorkCapacity) {
 			this.parallelWorkCapacity = parallelWorkCapacity;
 		}
 

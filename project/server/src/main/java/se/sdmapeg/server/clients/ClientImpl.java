@@ -139,7 +139,7 @@ final class ClientImpl implements Client {
 		}
 
 		@Override
-		public Void handle(ClientIdentification message) {
+		public Void handle(ClientIdentificationMessage message) {
 			LOG.error("Received unexpected message type");
 			disconnect();
 			callback.clientDisconnected();

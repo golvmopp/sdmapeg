@@ -26,11 +26,11 @@ public final class ServerToWorkerMessageFactory {
 	}
 
 	/**
-	 * Returns a WorkStealingRequest.
-	 * @return a WorkStealingRequest
+	 * Returns a WorkStealingRequestMessage.
+	 * @return a WorkStealingRequestMessage
 	 */
-	public static WorkStealingRequest newWorkStealingRequest(int desired){
-		return new WorkStealingRequestImpl(desired);
+	public static WorkStealingRequestMessage newWorkStealingRequestMessage(int desired){
+		return new WorkStealingRequestMessageImpl(desired);
 	}
 
 	private static class TaskCancellationMessageImpl implements TaskCancellationMessage {
@@ -82,10 +82,10 @@ public final class ServerToWorkerMessageFactory {
 		}
 	}
 
-	private static class WorkStealingRequestImpl implements WorkStealingRequest {
+	private static class WorkStealingRequestMessageImpl implements WorkStealingRequestMessage {
 		public int desired;
 
-		private WorkStealingRequestImpl(int desired){
+		private WorkStealingRequestMessageImpl(int desired){
 			this.desired = desired;
 		}
 
