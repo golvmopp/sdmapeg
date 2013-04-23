@@ -4,7 +4,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import se.sdmapeg.common.tasks.Result;
-import se.sdmapeg.common.tasks.SimpleFailure;
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.common.tasks.TaskPerformer;
 import se.sdmapeg.serverworker.TaskId;
@@ -22,6 +21,8 @@ import se.sdmapeg.serverworker.TaskId;
  * Actual implementation of the Worker in the worker module.
  */
 public final class WorkerImpl implements Worker {
+	private static final Logger LOG = LoggerFactory.getLogger(WorkerImpl.class);
+	private final Listeners listeners = new Listeners();
 	private final ExecutorService serverListenerExecutor;
     private final TaskExecutor taskExecutor;
 	private final Server server;
@@ -30,8 +31,6 @@ public final class WorkerImpl implements Worker {
 	private final Map<TaskId, FutureTask<Void>> taskMap =
 		new ConcurrentHashMap<>();
 	private final Map<Runnable, TaskId> idMap = new ConcurrentHashMap<>();
-	private static final Logger LOG = LoggerFactory.getLogger(WorkerImpl.class);
-	
 
 	private WorkerImpl(int poolSize, Server server,
 					  TaskPerformer taskPerformer) {
@@ -42,10 +41,6 @@ public final class WorkerImpl implements Worker {
 		this.poolSize = poolSize;
 	}
 
-	private void listen() {
-	    server.listen(null);
-	}
-
 	private void cancelTask(TaskId taskId) {
 		FutureTask<Void> futureTask = taskMap.remove(taskId);
 		idMap.remove(futureTask);
@@ -54,6 +49,7 @@ public final class WorkerImpl implements Worker {
 		}
 		futureTask.cancel(true);
 		LOG.info("Cancelled task {}", taskId);
+		listeners.taskCancelled(taskId);
 	}
 
 	private void performTask(TaskId taskId, Task<?> task) {
@@ -63,6 +59,7 @@ public final class WorkerImpl implements Worker {
 		taskMap.put(taskId, futureTask);
 		idMap.put(futureTask, taskId);
 		taskExecutor.submit(futureTask);
+		listeners.taskAdded(taskId);
 	}
 
 	private <R> Result<R> runTask(Task<R> task) {
@@ -74,6 +71,7 @@ public final class WorkerImpl implements Worker {
 	    FutureTask<Void> futureTask = taskMap.remove(taskId); 
 	    idMap.remove(futureTask);
 		server.taskCompleted(taskId, result);
+		listeners.taskFinished(taskId);
 	}
 
 	private void stealTasks(int desired) {
@@ -85,10 +83,34 @@ public final class WorkerImpl implements Worker {
 			if (taskId != null) {
 				taskMap.remove(taskId);
 			    stolenTasks.add(taskId);
+				listeners.taskStolen(taskId);
 			}
 	    }
 		LOG.info("Stole {} tasks from queue", stolenTasks.size());
 		server.tasksStolen(stolenTasks);
+	}
+
+	@Override
+	public void start() {
+	    serverListenerExecutor.submit(new MessageListener());
+		server.identify(poolSize);
+	}
+
+	@Override
+	public void stop() {
+	    server.disconnect();
+	    serverListenerExecutor.shutdown();
+		taskExecutor.shutDown();
+	}
+
+	@Override
+	public void addListener(WorkerListener listener) {
+		listeners.addListener(listener);
+	}
+
+	@Override
+	public void removeListener(WorkerListener listener) {
+		listeners.removeListener(listener);
 	}
 	
 	public static WorkerImpl newWorkerImpl(int poolSize, Server server,
@@ -143,22 +165,85 @@ public final class WorkerImpl implements Worker {
 
 		@Override
 		public void run() {
-			LOG.info("Performing task {}", taskId );
+			LOG.info("Performing task {}", taskId);
+			listeners.taskStarted(taskId);
 			Result<?> result = runTask(task);
 			completeTask(taskId, result);
 		}
 	}
 
-	@Override
-	public void start() {
-	    serverListenerExecutor.submit(new MessageListener());
-		server.identify(poolSize);
-	}
+	private static final class Listeners implements WorkerListener {
+		private final Set<WorkerListener> listeners =
+			new CopyOnWriteArraySet<>();
+		private final ExecutorService listenerEventExecutor =
+			Executors.newSingleThreadExecutor();
 
-	@Override
-	public void stop() {
-	    server.disconnect();
-	    serverListenerExecutor.shutdown();
-		taskExecutor.shutDown();
+		public void addListener(WorkerListener listener) {
+			listeners.add(listener);
+		}
+
+		public void removeListener(WorkerListener listener) {
+			listeners.remove(listener);
+		}
+
+		@Override
+		public void taskAdded(final TaskId taskId) {
+			for (final WorkerListener listener : listeners) {
+				listenerEventExecutor.execute(new Runnable() {
+					@Override
+					public void run() {
+						listener.taskAdded(taskId);
+					}
+				});
+			}
+		}
+
+		@Override
+		public void taskStarted(final TaskId taskId) {
+			for (final WorkerListener listener : listeners) {
+				listenerEventExecutor.execute(new Runnable() {
+					@Override
+					public void run() {
+						listener.taskStarted(taskId);
+					}
+				});
+			}
+		}
+
+		@Override
+		public void taskFinished(final TaskId taskId) {
+			for (final WorkerListener listener : listeners) {
+				listenerEventExecutor.execute(new Runnable() {
+					@Override
+					public void run() {
+						listener.taskFinished(taskId);
+					}
+				});
+			}
+		}
+
+		@Override
+		public void taskCancelled(final TaskId taskId) {
+			for (final WorkerListener listener : listeners) {
+				listenerEventExecutor.execute(new Runnable() {
+					@Override
+					public void run() {
+						listener.taskCancelled(taskId);
+					}
+				});
+			}
+		}
+
+		@Override
+		public void taskStolen(final TaskId taskId) {
+			for (final WorkerListener listener : listeners) {
+				listenerEventExecutor.execute(new Runnable() {
+					@Override
+					public void run() {
+						listener.taskCancelled(taskId);
+					}
+				});
+			}
+		}
 	}
 }

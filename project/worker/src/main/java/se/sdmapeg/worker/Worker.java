@@ -5,8 +5,11 @@ package se.sdmapeg.worker;
  */
 public interface Worker {
    
-    public void start();
+    void start();
     
-    public void stop();
+    void stop();
 
+	void addListener(WorkerListener listener);
+
+	void removeListener(WorkerListener listener);
 }
