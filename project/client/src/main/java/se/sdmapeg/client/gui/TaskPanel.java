@@ -5,6 +5,7 @@ import java.awt.GridLayout;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -19,6 +20,7 @@ public class TaskPanel extends JPanel {
 	private String name;
 	private TaskState state;
 	private JLabel elapsedTime;
+	
 	
 	public TaskPanel(String typeName) {
 		this.typeName = typeName;
@@ -39,13 +41,14 @@ public class TaskPanel extends JPanel {
 				timeStamp.get(Calendar.MINUTE)));
 		centerPanelText.add(new JLabel(typeName));
 		centerPanelText.add(new JLabel(state.name()));
-		centerPanelText.add(new JLabel(""));
+		centerPanelText.add(elapsedTime);
+		
+		JCheckBox selectBox = new JCheckBox();
+		checkBoxPanel.add(selectBox);
 		
 		this.add(checkBoxPanel, BorderLayout.WEST);
 		this.add(closeButtonPanel, BorderLayout.EAST);
-		this.add(centerPanel, BorderLayout.CENTER);
-		
-		
+		this.add(centerPanel, BorderLayout.CENTER);	
 	}
 	
 	public TaskPanel(String typeName, String name) {
@@ -54,8 +57,9 @@ public class TaskPanel extends JPanel {
 	}
 	
 	public void updateTimeStamp() {
-		
+		//TODO: Fix this
 	}
+	
 	
 	
 }

@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -37,7 +38,7 @@ public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 	private final Map<TaskId, Task<?>> taskMap = new ConcurrentHashMap<>();
 	private final Map<TaskId, Worker> taskAssignmentMap =
 		new ConcurrentHashMap<>();
-	private final Map<InetAddress, Worker> addressMap =
+	private final ConcurrentMap<InetAddress, Worker> addressMap =
 		new ConcurrentHashMap<>();
 	private final AtomicBoolean started = new AtomicBoolean(false);
 
@@ -275,10 +276,15 @@ public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 		public void connectionReceived(Connection<ServerToWorkerMessage,
 				WorkerToServerMessage> connection) {
 			Worker worker = WorkerImpl.newWorker(connection);
-			LOG.info("{} connected", worker);
-			addressMap.put(worker.getAddress(), worker);
-			// Start a new thread to listen to the worker
-			connectionThreadPool.submit(new WorkerListener(worker));
+			if (addressMap.put(worker.getAddress(), worker) == null) {
+				LOG.info("{} connected", worker);
+				// Start a new thread to listen to the worker
+				connectionThreadPool.submit(new WorkerListener(worker));
+			} else {
+				LOG.warn("Connection refused: {} attempted to connect, but was"
+						+ " already connected", worker);
+				worker.disconnect();
+			}
 		}
 
 		@Override
