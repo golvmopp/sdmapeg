@@ -70,7 +70,6 @@ public class TaskPanel extends JPanel {
 		this.name = name;
 	}
 	
-	
 	//TODO: Remove this when done. Duh. 
 	public static void main(String[] args){
 		JFrame frame = new JFrame();
@@ -78,7 +77,6 @@ public class TaskPanel extends JPanel {
 		frame.pack();
 		frame.setVisible(true);
 	}
-	
 	
 	
 }
