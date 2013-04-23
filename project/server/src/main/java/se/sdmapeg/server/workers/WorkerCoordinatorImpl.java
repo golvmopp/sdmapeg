@@ -63,7 +63,7 @@ public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 			worker = leastLoadedAvailableWorker();
 			if (worker == null) {
 				taskMap.remove(taskId);
-				callback.handleResult(taskId, new SimpleFailure<>(
+				callback.handleResult(taskId, SimpleFailure.newSimpleFailure(
 						new ExecutionException("No workers available.", null)));
 				return;
 			}
