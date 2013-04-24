@@ -1,13 +1,14 @@
 package se.sdmapeg.server.clients;
 
 import java.net.InetAddress;
+import se.sdmapeg.common.listeners.Listenable;
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.serverworker.TaskId;
 
 /**
  * Interface for classes managing clients.
  */
-public interface ClientManager {
+public interface ClientManager extends Listenable<ClientManagerListener> {
 
 	/**
 	 * Handles the result of the task represented by the TaskId.
