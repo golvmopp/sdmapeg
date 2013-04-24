@@ -10,7 +10,7 @@ import java.util.Date;
  * @author Trivoc
  *
  */
-public class TimeFormatter {
+public final class TimeFormatter {
 
     long timeOfCreation;
     Date date;

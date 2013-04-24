@@ -8,7 +8,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-public class TaskExecutor {
+public final class TaskExecutor {
 	private BlockingDeque<Runnable> queue;
 	private ExecutorService workerThreadPool;
 

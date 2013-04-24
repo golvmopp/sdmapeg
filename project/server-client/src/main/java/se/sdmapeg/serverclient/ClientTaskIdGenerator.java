@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Implementation of IdGenerator for ClientTaskIds.
  */
-public class ClientTaskIdGenerator implements IdGenerator<ClientTaskId> {
+public final class ClientTaskIdGenerator implements IdGenerator<ClientTaskId> {
 	private AtomicLong idCount = new AtomicLong(0L);
 
 	@Override

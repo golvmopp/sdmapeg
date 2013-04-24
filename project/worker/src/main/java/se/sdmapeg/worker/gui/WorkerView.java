@@ -112,6 +112,16 @@ public final class WorkerView extends JFrame implements WorkerListener {
 		updateStatistics();
 	}
 
+	@Override
+	public void taskCancelled(TaskId taskId) {
+		// TODO: implement this
+	}
+
+	@Override
+	public void taskStolen(TaskId taskId) {
+		// TODO: implement this
+	}
+
 	public static void main(String[] args) {
 		new WorkerView(null);
 	}
