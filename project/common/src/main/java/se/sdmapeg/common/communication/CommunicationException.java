@@ -3,7 +3,7 @@ package se.sdmapeg.common.communication;
 /**
  * Exception thrown to indicate that a network communication error occurred.
  */
-public final class CommunicationException extends Exception {
+public class CommunicationException extends Exception {
 	public CommunicationException() {
 	}
 
