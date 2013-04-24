@@ -11,10 +11,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.sdmapeg.common.communication.Connection;
+import se.sdmapeg.common.listeners.Listenable;
+import se.sdmapeg.common.listeners.ListenerSupport;
+import se.sdmapeg.common.listeners.Notification;
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.SimpleFailure;
 import se.sdmapeg.common.tasks.Task;
@@ -31,6 +35,7 @@ import se.sdmapeg.serverworker.communication.WorkerToServerMessage;
  */
 public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 	private static final Logger LOG = LoggerFactory.getLogger(WorkerCoordinatorImpl.class);
+	private final Listeners listeners = new Listeners();
 	private final ExecutorService connectionThreadPool;
 	private final ConnectionHandler<ServerToWorkerMessage,
 			WorkerToServerMessage> connectionHandler;
@@ -63,13 +68,15 @@ public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 			worker = leastLoadedAvailableWorker();
 			if (worker == null) {
 				taskMap.remove(taskId);
+				taskAssignmentMap.remove(taskId);
 				callback.handleResult(taskId, SimpleFailure.newSimpleFailure(
 						new ExecutionException("No workers available.", null)));
 				return;
 			}
+			taskAssignmentMap.put(taskId, worker);
 		} while (!worker.assignTask(taskId, task));
 		LOG.info("Task {} sent to {}", taskId, worker);
-		taskAssignmentMap.put(taskId, worker);
+		listeners.taskAssigned(taskId, worker.getAddress());
 	}
 
 	@Override
@@ -77,6 +84,7 @@ public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 		taskMap.remove(taskId);
 		Worker worker = taskAssignmentMap.remove(taskId);
 		worker.cancelTask(taskId);
+		listeners.taskAborted(taskId, worker.getAddress());
 	}
 
 	@Override
@@ -201,6 +209,16 @@ public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 		worker.disconnect();
 	}
 
+	@Override
+	public void addListener(WorkerCoordinatorListener listener) {
+		listeners.addListener(listener);
+	}
+
+	@Override
+	public void removeListener(WorkerCoordinatorListener listener) {
+		listeners.removeListener(listener);
+	}
+
 	/**
 	 * Creates a new WorkerCoordinator with the specified connectionThreadPool,
 	 * connectionHandler, and callback.
@@ -278,6 +296,7 @@ public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 			Worker worker = WorkerImpl.newWorker(connection);
 			if (addressMap.put(worker.getAddress(), worker) == null) {
 				LOG.info("{} connected", worker);
+				listeners.workerConnected(worker.getAddress());
 				// Start a new thread to listen to the worker
 				connectionThreadPool.submit(new WorkerListener(worker));
 			} else {
@@ -328,18 +347,21 @@ public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 			taskAssignmentMap.remove(taskId);
 			taskMap.remove(taskId);
 			LOG.info("Task {} completed by {}", taskId, worker);
+			listeners.resultReceived(taskId, worker.getAddress());
 			callback.handleResult(taskId, result);
 		}
 
 		@Override
 		public void taskStolen(TaskId taskId) {
 			LOG.info("Task {} stolen from {}", taskId, worker);
+			listeners.taskAborted(taskId, worker.getAddress());
 			reassignTask(taskId);
 		}
 
 		@Override
 		public void workerDisconnected() {
 			addressMap.remove(worker.getAddress());
+			listeners.workerDisconnected(worker.getAddress());
 			/*
 			 * Reassign all active tasks of this worker. Since this method is
 			 * called from the only thread responsible for completing tasks
@@ -358,6 +380,78 @@ public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 		public void workRequested() {
 			stealTasks(worker.getParallellWorkCapacity());
 			LOG.info("Work requested by {}", worker);
+		}
+	}
+
+	private static final class Listeners implements WorkerCoordinatorListener,
+			Listenable<WorkerCoordinatorListener> {
+		private final ListenerSupport<WorkerCoordinatorListener> listenerSupport =
+			ListenerSupport.newListenerSupport(
+				Executors.newSingleThreadExecutor());
+
+		@Override
+		public void workerConnected(final InetAddress workerAddress) {
+			listenerSupport.notifyListeners(
+					new Notification<WorkerCoordinatorListener>() {
+				@Override
+				public void notifyListener(WorkerCoordinatorListener listener) {
+					listener.workerConnected(workerAddress);
+				}
+			});
+		}
+
+		@Override
+		public void workerDisconnected(final InetAddress workerAddress) {
+			listenerSupport.notifyListeners(
+					new Notification<WorkerCoordinatorListener>() {
+				@Override
+				public void notifyListener(WorkerCoordinatorListener listener) {
+					listener.workerDisconnected(workerAddress);
+				}
+			});
+		}
+
+		@Override
+		public void resultReceived(final TaskId taskId, final InetAddress address) {
+			listenerSupport.notifyListeners(
+					new Notification<WorkerCoordinatorListener>() {
+				@Override
+				public void notifyListener(WorkerCoordinatorListener listener) {
+					listener.resultReceived(taskId, address);
+				}
+			});
+		}
+
+		@Override
+		public void taskAssigned(final TaskId taskId, final InetAddress address) {
+			listenerSupport.notifyListeners(
+					new Notification<WorkerCoordinatorListener>() {
+				@Override
+				public void notifyListener(WorkerCoordinatorListener listener) {
+					listener.taskAssigned(taskId, address);
+				}
+			});
+		}
+
+		@Override
+		public void taskAborted(final TaskId taskId, final InetAddress address) {
+			listenerSupport.notifyListeners(
+					new Notification<WorkerCoordinatorListener>() {
+				@Override
+				public void notifyListener(WorkerCoordinatorListener listener) {
+					listener.taskAborted(taskId, address);
+				}
+			});
+		}
+
+		@Override
+		public void addListener(WorkerCoordinatorListener listener) {
+			listenerSupport.addListener(listener);
+		}
+
+		@Override
+		public void removeListener(WorkerCoordinatorListener listener) {
+			listenerSupport.removeListener(listener);
 		}
 	}
 }

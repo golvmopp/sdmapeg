@@ -1,13 +1,14 @@
 package se.sdmapeg.server.workers;
 
 import java.net.InetAddress;
+import se.sdmapeg.common.listeners.Listenable;
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.serverworker.TaskId;
 
 /**
  * Interface for classes coordinating workers.
  */
-public interface WorkerCoordinator {
+public interface WorkerCoordinator extends Listenable<WorkerCoordinatorListener> {
 
 	/**
 	 * Handles the task.
