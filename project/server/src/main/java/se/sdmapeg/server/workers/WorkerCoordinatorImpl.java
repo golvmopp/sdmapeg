@@ -4,21 +4,16 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.sdmapeg.common.communication.Connection;
-import se.sdmapeg.common.listeners.Listenable;
-import se.sdmapeg.common.listeners.ListenerSupport;
-import se.sdmapeg.common.listeners.Notification;
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.SimpleFailure;
 import se.sdmapeg.common.tasks.Task;
@@ -35,7 +30,8 @@ import se.sdmapeg.serverworker.communication.WorkerToServerMessage;
  */
 public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 	private static final Logger LOG = LoggerFactory.getLogger(WorkerCoordinatorImpl.class);
-	private final Listeners listeners = new Listeners();
+	private final WorkerCoordinatorListenerSupport listeners =
+		WorkerCoordinatorListenerSupport.newListenerSupport();
 	private final ExecutorService connectionThreadPool;
 	private final ConnectionHandler<ServerToWorkerMessage,
 			WorkerToServerMessage> connectionHandler;
@@ -161,10 +157,10 @@ public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 	}
 
 	private void stealTasks(int desired) {
-		List<LoadSnapshot> snapshots = createLoadSnapshotList();
-		Collections.sort(snapshots, LoadSnapshot.descendingComparator());
+		List<WorkerLoadSnapshot> snapshots = createLoadSnapshotList();
+		Collections.sort(snapshots, WorkerLoadSnapshot.descendingComparator());
 		int stolen = 0;
-		for (LoadSnapshot snapshot : snapshots) {
+		for (WorkerLoadSnapshot snapshot : snapshots) {
 			Worker worker = snapshot.getWorker();
 			stolen += stealTasks(worker, desired - stolen);
 			if (stolen == desired) {
@@ -189,14 +185,14 @@ public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 		handleTask(taskId, task);
 	}
 
-	private List<LoadSnapshot> createLoadSnapshotList() {
+	private List<WorkerLoadSnapshot> createLoadSnapshotList() {
 		/*
 		 * Since new workers may be added at any time, we give the list a
 		 * slightly larger initial capacity.
 		 */
-		List<LoadSnapshot> snapshots = new ArrayList<>(addressMap.size() + 5);
+		List<WorkerLoadSnapshot> snapshots = new ArrayList<>(addressMap.size() + 5);
 		for (Worker worker : addressMap.values()) {
-			snapshots.add(new LoadSnapshot(worker));
+			snapshots.add(WorkerLoadSnapshot.newSnapshot(worker));
 		}
 		return snapshots;
 	}
@@ -236,54 +232,6 @@ public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 			WorkerCoordinatorCallback callback) {
 		return new WorkerCoordinatorImpl(connectionThreadPool,
 				connectionHandler, callback);
-	}
-
-	/**
-	 * Immutable class used for sorting (mutable) workers according to their
-	 * load at some point in time. Since Workers are mutable and may be modified
-	 * by other threads at any point in time, attempting to sort them using a
-	 * regular comparator might lead to unspecified behaviour in the sorting
-	 * algorithm if another thread changes them during the sort.
-	 * <p />
-	 * This class provides an immutable snapshot of the state of the Worker,
-	 * which can safely be sorted without risk of other threads modifying it in
-	 * the process. Due to this immutable nature, it is possible that a list of
-	 * LoadSnapshots will be outdated after being sorted. This class is intended
-	 * for use in situations where the risk of having an outdated list is an
-	 * acceptable tradeoff.
-	 */
-	private static final class LoadSnapshot {
-		private static final Comparator<LoadSnapshot> ASCENDING =
-			new LoadComparator();
-		private static final Comparator<LoadSnapshot> DESCENDING =
-			Collections.reverseOrder(ASCENDING);
-		private final Worker worker;
-		private final int load;
-
-		public LoadSnapshot(Worker worker) {
-			this.worker = worker;
-			this.load = worker.getLoad();
-		}
-
-		public Worker getWorker() {
-			return worker;
-		}
-
-		public static Comparator<LoadSnapshot> ascendingComparator() {
-			return ASCENDING;
-		}
-
-		public static Comparator<LoadSnapshot> descendingComparator() {
-			return DESCENDING;
-		}
-
-		private static final class LoadComparator
-				implements Comparator<LoadSnapshot> {
-			@Override
-			public int compare(LoadSnapshot o1, LoadSnapshot o2) {
-				return Integer.compare(o1.load, o2.load);
-			}			
-		}
 	}
 
 	private final class WorkerConnectionCallback
@@ -380,78 +328,6 @@ public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 		public void workRequested() {
 			stealTasks(worker.getParallellWorkCapacity());
 			LOG.info("Work requested by {}", worker);
-		}
-	}
-
-	private static final class Listeners implements WorkerCoordinatorListener,
-			Listenable<WorkerCoordinatorListener> {
-		private final ListenerSupport<WorkerCoordinatorListener> listenerSupport =
-			ListenerSupport.newListenerSupport(
-				Executors.newSingleThreadExecutor());
-
-		@Override
-		public void workerConnected(final InetAddress workerAddress) {
-			listenerSupport.notifyListeners(
-					new Notification<WorkerCoordinatorListener>() {
-				@Override
-				public void notifyListener(WorkerCoordinatorListener listener) {
-					listener.workerConnected(workerAddress);
-				}
-			});
-		}
-
-		@Override
-		public void workerDisconnected(final InetAddress workerAddress) {
-			listenerSupport.notifyListeners(
-					new Notification<WorkerCoordinatorListener>() {
-				@Override
-				public void notifyListener(WorkerCoordinatorListener listener) {
-					listener.workerDisconnected(workerAddress);
-				}
-			});
-		}
-
-		@Override
-		public void resultReceived(final TaskId taskId, final InetAddress address) {
-			listenerSupport.notifyListeners(
-					new Notification<WorkerCoordinatorListener>() {
-				@Override
-				public void notifyListener(WorkerCoordinatorListener listener) {
-					listener.resultReceived(taskId, address);
-				}
-			});
-		}
-
-		@Override
-		public void taskAssigned(final TaskId taskId, final InetAddress address) {
-			listenerSupport.notifyListeners(
-					new Notification<WorkerCoordinatorListener>() {
-				@Override
-				public void notifyListener(WorkerCoordinatorListener listener) {
-					listener.taskAssigned(taskId, address);
-				}
-			});
-		}
-
-		@Override
-		public void taskAborted(final TaskId taskId, final InetAddress address) {
-			listenerSupport.notifyListeners(
-					new Notification<WorkerCoordinatorListener>() {
-				@Override
-				public void notifyListener(WorkerCoordinatorListener listener) {
-					listener.taskAborted(taskId, address);
-				}
-			});
-		}
-
-		@Override
-		public void addListener(WorkerCoordinatorListener listener) {
-			listenerSupport.addListener(listener);
-		}
-
-		@Override
-		public void removeListener(WorkerCoordinatorListener listener) {
-			listenerSupport.removeListener(listener);
 		}
 	}
 }

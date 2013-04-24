@@ -6,15 +6,11 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.sdmapeg.common.IdGenerator;
 import se.sdmapeg.common.communication.Connection;
-import se.sdmapeg.common.listeners.Listenable;
-import se.sdmapeg.common.listeners.ListenerSupport;
-import se.sdmapeg.common.listeners.Notification;
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.server.communication.ConnectionAcceptor;
@@ -30,7 +26,8 @@ import se.sdmapeg.serverworker.TaskId;
  */
 public final class ClientManagerImpl implements ClientManager {
 	private static final Logger LOG = LoggerFactory.getLogger(ClientManagerImpl.class);
-	private final Listeners listeners = new Listeners();
+	private final ClientManagerListenerSupport listeners =
+		ClientManagerListenerSupport.newListenerSupport();
 	private final ExecutorService connectionThreadPool;
 	private final ConnectionHandler<ServerToClientMessage,
 			ClientToServerMessage> connectionHandler;
@@ -250,78 +247,6 @@ public final class ClientManagerImpl implements ClientManager {
 				LOG.info("Cancelling task {}", task);
 				cancelTask(task);
 			}
-		}
-	}
-
-	private static final class Listeners implements ClientManagerListener,
-			Listenable<ClientManagerListener> {
-		private final ListenerSupport<ClientManagerListener> listenerSupport =
-			ListenerSupport.newListenerSupport(
-				Executors.newSingleThreadExecutor());
-
-		@Override
-		public void clientConnected(final InetAddress clientAddress) {
-			listenerSupport.notifyListeners(
-					new Notification<ClientManagerListener>() {
-				@Override
-				public void notifyListener(ClientManagerListener listener) {
-					listener.clientConnected(null);
-				}
-			});
-		}
-
-		@Override
-		public void clientDisconnected(final InetAddress clientAddress) {
-			listenerSupport.notifyListeners(
-					new Notification<ClientManagerListener>() {
-				@Override
-				public void notifyListener(ClientManagerListener listener) {
-					listener.clientDisconnected(clientAddress);
-				}
-			});
-		}
-
-		@Override
-		public void taskReceived(final TaskId taskId, final InetAddress address) {
-			listenerSupport.notifyListeners(
-					new Notification<ClientManagerListener>() {
-				@Override
-				public void notifyListener(ClientManagerListener listener) {
-					listener.taskReceived(taskId, address);
-				}
-			});
-		}
-
-		@Override
-		public void taskCancelled(final TaskId taskId, final InetAddress address) {
-			listenerSupport.notifyListeners(
-					new Notification<ClientManagerListener>() {
-				@Override
-				public void notifyListener(ClientManagerListener listener) {
-					listener.taskCancelled(taskId, address);
-				}
-			});
-		}
-
-		@Override
-		public void resultSent(final TaskId taskId, final InetAddress address) {
-			listenerSupport.notifyListeners(
-					new Notification<ClientManagerListener>() {
-				@Override
-				public void notifyListener(ClientManagerListener listener) {
-					listener.resultSent(taskId, address);
-				}
-			});
-		}
-
-		@Override
-		public void addListener(ClientManagerListener listener) {
-			listenerSupport.addListener(listener);
-		}
-
-		@Override
-		public void removeListener(ClientManagerListener listener) {
-			listenerSupport.removeListener(listener);
 		}
 	}
 }
