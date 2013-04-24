@@ -1,19 +1,24 @@
 package se.sdmapeg.server;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import se.sdmapeg.common.IdGenerator;
 import se.sdmapeg.common.communication.CommunicationException;
+import se.sdmapeg.common.listeners.Listenable;
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.server.clients.ClientManager;
 import se.sdmapeg.server.clients.ClientManagerCallback;
 import se.sdmapeg.server.clients.ClientManagerImpl;
+import se.sdmapeg.server.clients.ClientManagerListener;
 import se.sdmapeg.server.communication.ConnectionHandler;
 import se.sdmapeg.server.communication.ConnectionHandlerImpl;
 import se.sdmapeg.server.workers.WorkerCoordinator;
 import se.sdmapeg.server.workers.WorkerCoordinatorCallback;
 import se.sdmapeg.server.workers.WorkerCoordinatorImpl;
+import se.sdmapeg.server.workers.WorkerCoordinatorListener;
 import se.sdmapeg.serverclient.communication.ClientToServerMessage;
 import se.sdmapeg.serverclient.communication.ServerToClientMessage;
 import se.sdmapeg.serverworker.TaskId;
@@ -27,6 +32,12 @@ import se.sdmapeg.serverworker.communication.WorkerToServerMessage;
 public final class ServerImpl implements Server {
 	private static final int CLIENT_PORT = 6666;
 	private static final int WORKER_PORT = 6667;
+	private final ConcurrentMap<ServerListener,
+			ClientManagerListener> clientManagerListeners =
+		new ConcurrentHashMap<>();
+	private final ConcurrentMap<ServerListener,
+			WorkerCoordinatorListener> workerCoordinatorListeners =
+		new ConcurrentHashMap<>();
 	private final ExecutorService connectionThreadPool =
 		Executors.newCachedThreadPool();
 	private final IdGenerator<TaskId> taskIdGenerator = new TaskIdGenerator();
@@ -69,6 +80,41 @@ public final class ServerImpl implements Server {
 		clientManager.shutDown();
 		workerCoordinator.shutDown();
 		connectionThreadPool.shutdown();
+	}
+
+	@Override
+	public void addListener(ServerListener listener) {
+		ClientManagerListener clientManagerListener =
+			ServerListeners.getClientManagerListener(listener);
+		mapListener(listener, clientManagerListener, clientManagerListeners,
+			clientManager);
+		WorkerCoordinatorListener workerCoordinatorListener =
+			ServerListeners.getWorkerCoordinatorListener(listener);
+		mapListener(listener, workerCoordinatorListener,
+			workerCoordinatorListeners, workerCoordinator);
+	}
+
+	@Override
+	public void removeListener(ServerListener listener) {
+		unmapListener(listener, clientManagerListeners, clientManager);
+		unmapListener(listener, workerCoordinatorListeners, workerCoordinator);
+	}
+
+	private static <L> void mapListener(ServerListener serverListener,
+			L listener, ConcurrentMap<ServerListener, L> listenerMap,
+			Listenable<L> listenable) {
+		if (listenerMap.putIfAbsent(serverListener, listener) == null) {
+			listenable.addListener(listener);
+		}
+	}
+
+	private static <L> void unmapListener(ServerListener serverListener,
+			ConcurrentMap<ServerListener, L> listenerMap,
+			Listenable<L> listenable) {
+		L listener = listenerMap.remove(serverListener);
+		if (listener != null) {
+			listenable.removeListener(listener);
+		}
 	}
 
 	/**
