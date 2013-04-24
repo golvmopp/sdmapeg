@@ -10,7 +10,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public final class WorkerView extends JFrame implements WorkerListener {
+public final class WorkerView extends JFrame {
 	private final Worker worker;
 	private long startTime;
 	private int totalTasks = 0;
@@ -25,42 +25,50 @@ public final class WorkerView extends JFrame implements WorkerListener {
 	public WorkerView(Worker worker) {
 		this.worker = worker;
 		this.startTime = System.currentTimeMillis();
+		worker.addListener(new WorkerListenerImpl());
 
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setTitle("SDMAPeG Worker");
 		setLayout(new GridLayout(1, 2));
+		getRootPane().setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 
-		JPanel statistics = new JPanel(new GridLayout(0, 2));
+		JPanel statistics = new JPanel(new BorderLayout());
+		add(statistics);
+
+		JPanel labels = new JPanel(new GridLayout(0, 1));
+		JPanel values = new JPanel(new GridLayout(0, 1));
+		statistics.add(labels, BorderLayout.WEST);
+		statistics.add(values, BorderLayout.EAST);
 
 		JLabel timerLabel = new JLabel("Time since startup: ", SwingConstants.RIGHT);
 		timer = new JLabel("00:00:00");
-		statistics.add(timerLabel);
-		statistics.add(timer);
+		labels.add(timerLabel);
+		values.add(timer);
 
 		JLabel availableProcessorsLabel = new JLabel("Available Processors: ", SwingConstants.RIGHT);
 		JLabel availableProcessors = new JLabel(Integer.toString(Runtime.getRuntime().availableProcessors()));
-		statistics.add(availableProcessorsLabel);
-		statistics.add(availableProcessors);
+		labels.add(availableProcessorsLabel);
+		values.add(availableProcessors);
 
 		JLabel tasksReceivedLabel = new JLabel("Number of received tasks: ", SwingConstants.RIGHT);
 		tasksReceived = new JLabel(Integer.toString(totalTasks));
-		statistics.add(tasksReceivedLabel);
-		statistics.add(tasksReceived);
+		labels.add(tasksReceivedLabel);
+		values.add(tasksReceived);
 
 		JLabel tasksPerformedLabel = new JLabel("Number of performed tasks: ", SwingConstants.RIGHT);
 		tasksPerformed = new JLabel(Integer.toString(tasksPerformedCounter));
-		statistics.add(tasksPerformedLabel);
-		statistics.add(tasksPerformed);
+		labels.add(tasksPerformedLabel);
+		values.add(tasksPerformed);
 
 		JLabel activeTasksLabel = new JLabel("Number of tasks running: ", SwingConstants.RIGHT);
 		activeTasks = new JLabel(Integer.toString(Math.min(totalTasks - tasksPerformedCounter, Runtime.getRuntime().availableProcessors())));
-		statistics.add(activeTasksLabel);
-		statistics.add(activeTasks);
+		labels.add(activeTasksLabel);
+		values.add(activeTasks);
 
 		JLabel queueLengthLabel = new JLabel("Queue length: ", SwingConstants.RIGHT);
 		queueLength = new JLabel(Integer.toString(totalTasks - tasksPerformedCounter));
-		statistics.add(queueLengthLabel);
-		statistics.add(queueLength);
+		labels.add(queueLengthLabel);
+		values.add(queueLength);
 
 		add(statistics);
 
@@ -88,6 +96,7 @@ public final class WorkerView extends JFrame implements WorkerListener {
 		tasksPerformed.setText(Integer.toString(tasksPerformedCounter));
 		activeTasks.setText(Integer.toString(Math.min(totalTasks - tasksPerformedCounter, Runtime.getRuntime().availableProcessors())));
 		queueLength.setText(Integer.toString(totalTasks - tasksPerformedCounter));
+		System.out.println("Statistics updated.");
 	}
 
 	@Override
@@ -95,34 +104,35 @@ public final class WorkerView extends JFrame implements WorkerListener {
 		worker.stop();
 	}
 
-	@Override
-	public void taskAdded(TaskId taskId) {
-		totalTasks++;
-		updateStatistics();
-	}
+	public class WorkerListenerImpl implements WorkerListener {
 
-	@Override
-	public void taskStarted(TaskId taskId) {
-		//To change body of implemented methods use File | Settings | File Templates.
-	}
+		@Override
+		public void taskAdded(TaskId taskId) {
+			totalTasks++;
+			updateStatistics();
+		}
 
-	@Override
-	public void taskFinished(TaskId taskId) {
-		tasksPerformedCounter++;
-		updateStatistics();
-	}
+		@Override
+		public void taskStarted(TaskId taskId) {
+			//To change body of implemented methods use File | Settings | File Templates.
+		}
 
-	@Override
-	public void taskCancelled(TaskId taskId) {
-		// TODO: implement this
-	}
+		@Override
+		public void taskFinished(TaskId taskId) {
+			tasksPerformedCounter++;
+			updateStatistics();
+		}
 
-	@Override
-	public void taskStolen(TaskId taskId) {
-		// TODO: implement this
-	}
+		@Override
+		public void taskCancelled(TaskId taskId) {
+			tasksPerformedCounter++;
+			updateStatistics();
+		}
 
-	public static void main(String[] args) {
-		new WorkerView(null);
+		@Override
+		public void taskStolen(TaskId taskId) {
+			totalTasks--;
+			updateStatistics();
+		}
 	}
 }
