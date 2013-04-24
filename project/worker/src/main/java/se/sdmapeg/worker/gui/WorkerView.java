@@ -29,11 +29,23 @@ public final class WorkerView extends JFrame {
 
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setTitle("SDMAPeG Worker");
-		setLayout(new GridLayout(1, 2));
+		setLayout(new BorderLayout());
 		getRootPane().setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 
+		JPanel content = new JPanel(new GridLayout(1, 2));
+		add(content, BorderLayout.CENTER);
+
+		JButton exit = new JButton("Exit");
+		exit.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				dispose();
+			}
+		});
+		add(exit, BorderLayout.SOUTH);
+
 		JPanel statistics = new JPanel(new BorderLayout());
-		add(statistics);
+		content.add(statistics);
 
 		JPanel labels = new JPanel(new GridLayout(0, 1));
 		JPanel values = new JPanel(new GridLayout(0, 1));
@@ -60,13 +72,14 @@ public final class WorkerView extends JFrame {
 		labels.add(tasksPerformedLabel);
 		values.add(tasksPerformed);
 
+		int activeTasksCount = Math.min(totalTasks - tasksPerformedCounter, Runtime.getRuntime().availableProcessors());
 		JLabel activeTasksLabel = new JLabel("Number of tasks running: ", SwingConstants.RIGHT);
-		activeTasks = new JLabel(Integer.toString(Math.min(totalTasks - tasksPerformedCounter, Runtime.getRuntime().availableProcessors())));
+		activeTasks = new JLabel(Integer.toString(activeTasksCount));
 		labels.add(activeTasksLabel);
 		values.add(activeTasks);
 
 		JLabel queueLengthLabel = new JLabel("Queue length: ", SwingConstants.RIGHT);
-		queueLength = new JLabel(Integer.toString(totalTasks - tasksPerformedCounter));
+		queueLength = new JLabel(Integer.toString(totalTasks - tasksPerformedCounter - activeTasksCount));
 		labels.add(queueLengthLabel);
 		values.add(queueLength);
 
@@ -92,10 +105,11 @@ public final class WorkerView extends JFrame {
 	}
 
 	private void updateStatistics() {
+		int activeTasksCount = Math.min(totalTasks - tasksPerformedCounter, Runtime.getRuntime().availableProcessors());
 		tasksReceived.setText(Integer.toString(totalTasks));
 		tasksPerformed.setText(Integer.toString(tasksPerformedCounter));
-		activeTasks.setText(Integer.toString(Math.min(totalTasks - tasksPerformedCounter, Runtime.getRuntime().availableProcessors())));
-		queueLength.setText(Integer.toString(totalTasks - tasksPerformedCounter));
+		activeTasks.setText(Integer.toString(activeTasksCount));
+		queueLength.setText(Integer.toString(totalTasks - tasksPerformedCounter - activeTasksCount));
 		System.out.println("Statistics updated.");
 	}
 
