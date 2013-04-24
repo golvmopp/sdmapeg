@@ -63,6 +63,7 @@ public class TaskPanel extends JPanel {
 		this.add(new JButton(), BorderLayout.EAST);
 		
 		this.setBorder(new LineBorder(Color.BLACK));
+		this.setSize(new Dimension(200, 100));
 	}
 	
 	public TaskPanel(String typeName, String name) {
@@ -74,7 +75,6 @@ public class TaskPanel extends JPanel {
 	public static void main(String[] args){
 		JFrame frame = new JFrame();
 		frame.add(new TaskPanel("PythonTask"));
-		frame.pack();
 		frame.setVisible(true);
 	}
 	
