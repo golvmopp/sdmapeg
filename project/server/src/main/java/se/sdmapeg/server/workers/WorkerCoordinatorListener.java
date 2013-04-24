@@ -11,17 +11,17 @@ public interface WorkerCoordinatorListener {
 	 * Notifies this listener that a new worker with the specified address has
 	 * connected.
 	 *
-	 * @param workerAddress the address of the connected worker
+	 * @param address the address of the connected worker
 	 */
-	void workerConnected(InetAddress workerAddress);
+	void workerConnected(InetAddress address);
 
 	/**
 	 * Notifies this listener that the worker with the specified address has
 	 * disconnected.
 	 *
-	 * @param workerAddress the address of the disconnected worker
+	 * @param address the address of the disconnected worker
 	 */
-	void workerDisconnected(InetAddress workerAddress);
+	void workerDisconnected(InetAddress address);
 	
 	/**
 	 * Notifies this listener that the result for the task with the specified

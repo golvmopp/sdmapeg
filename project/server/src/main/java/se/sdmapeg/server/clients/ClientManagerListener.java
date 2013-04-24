@@ -11,17 +11,17 @@ public interface ClientManagerListener {
 	 * Notifies this listener that a new client with the specified address has
 	 * connected.
 	 *
-	 * @param clientAddress the address of the connected client
+	 * @param address the address of the connected client
 	 */
-	void clientConnected(InetAddress clientAddress);
+	void clientConnected(InetAddress address);
 
 	/**
 	 * Notifies this listener that the client with the specified address has
 	 * disconnected.
 	 *
-	 * @param clientAddress the address of the disconnected client
+	 * @param address the address of the disconnected client
 	 */
-	void clientDisconnected(InetAddress clientAddress);
+	void clientDisconnected(InetAddress address);
 
 	
 	/**

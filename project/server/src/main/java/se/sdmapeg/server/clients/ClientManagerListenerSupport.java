@@ -19,7 +19,7 @@ final class ClientManagerListenerSupport implements ClientManagerListener,
 	}
 
 	@Override
-	public void clientConnected(final InetAddress clientAddress) {
+	public void clientConnected(final InetAddress address) {
 		listenerSupport.notifyListeners(
 				new Notification<ClientManagerListener>() {
 			@Override
@@ -30,12 +30,12 @@ final class ClientManagerListenerSupport implements ClientManagerListener,
 	}
 
 	@Override
-	public void clientDisconnected(final InetAddress clientAddress) {
+	public void clientDisconnected(final InetAddress address) {
 		listenerSupport.notifyListeners(
 				new Notification<ClientManagerListener>() {
 			@Override
 			public void notifyListener(ClientManagerListener listener) {
-				listener.clientDisconnected(clientAddress);
+				listener.clientDisconnected(address);
 			}
 		});
 	}

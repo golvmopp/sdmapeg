@@ -19,23 +19,23 @@ final class WorkerCoordinatorListenerSupport implements WorkerCoordinatorListene
 	}
 
 	@Override
-	public void workerConnected(final InetAddress workerAddress) {
+	public void workerConnected(final InetAddress address) {
 		listenerSupport.notifyListeners(
 				new Notification<WorkerCoordinatorListener>() {
 			@Override
 			public void notifyListener(WorkerCoordinatorListener listener) {
-				listener.workerConnected(workerAddress);
+				listener.workerConnected(address);
 			}
 		});
 	}
 
 	@Override
-	public void workerDisconnected(final InetAddress workerAddress) {
+	public void workerDisconnected(final InetAddress address) {
 		listenerSupport.notifyListeners(
 				new Notification<WorkerCoordinatorListener>() {
 			@Override
 			public void notifyListener(WorkerCoordinatorListener listener) {
-				listener.workerDisconnected(workerAddress);
+				listener.workerDisconnected(address);
 			}
 		});
 	}
