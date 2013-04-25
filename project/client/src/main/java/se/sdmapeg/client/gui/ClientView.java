@@ -53,7 +53,6 @@ public class ClientView implements ActionListener {
 
 		frame.add(pythonTaskButton);
 		frame.add(exitButton);
-
 		frame.pack();
 	}
 
