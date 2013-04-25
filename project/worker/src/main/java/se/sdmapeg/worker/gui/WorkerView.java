@@ -110,12 +110,12 @@ public final class WorkerView extends JFrame {
 		tasksPerformed.setText(Integer.toString(tasksPerformedCounter));
 		activeTasks.setText(Integer.toString(activeTasksCount));
 		queueLength.setText(Integer.toString(totalTasks - tasksPerformedCounter - activeTasksCount));
-		System.out.println("Statistics updated.");
 	}
 
 	@Override
 	public void dispose() {
 		worker.stop();
+		super.dispose();
 	}
 
 	public class WorkerListenerImpl implements WorkerListener {
