@@ -45,7 +45,7 @@ public final class TimeFormatter {
      * @return elapsed minutes. 
      */
     public long getMinutes(){
-	return (date.getTime() - timeOfCreation) / 60000;
+	return (date.getTime() - timeOfCreation) / 60000 % 60;
     }
     
     /**
@@ -53,7 +53,7 @@ public final class TimeFormatter {
      * @return elapsed seconds.
      */
     public long getSeconds(){
-	return (date.getTime() - timeOfCreation) / 1000;
+	return (date.getTime() - timeOfCreation) / 1000  % 60;
     }
 
 	/**
