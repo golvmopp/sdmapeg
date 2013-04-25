@@ -67,7 +67,7 @@ public class TaskListView extends JFrame implements ActionListener {
 
 	@Override
 	public void dispose(){
-	//	client.shutDown();
+		client.shutDown();
 		super.dispose();
 	}
 	
