@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -16,6 +17,9 @@ import se.sdmapeg.common.communication.CommunicationException;
 import se.sdmapeg.common.communication.Connection;
 import se.sdmapeg.common.communication.ConnectionClosedException;
 import se.sdmapeg.common.communication.ConnectionImpl;
+import se.sdmapeg.common.listeners.Listenable;
+import se.sdmapeg.common.listeners.ListenerSupport;
+import se.sdmapeg.common.listeners.Notification;
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.serverclient.ClientTaskId;
@@ -25,6 +29,8 @@ import se.sdmapeg.serverclient.communication.*;
 public final class ClientImpl implements Client {
 	private static final Logger LOG = LoggerFactory.getLogger(ClientImpl.class);
 	private static final int SERVER_PORT = 6666;
+	private final Listeners listeners;
+	private final ExecutorService listenerExecutor;
 	private final ExecutorService serverListenerExecutor;
 	private final Server server;
 	private final Map<ClientTaskId, Task<?>> taskMap;
@@ -41,6 +47,8 @@ public final class ClientImpl implements Client {
 			throw new CommunicationException();
 		}
 		LOG.info("Connected to {}", server);
+		this.listenerExecutor = Executors.newSingleThreadExecutor();
+		this.listeners = new Listeners(listenerExecutor);
 		serverListenerExecutor = Executors.newSingleThreadExecutor();
 		taskMap = new ConcurrentHashMap<>();
 		resultMap = new ConcurrentHashMap<>();
@@ -51,14 +59,16 @@ public final class ClientImpl implements Client {
 
 	@Override
 	public ClientTaskId addTask(Task<?> task) {
-		ClientTaskId id = idGenerator.newId();
-		taskMap.put(id, task);
-		return id;
+		ClientTaskId clientTaskId = idGenerator.newId();
+		taskMap.put(clientTaskId, task);
+		listeners.taskCreated(clientTaskId);
+		return clientTaskId;
 	}
 
 	@Override
 	public void sendTask(ClientTaskId clientTaskId) {
 		server.performTask(clientTaskId, taskMap.get(clientTaskId));
+		listeners.taskSent(clientTaskId);
 	}
 
 	@Override
@@ -72,23 +82,31 @@ public final class ClientImpl implements Client {
 	}
 
 	@Override
-	public void abortTask(ClientTaskId clientTaskId) {
+	public void cancelTask(ClientTaskId clientTaskId) {
 		server.cancelTask(clientTaskId);
+		listeners.taskCancelled(clientTaskId);
 	}
 
 	@Override
 	public void shutDown() {
 		server.disconnect();
 		serverListenerExecutor.shutdown();
+		listenerExecutor.shutdown();
 	}
 
-	private void handleResult(ClientTaskId id, Result<?> result) {
-		resultMap.put(id, result);
-		showResult(id);
+	private void handleResult(ClientTaskId clientTaskId, Result<?> result) {
+		resultMap.put(clientTaskId, result);
+		listeners.resultReceived(clientTaskId);
 	}
 
-	private void showResult(ClientTaskId id) {
-		view.showResult(resultMap.get(id));
+	@Override
+	public void addListener(ClientListener listener) {
+		listeners.addListener(listener);
+	}
+
+	@Override
+	public void removeListener(ClientListener listener) {
+		listeners.removeListener(listener);
 	}
 
 	public static Client newClientImp(ClientView view, String host) throws CommunicationException {
@@ -105,6 +123,66 @@ public final class ClientImpl implements Client {
 		@Override
 		public void connectionClosed() {
 			shutDown();
+		}
+	}
+
+	private static final class Listeners
+			implements ClientListener, Listenable<ClientListener> {
+		private final ListenerSupport<ClientListener> listenerSupport;
+
+		public Listeners(Executor notificationExecutor) {
+			listenerSupport = ListenerSupport.newListenerSupport(
+					notificationExecutor);
+		}
+
+		@Override
+		public void addListener(ClientListener listener) {
+			listenerSupport.addListener(listener);
+		}
+
+		@Override
+		public void removeListener(ClientListener listener) {
+			listenerSupport.removeListener(listener);
+		}
+
+		@Override
+		public void taskCreated(final ClientTaskId clientTaskId) {
+			listenerSupport.notifyListeners(new Notification<ClientListener>() {
+				@Override
+				public void notifyListener(ClientListener listener) {
+					listener.taskCreated(clientTaskId);
+				}
+			});
+		}
+
+		@Override
+		public void taskSent(final ClientTaskId clientTaskId) {
+			listenerSupport.notifyListeners(new Notification<ClientListener>() {
+				@Override
+				public void notifyListener(ClientListener listener) {
+					listener.taskSent(clientTaskId);
+				}
+			});
+		}
+
+		@Override
+		public void taskCancelled(final ClientTaskId clientTaskId) {
+			listenerSupport.notifyListeners(new Notification<ClientListener>() {
+				@Override
+				public void notifyListener(ClientListener listener) {
+					listener.taskCancelled(clientTaskId);
+				}
+			});
+		}
+
+		@Override
+		public void resultReceived(final ClientTaskId clientTaskId) {
+			listenerSupport.notifyListeners(new Notification<ClientListener>() {
+				@Override
+				public void notifyListener(ClientListener listener) {
+					listener.resultReceived(clientTaskId);
+				}
+			});
 		}
 	}
 }
