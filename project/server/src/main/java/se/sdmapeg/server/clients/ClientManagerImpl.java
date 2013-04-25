@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
@@ -26,6 +27,7 @@ import se.sdmapeg.serverworker.TaskId;
  */
 public final class ClientManagerImpl implements ClientManager {
 	private static final Logger LOG = LoggerFactory.getLogger(ClientManagerImpl.class);
+	private final ClientManagerListenerSupport listeners;
 	private final ExecutorService connectionThreadPool;
 	private final ConnectionHandler<ServerToClientMessage,
 			ClientToServerMessage> connectionHandler;
@@ -40,11 +42,13 @@ public final class ClientManagerImpl implements ClientManager {
 	private ClientManagerImpl(ExecutorService connectionThreadPool,
 			ConnectionHandler<ServerToClientMessage, ClientToServerMessage>
 				connectionHandler, IdGenerator<TaskId> taskIdGenerator,
-			ClientManagerCallback callback) {
+			ClientManagerCallback callback, Executor listenerExecutor) {
 		this.connectionThreadPool = connectionThreadPool;
 		this.connectionHandler = connectionHandler;
 		this.taskIdGenerator = taskIdGenerator;
 		this.callback = callback;
+		this.listeners = ClientManagerListenerSupport.newListenerSupport(
+				listenerExecutor);
 	}
 
 	@Override
@@ -55,6 +59,7 @@ public final class ClientManagerImpl implements ClientManager {
 		}
 		client.taskCompleted(taskId, result);
 		LOG.info("Result for Task {} sent to {}", taskId, client);
+		listeners.resultSent(taskId, client.getAddress());
 	}
 
 	@Override
@@ -115,7 +120,8 @@ public final class ClientManagerImpl implements ClientManager {
 	}
 
 	private void cancelTask(TaskId task) {
-		taskMap.remove(task);
+		Client client = taskMap.remove(task);
+		listeners.taskCancelled(task, client.getAddress());
 		callback.cancelTask(task);
 	}
 
@@ -127,6 +133,16 @@ public final class ClientManagerImpl implements ClientManager {
 		client.disconnect();
 	}
 
+	@Override
+	public void addListener(ClientManagerListener listener) {
+		listeners.addListener(listener);
+	}
+
+	@Override
+	public void removeListener(ClientManagerListener listener) {
+		listeners.removeListener(listener);
+	}
+
 	/**
 	 * Creates a new ClientManager with the specified connectionThreadPool,
 	 * connectionHandler, taskIdGenerator and callback.
@@ -136,6 +152,7 @@ public final class ClientManagerImpl implements ClientManager {
 	 *							connections
 	 * @param taskIdGenerator an IdGenerator for generating TaskIds
 	 * @param callback a callback to be notified of events
+	 * @param listenerExecutor an Executor to be used for notifying listeners
 	 * @return the created ClientManager
 	 */
 	public static ClientManager newClientManager(
@@ -143,9 +160,10 @@ public final class ClientManagerImpl implements ClientManager {
 			ConnectionHandler<ServerToClientMessage, ClientToServerMessage>
 				connectionHandler,
 			IdGenerator<TaskId> taskIdGenerator,
-			ClientManagerCallback callback) {
+			ClientManagerCallback callback,
+			Executor listenerExecutor) {
 		return new ClientManagerImpl(connectionThreadPool, connectionHandler,
-									 taskIdGenerator, callback);
+				taskIdGenerator, callback, listenerExecutor);
 	}
 
 	private final class ClientConnectionCallback
@@ -157,6 +175,7 @@ public final class ClientManagerImpl implements ClientManager {
 			Client client = ClientImpl.newClient(connection, taskIdGenerator);
 			if (addressMap.putIfAbsent(client.getAddress(), client) == null) {
 				LOG.info("{} connected", client);
+				listeners.clientConnected(client.getAddress());
 				// Start a new thread to listen to the client
 				connectionThreadPool.submit(new ClientListener(client));
 			} else {
@@ -206,6 +225,7 @@ public final class ClientManagerImpl implements ClientManager {
 		public void taskReceived(TaskId taskId, Task<?> task) {
 			taskMap.put(taskId, client);
 			LOG.info("Task {} received from {}", taskId, client);
+			listeners.taskCancelled(taskId, client.getAddress());
 			callback.handleTask(taskId, task);
 		}
 
@@ -218,6 +238,7 @@ public final class ClientManagerImpl implements ClientManager {
 		@Override
 		public void clientDisconnected() {
 			addressMap.remove(client.getAddress());
+			listeners.clientDisconnected(client.getAddress());
 			/*
 			 * Since this method is called by the only thread responsible for
 			 * accepting new tasks from the client, we can be sure that the set

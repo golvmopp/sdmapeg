@@ -11,6 +11,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
@@ -20,24 +21,27 @@ import se.sdmapeg.client.Client;
 import se.sdmapeg.client.ClientImpl;
 
 public class TaskListView extends JFrame implements ActionListener {
-	//private final Client client;
+	private final Client client;
 	private final JPanel taskListView;
 	private final JLabel connectionInfoLabel;
 	private final JXHyperlink connectButton;
 	
-	public TaskListView(){
-		setPreferredSize(new Dimension(400, 500));
+	public TaskListView(Client client){
+		setPreferredSize(new Dimension(300, 500));
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		//this.client = client;
+		this.client = client;
 
 		setLayout(new BorderLayout());
-		JPanel proxyPanel = new JPanel(new FlowLayout());
+		JPanel proxyPanel = new JPanel();
 		JPanel centerList = new JPanel(new BorderLayout());
+		JLabel titleLabel = new JLabel("Tasks");
+		add(titleLabel, BorderLayout.NORTH);
 		add(centerList, BorderLayout.CENTER);
 		
 		taskListView = new JPanel(new GridLayout(0, 1));
 		JScrollPane taskList = new JScrollPane();
-		taskList.setViewportView(taskListView);
+		proxyPanel.add(taskListView);
+		taskList.setViewportView(proxyPanel);
 		taskList.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		taskList.setBorder(new LineBorder(Color.BLACK));
 		centerList.add(taskList);
@@ -63,13 +67,13 @@ public class TaskListView extends JFrame implements ActionListener {
 
 	@Override
 	public void dispose(){
-	//	client.shutDown();
+		client.shutDown();
 		super.dispose();
 	}
 	
 	public void addTask(String typeName){
 		taskListView.add(new TaskPanel(typeName));
-		taskListView.validate();
+		SwingUtilities.getRoot(taskListView).validate();
 	}
 	
 	public void addTask(String typeName, String taskName){
@@ -79,7 +83,7 @@ public class TaskListView extends JFrame implements ActionListener {
 	
 	//TODO: Remove this when done. Duh. 
 	public static void main(String[] args){
-		JFrame frame =  new TaskListView();
+		JFrame frame =  new TaskListView(null);
 		frame.pack();
 		frame.setVisible(true);
 	}

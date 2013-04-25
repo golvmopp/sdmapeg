@@ -63,7 +63,7 @@ public class TaskPanel extends JPanel {
 		this.add(new JButton(), BorderLayout.EAST);
 		
 		this.setBorder(new LineBorder(Color.BLACK));
-		this.setSize(new Dimension(200, 100));
+		this.setSize(new Dimension(0, 200));
 	}
 	
 	public TaskPanel(String typeName, String name) {

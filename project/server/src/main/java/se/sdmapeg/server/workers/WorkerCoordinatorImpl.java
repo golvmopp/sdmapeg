@@ -4,12 +4,12 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
@@ -31,6 +31,7 @@ import se.sdmapeg.serverworker.communication.WorkerToServerMessage;
  */
 public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 	private static final Logger LOG = LoggerFactory.getLogger(WorkerCoordinatorImpl.class);
+	private final WorkerCoordinatorListenerSupport listeners;
 	private final ExecutorService connectionThreadPool;
 	private final ConnectionHandler<ServerToWorkerMessage,
 			WorkerToServerMessage> connectionHandler;
@@ -45,10 +46,13 @@ public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 	private WorkerCoordinatorImpl(ExecutorService connectionThreadPool,
 			ConnectionHandler<ServerToWorkerMessage,
 					WorkerToServerMessage> connectionHandler,
-			WorkerCoordinatorCallback callback) {
+			WorkerCoordinatorCallback callback,
+			Executor listenerExecutor) {
 		this.connectionThreadPool = connectionThreadPool;
 		this.connectionHandler = connectionHandler;
 		this.callback = callback;
+		this.listeners = WorkerCoordinatorListenerSupport.newListenerSupport(
+				listenerExecutor);
 	}
 
 	@Override
@@ -63,13 +67,15 @@ public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 			worker = leastLoadedAvailableWorker();
 			if (worker == null) {
 				taskMap.remove(taskId);
+				taskAssignmentMap.remove(taskId);
 				callback.handleResult(taskId, SimpleFailure.newSimpleFailure(
 						new ExecutionException("No workers available.", null)));
 				return;
 			}
+			taskAssignmentMap.put(taskId, worker);
 		} while (!worker.assignTask(taskId, task));
 		LOG.info("Task {} sent to {}", taskId, worker);
-		taskAssignmentMap.put(taskId, worker);
+		listeners.taskAssigned(taskId, worker.getAddress());
 	}
 
 	@Override
@@ -77,6 +83,7 @@ public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 		taskMap.remove(taskId);
 		Worker worker = taskAssignmentMap.remove(taskId);
 		worker.cancelTask(taskId);
+		listeners.taskAborted(taskId, worker.getAddress());
 	}
 
 	@Override
@@ -153,10 +160,10 @@ public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 	}
 
 	private void stealTasks(int desired) {
-		List<LoadSnapshot> snapshots = createLoadSnapshotList();
-		Collections.sort(snapshots, LoadSnapshot.descendingComparator());
+		List<WorkerLoadSnapshot> snapshots = createLoadSnapshotList();
+		Collections.sort(snapshots, WorkerLoadSnapshot.descendingComparator());
 		int stolen = 0;
-		for (LoadSnapshot snapshot : snapshots) {
+		for (WorkerLoadSnapshot snapshot : snapshots) {
 			Worker worker = snapshot.getWorker();
 			stolen += stealTasks(worker, desired - stolen);
 			if (stolen == desired) {
@@ -181,14 +188,14 @@ public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 		handleTask(taskId, task);
 	}
 
-	private List<LoadSnapshot> createLoadSnapshotList() {
+	private List<WorkerLoadSnapshot> createLoadSnapshotList() {
 		/*
 		 * Since new workers may be added at any time, we give the list a
 		 * slightly larger initial capacity.
 		 */
-		List<LoadSnapshot> snapshots = new ArrayList<>(addressMap.size() + 5);
+		List<WorkerLoadSnapshot> snapshots = new ArrayList<>(addressMap.size() + 5);
 		for (Worker worker : addressMap.values()) {
-			snapshots.add(new LoadSnapshot(worker));
+			snapshots.add(WorkerLoadSnapshot.newSnapshot(worker));
 		}
 		return snapshots;
 	}
@@ -201,71 +208,35 @@ public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 		worker.disconnect();
 	}
 
+	@Override
+	public void addListener(WorkerCoordinatorListener listener) {
+		listeners.addListener(listener);
+	}
+
+	@Override
+	public void removeListener(WorkerCoordinatorListener listener) {
+		listeners.removeListener(listener);
+	}
+
 	/**
 	 * Creates a new WorkerCoordinator with the specified connectionThreadPool,
-	 * connectionHandler, and callback.
+	 * connectionHandler, callback, and listener executor.
 	 *
 	 * @param connectionThreadPool a thread pool for handling connections
 	 * @param connectionHandler a connection handler for dealing with new
 	 *							connections
 	 * @param callback a callback to be notified of events
+	 * @param listenerExecutor an Executor to be used for notifying listeners
 	 * @return the created ClientManager
 	 */
 	public static WorkerCoordinator newWorkerCoordinator(
 			ExecutorService connectionThreadPool,
 			ConnectionHandler<ServerToWorkerMessage, WorkerToServerMessage>
 				connectionHandler,
-			WorkerCoordinatorCallback callback) {
+			WorkerCoordinatorCallback callback,
+			Executor listenerExecutor) {
 		return new WorkerCoordinatorImpl(connectionThreadPool,
-				connectionHandler, callback);
-	}
-
-	/**
-	 * Immutable class used for sorting (mutable) workers according to their
-	 * load at some point in time. Since Workers are mutable and may be modified
-	 * by other threads at any point in time, attempting to sort them using a
-	 * regular comparator might lead to unspecified behaviour in the sorting
-	 * algorithm if another thread changes them during the sort.
-	 * <p />
-	 * This class provides an immutable snapshot of the state of the Worker,
-	 * which can safely be sorted without risk of other threads modifying it in
-	 * the process. Due to this immutable nature, it is possible that a list of
-	 * LoadSnapshots will be outdated after being sorted. This class is intended
-	 * for use in situations where the risk of having an outdated list is an
-	 * acceptable tradeoff.
-	 */
-	private static final class LoadSnapshot {
-		private static final Comparator<LoadSnapshot> ASCENDING =
-			new LoadComparator();
-		private static final Comparator<LoadSnapshot> DESCENDING =
-			Collections.reverseOrder(ASCENDING);
-		private final Worker worker;
-		private final int load;
-
-		public LoadSnapshot(Worker worker) {
-			this.worker = worker;
-			this.load = worker.getLoad();
-		}
-
-		public Worker getWorker() {
-			return worker;
-		}
-
-		public static Comparator<LoadSnapshot> ascendingComparator() {
-			return ASCENDING;
-		}
-
-		public static Comparator<LoadSnapshot> descendingComparator() {
-			return DESCENDING;
-		}
-
-		private static final class LoadComparator
-				implements Comparator<LoadSnapshot> {
-			@Override
-			public int compare(LoadSnapshot o1, LoadSnapshot o2) {
-				return Integer.compare(o1.load, o2.load);
-			}			
-		}
+				connectionHandler, callback, listenerExecutor);
 	}
 
 	private final class WorkerConnectionCallback
@@ -278,6 +249,7 @@ public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 			Worker worker = WorkerImpl.newWorker(connection);
 			if (addressMap.put(worker.getAddress(), worker) == null) {
 				LOG.info("{} connected", worker);
+				listeners.workerConnected(worker.getAddress());
 				// Start a new thread to listen to the worker
 				connectionThreadPool.submit(new WorkerListener(worker));
 			} else {
@@ -328,18 +300,21 @@ public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 			taskAssignmentMap.remove(taskId);
 			taskMap.remove(taskId);
 			LOG.info("Task {} completed by {}", taskId, worker);
+			listeners.resultReceived(taskId, worker.getAddress());
 			callback.handleResult(taskId, result);
 		}
 
 		@Override
 		public void taskStolen(TaskId taskId) {
 			LOG.info("Task {} stolen from {}", taskId, worker);
+			listeners.taskAborted(taskId, worker.getAddress());
 			reassignTask(taskId);
 		}
 
 		@Override
 		public void workerDisconnected() {
 			addressMap.remove(worker.getAddress());
+			listeners.workerDisconnected(worker.getAddress());
 			/*
 			 * Reassign all active tasks of this worker. Since this method is
 			 * called from the only thread responsible for completing tasks
