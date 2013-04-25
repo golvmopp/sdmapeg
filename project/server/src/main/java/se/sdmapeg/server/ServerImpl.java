@@ -40,6 +40,8 @@ public final class ServerImpl implements Server {
 		new ConcurrentHashMap<>();
 	private final ExecutorService connectionThreadPool =
 		Executors.newCachedThreadPool();
+	private final ExecutorService listenerExecutor =
+		Executors.newSingleThreadExecutor();
 	private final IdGenerator<TaskId> taskIdGenerator = new TaskIdGenerator();
 	private final ClientManager clientManager;
 	private final WorkerCoordinator workerCoordinator;
@@ -54,7 +56,8 @@ public final class ServerImpl implements Server {
 			throw ex;
 		}
 		clientManager = ClientManagerImpl.newClientManager(connectionThreadPool,
-			clientConnectionHandler, taskIdGenerator, new ClientsCallback());
+			clientConnectionHandler, taskIdGenerator, new ClientsCallback(),
+			listenerExecutor);
 		ConnectionHandler<ServerToWorkerMessage,
 				WorkerToServerMessage> workerConnectionHandler;
 		try {
@@ -66,7 +69,7 @@ public final class ServerImpl implements Server {
 		}
 		workerCoordinator = WorkerCoordinatorImpl.newWorkerCoordinator(
 				connectionThreadPool, workerConnectionHandler,
-				new WorkersCallback());
+				new WorkersCallback(), listenerExecutor);
 	}
 
 	@Override
@@ -80,6 +83,7 @@ public final class ServerImpl implements Server {
 		clientManager.shutDown();
 		workerCoordinator.shutDown();
 		connectionThreadPool.shutdown();
+		listenerExecutor.shutdown();
 	}
 
 	@Override

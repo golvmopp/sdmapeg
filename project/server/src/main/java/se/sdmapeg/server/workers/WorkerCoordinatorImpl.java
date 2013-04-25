@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
@@ -30,8 +31,7 @@ import se.sdmapeg.serverworker.communication.WorkerToServerMessage;
  */
 public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 	private static final Logger LOG = LoggerFactory.getLogger(WorkerCoordinatorImpl.class);
-	private final WorkerCoordinatorListenerSupport listeners =
-		WorkerCoordinatorListenerSupport.newListenerSupport();
+	private final WorkerCoordinatorListenerSupport listeners;
 	private final ExecutorService connectionThreadPool;
 	private final ConnectionHandler<ServerToWorkerMessage,
 			WorkerToServerMessage> connectionHandler;
@@ -46,10 +46,13 @@ public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 	private WorkerCoordinatorImpl(ExecutorService connectionThreadPool,
 			ConnectionHandler<ServerToWorkerMessage,
 					WorkerToServerMessage> connectionHandler,
-			WorkerCoordinatorCallback callback) {
+			WorkerCoordinatorCallback callback,
+			Executor listenerExecutor) {
 		this.connectionThreadPool = connectionThreadPool;
 		this.connectionHandler = connectionHandler;
 		this.callback = callback;
+		this.listeners = WorkerCoordinatorListenerSupport.newListenerSupport(
+				listenerExecutor);
 	}
 
 	@Override
@@ -217,21 +220,23 @@ public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 
 	/**
 	 * Creates a new WorkerCoordinator with the specified connectionThreadPool,
-	 * connectionHandler, and callback.
+	 * connectionHandler, callback, and listener executor.
 	 *
 	 * @param connectionThreadPool a thread pool for handling connections
 	 * @param connectionHandler a connection handler for dealing with new
 	 *							connections
 	 * @param callback a callback to be notified of events
+	 * @param listenerExecutor an Executor to be used for notifying listeners
 	 * @return the created ClientManager
 	 */
 	public static WorkerCoordinator newWorkerCoordinator(
 			ExecutorService connectionThreadPool,
 			ConnectionHandler<ServerToWorkerMessage, WorkerToServerMessage>
 				connectionHandler,
-			WorkerCoordinatorCallback callback) {
+			WorkerCoordinatorCallback callback,
+			Executor listenerExecutor) {
 		return new WorkerCoordinatorImpl(connectionThreadPool,
-				connectionHandler, callback);
+				connectionHandler, callback, listenerExecutor);
 	}
 
 	private final class WorkerConnectionCallback

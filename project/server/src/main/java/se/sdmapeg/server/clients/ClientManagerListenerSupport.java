@@ -1,7 +1,7 @@
 package se.sdmapeg.server.clients;
 
 import java.net.InetAddress;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Executor;
 import se.sdmapeg.common.listeners.Listenable;
 import se.sdmapeg.common.listeners.ListenerSupport;
 import se.sdmapeg.common.listeners.Notification;
@@ -12,10 +12,11 @@ import se.sdmapeg.serverworker.TaskId;
  */
 final class ClientManagerListenerSupport implements ClientManagerListener,
 		Listenable<ClientManagerListener> {
-	private final ListenerSupport<ClientManagerListener> listenerSupport =
-		ListenerSupport.newListenerSupport(Executors.newSingleThreadExecutor());
+	private final ListenerSupport<ClientManagerListener> listenerSupport;
 
-	private ClientManagerListenerSupport() {
+	private ClientManagerListenerSupport(Executor notificationExecutor) {
+		listenerSupport =
+			ListenerSupport.newListenerSupport(notificationExecutor);
 	}
 
 	@Override
@@ -84,11 +85,15 @@ final class ClientManagerListenerSupport implements ClientManagerListener,
 	}
 
 	/**
-	 * Returns a new ClientManagerListenerSupport.
+	 * Returns a new ClientManagerListenerSupport using the specified Executor
+	 * to notify its listeners of events.
 	 *
+	 * @param notificationExecutor	an executor to be used for performing
+	 *								notifications
 	 * @return the newly created ClientManagerListenerSupport
 	 */
-	public static ClientManagerListenerSupport newListenerSupport() {
-		return new ClientManagerListenerSupport();
+	public static ClientManagerListenerSupport newListenerSupport(
+			Executor notificationExecutor) {
+		return new ClientManagerListenerSupport(notificationExecutor);
 	}
 }

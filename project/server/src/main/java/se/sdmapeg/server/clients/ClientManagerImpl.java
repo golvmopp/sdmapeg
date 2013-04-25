@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.slf4j.Logger;
@@ -26,8 +27,7 @@ import se.sdmapeg.serverworker.TaskId;
  */
 public final class ClientManagerImpl implements ClientManager {
 	private static final Logger LOG = LoggerFactory.getLogger(ClientManagerImpl.class);
-	private final ClientManagerListenerSupport listeners =
-		ClientManagerListenerSupport.newListenerSupport();
+	private final ClientManagerListenerSupport listeners;
 	private final ExecutorService connectionThreadPool;
 	private final ConnectionHandler<ServerToClientMessage,
 			ClientToServerMessage> connectionHandler;
@@ -42,11 +42,13 @@ public final class ClientManagerImpl implements ClientManager {
 	private ClientManagerImpl(ExecutorService connectionThreadPool,
 			ConnectionHandler<ServerToClientMessage, ClientToServerMessage>
 				connectionHandler, IdGenerator<TaskId> taskIdGenerator,
-			ClientManagerCallback callback) {
+			ClientManagerCallback callback, Executor listenerExecutor) {
 		this.connectionThreadPool = connectionThreadPool;
 		this.connectionHandler = connectionHandler;
 		this.taskIdGenerator = taskIdGenerator;
 		this.callback = callback;
+		this.listeners = ClientManagerListenerSupport.newListenerSupport(
+				listenerExecutor);
 	}
 
 	@Override
@@ -150,6 +152,7 @@ public final class ClientManagerImpl implements ClientManager {
 	 *							connections
 	 * @param taskIdGenerator an IdGenerator for generating TaskIds
 	 * @param callback a callback to be notified of events
+	 * @param listenerExecutor an Executor to be used for notifying listeners
 	 * @return the created ClientManager
 	 */
 	public static ClientManager newClientManager(
@@ -157,9 +160,10 @@ public final class ClientManagerImpl implements ClientManager {
 			ConnectionHandler<ServerToClientMessage, ClientToServerMessage>
 				connectionHandler,
 			IdGenerator<TaskId> taskIdGenerator,
-			ClientManagerCallback callback) {
+			ClientManagerCallback callback,
+			Executor listenerExecutor) {
 		return new ClientManagerImpl(connectionThreadPool, connectionHandler,
-									 taskIdGenerator, callback);
+				taskIdGenerator, callback, listenerExecutor);
 	}
 
 	private final class ClientConnectionCallback

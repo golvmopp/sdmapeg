@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
@@ -24,7 +25,8 @@ import se.sdmapeg.serverworker.TaskId;
  */
 public final class WorkerImpl implements Worker {
 	private static final Logger LOG = LoggerFactory.getLogger(WorkerImpl.class);
-	private final Listeners listeners = new Listeners();
+	private final Listeners listeners;
+	private final ExecutorService listenerExecutor;
 	private final ExecutorService serverListenerExecutor;
     private final TaskExecutor taskExecutor;
 	private final Server server;
@@ -36,8 +38,10 @@ public final class WorkerImpl implements Worker {
 
 	private WorkerImpl(int poolSize, Server server,
 					  TaskPerformer taskPerformer) {
+		this.listenerExecutor = Executors.newSingleThreadExecutor();
     	this.serverListenerExecutor = Executors.newSingleThreadExecutor();
 		this.taskExecutor = TaskExecutor.newTaskQueue(poolSize);
+		this.listeners = new Listeners(listenerExecutor);
 		this.server = server;
 		this.taskPerformer = taskPerformer;
 		this.poolSize = poolSize;
@@ -103,6 +107,7 @@ public final class WorkerImpl implements Worker {
 	    server.disconnect();
 	    serverListenerExecutor.shutdown();
 		taskExecutor.shutDown();
+		listenerExecutor.shutdown();
 	}
 
 	@Override
@@ -176,9 +181,12 @@ public final class WorkerImpl implements Worker {
 
 	private static final class Listeners
 			implements WorkerListener, Listenable<WorkerListener> {
-		private final ListenerSupport<WorkerListener> listenerSupport =
-			ListenerSupport.newListenerSupport(
-				Executors.newSingleThreadExecutor());
+		private final ListenerSupport<WorkerListener> listenerSupport;
+
+		public Listeners(Executor notificationExecutor) {
+			listenerSupport = ListenerSupport.newListenerSupport(
+					notificationExecutor);
+		}
 
 		@Override
 		public void addListener(WorkerListener listener) {
