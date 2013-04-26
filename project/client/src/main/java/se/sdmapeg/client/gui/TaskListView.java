@@ -24,7 +24,7 @@ import se.sdmapeg.client.gui.tasks.PythonEditor;
 import se.sdmapeg.common.tasks.PythonTask;
 import se.sdmapeg.serverclient.ClientTaskId;
 
-public class TaskListView extends JPanel implements ActionListener {
+public class TaskListView extends JPanel {
 	private final Client client;
 	private final JPanel taskListView;
 	private final JLabel connectionInfoLabel;
@@ -60,7 +60,6 @@ public class TaskListView extends JPanel implements ActionListener {
 		buttonPanel.add(clearButton);
 		buttonPanel.add(addButton);
 		buttonPanel.add(sendButton);
-		addButton.addActionListener(this);
 		centerList.add(buttonPanel, BorderLayout.SOUTH);
 		
 		JPanel connectionBar = new JPanel(new BorderLayout());
@@ -102,13 +101,6 @@ public class TaskListView extends JPanel implements ActionListener {
 		//JFrame frame =  new TaskListView(null);
 		//frame.pack();
 		//frame.setVisible(true);
-	}
-
-	
-	//TODO: Just for testing, this is to be moved. 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		addTask();
 	}
 
 	private final class ClientListenerImpl implements ClientListener {

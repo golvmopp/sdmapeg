@@ -50,8 +50,8 @@ public class PythonEditor implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		callback.submit(textArea.getText());
 		frame.dispose();
+		callback.submit(textArea.getText());	
 	}
 
 	public interface Callback {
