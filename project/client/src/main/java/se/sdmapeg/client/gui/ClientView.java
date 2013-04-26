@@ -10,6 +10,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 
+import se.sdmapeg.client.Client;
 import se.sdmapeg.client.ClientImpl;
 import se.sdmapeg.client.gui.tasks.PythonEditor;
 import se.sdmapeg.common.tasks.PythonTask;
@@ -20,45 +21,20 @@ import se.sdmapeg.serverclient.ClientTaskId;
 /**
  * Class that handles the Client gui.
  */
-public class ClientView implements ActionListener {
-	private final JFrame frame;
-	private ClientImpl client;
+public class ClientView extends JFrame implements ActionListener {
+	private final Client client;
 
-	private ClientView() {
-		frame = new JFrame("Client") {
-			@Override
-			public void dispose() {
-				client.shutDown();
-				super.dispose();
-			}
-		};
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		frame.setLayout(new GridLayout(2, 1));
-
-		JButton pythonTaskButton = new JButton("Create a task");
-		pythonTaskButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				PythonEditor.newPythonEditor(ClientView.this);
-			}
-		});
-
-		JButton exitButton = new JButton("Exit");
-		exitButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				frame.dispose();
-			}
-		});
-
-		frame.add(pythonTaskButton);
-		frame.add(exitButton);
-		frame.pack();
-	}
-
-	public void show(ClientImpl client) {
+	private ClientView(Client client) {
 		this.client = client;
-		frame.setVisible(true);
+
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setLayout(new GridLayout(1, 2));
+
+		TaskListView taskList = new TaskListView(client);
+		add(taskList);
+
+		setVisible(true);
+		pack();
 	}
 
 	public void showConnectionError() {
@@ -67,14 +43,16 @@ public class ClientView implements ActionListener {
 
 	public void showResult(Result<?> result) {
 		try {
-			JOptionPane.showMessageDialog(frame, result.get());
+			JOptionPane.showMessageDialog(this, result.get());
 		} catch (ExecutionException e) {
-			JOptionPane.showMessageDialog(frame, "Something went wrong when running the task.");
+			JOptionPane.showMessageDialog(this, "Something went wrong when running the task.");
 		}
 	}
 
+	@Override
 	public void dispose() {
-		frame.dispose();
+		client.shutDown();
+		super.dispose();
 	}
 
 	@Override
@@ -84,7 +62,7 @@ public class ClientView implements ActionListener {
 		client.sendTask(id);
 	}
 
-	public static ClientView newView() {
-		return new ClientView();
+	public static ClientView newView(Client client) {
+		return new ClientView(client);
 	}
 }

@@ -16,12 +16,14 @@ public final class Main {
 	
 	public static void main(String[] args) {
 		String host = JOptionPane.showInputDialog("Address:", "server.sdmapeg.se");
-		ClientView view = ClientView.newView();
+		Client client;
 		try {
-			ClientImpl.newClientImp(view, host).start();
+			client = ClientImpl.newClientImp(host);
 		} catch (CommunicationException e) {
 			JOptionPane.showMessageDialog(null, "Could not connect to server.");
-			view.dispose();
+			return;
 		}
+		ClientView view = ClientView.newView(client);
+		client.start();
 	}
 }
