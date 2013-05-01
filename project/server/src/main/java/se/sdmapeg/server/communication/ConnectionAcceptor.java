@@ -28,7 +28,7 @@ public final class ConnectionAcceptor<S extends Message, R extends Message> {
 				callback.connectionReceived(connectionHandler.accept());
 			}
 		} catch (SocketException ex) {
-			// The connection handler was shut down.
+			LOG.info("Connecting handler closed.");
 		} catch (CommunicationException ex) {
 			LOG.error("An error occurred while listening for connections",
 					  ex);
