@@ -18,12 +18,12 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
  * Graphical editor for creating Python scripts.
  */
 public class PythonEditor implements ActionListener {
-	private final ActionListener listener;
+	private final Callback callback;
 	private final JFrame frame;
 	private final JTextArea textArea;
 
-	private PythonEditor(ActionListener listener) {
-		this.listener = listener;
+	private PythonEditor(Callback callback) {
+		this.callback = callback;
 
 		frame = new JFrame("Python editor");
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -44,14 +44,17 @@ public class PythonEditor implements ActionListener {
 		confirmButton.addActionListener(this);
 	}
 
-	public static PythonEditor newPythonEditor(ActionListener listener) {
-		return new PythonEditor(listener);
+	public static PythonEditor newPythonEditor(Callback callback) {
+		return new PythonEditor(callback);
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		ActionEvent event = new ActionEvent(textArea, 0, "pythonCode");
-		listener.actionPerformed(event);
 		frame.dispose();
+		callback.submit(textArea.getText());	
+	}
+
+	public interface Callback {
+		void submit(String pythonScript);
 	}
 }

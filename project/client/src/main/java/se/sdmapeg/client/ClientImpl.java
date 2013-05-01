@@ -36,9 +36,8 @@ public final class ClientImpl implements Client {
 	private final Map<ClientTaskId, Task<?>> taskMap;
 	private final Map<ClientTaskId, Result<?>> resultMap;
 	private final IdGenerator<ClientTaskId> idGenerator;
-	private final ClientView view;
 
-	private ClientImpl(ClientView view, String host) throws CommunicationException {
+	private ClientImpl(String host) throws CommunicationException {
 		try {
 			Connection<ClientToServerMessage, ServerToClientMessage> connection =
 				ConnectionImpl.newConnection(new Socket(host, SERVER_PORT));
@@ -53,8 +52,6 @@ public final class ClientImpl implements Client {
 		taskMap = new ConcurrentHashMap<>();
 		resultMap = new ConcurrentHashMap<>();
 		idGenerator = new ClientTaskIdGenerator();
-		this.view = view;
-		view.show(this);
 	}
 
 	@Override
@@ -109,8 +106,8 @@ public final class ClientImpl implements Client {
 		listeners.removeListener(listener);
 	}
 
-	public static Client newClientImp(ClientView view, String host) throws CommunicationException {
-		return new ClientImpl(view, host);
+	public static Client newClientImp(String host) throws CommunicationException {
+		return new ClientImpl(host);
 	}
 
 	private final class ServerEventCallback implements ServerCallback {

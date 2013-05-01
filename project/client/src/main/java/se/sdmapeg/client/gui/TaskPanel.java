@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 
 import se.sdmapeg.common.TimeFormatter;
+import se.sdmapeg.serverclient.ClientTaskId;
 
 public class TaskPanel extends JPanel {
 
@@ -23,6 +24,7 @@ public class TaskPanel extends JPanel {
 		CREATED, SENT, COMPLETED, FAILED;
 	}
 
+	private final Callback callback;
 	private final Calendar timeStamp;
 	private final  String typeName;
 	private String name;
@@ -32,7 +34,8 @@ public class TaskPanel extends JPanel {
 	private JButton actionButton;
 	
 	
-	public TaskPanel(String typeName) {
+	public TaskPanel(String typeName, Callback callback) {
+		this.callback = callback;
 		this.typeName = typeName;
 		this.timeStamp = Calendar.getInstance();
 		this.state = TaskState.CREATED;
@@ -66,17 +69,20 @@ public class TaskPanel extends JPanel {
 		this.setSize(new Dimension(0, 200));
 	}
 	
-	public TaskPanel(String typeName, String name) {
-		this(typeName);
+	public TaskPanel(String typeName, String name, Callback callback) {
+		this(typeName, callback);
 		this.name = name;
 	}
 	
 	//TODO: Remove this when done. Duh. 
-	public static void main(String[] args){
+	/*public static void main(String[] args){
 		JFrame frame = new JFrame();
 		frame.add(new TaskPanel("PythonTask"));
 		frame.setVisible(true);
+	}*/
+	
+	public interface Callback {
+		void sendTask(ClientTaskId clientTaskId);
+		void cancelTask(ClientTaskId clientTaskId);
 	}
-	
-	
 }
