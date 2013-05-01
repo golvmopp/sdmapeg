@@ -41,15 +41,15 @@ final class WorkerImpl implements Worker {
 	}
 
 	@Override
-	public boolean assignTask(TaskId taskId, Task<?> task) {
+	public void assignTask(TaskId taskId, Task<?> task)
+			throws TaskRejectedException {
 		synchronized (taskAssignmentLock) {
 			if (!isAcceptingWork()) {
-				return false;
+				throw new TaskRejectedException();
 			}
 			activeTasks.add(taskId);
 		}
 		send(ServerToWorkerMessageFactory.newTaskMessage(task, taskId));
-		return true;
 	}
 
 	@Override
@@ -202,6 +202,7 @@ final class WorkerImpl implements Worker {
 		@Override
 		public Void handle(WorkStealingResponseMessage message) {
 			for (TaskId taskId : message.getStolenTasks()) {
+				activeTasks.remove(taskId);
 				callback.taskStolen(taskId);
 			}
 			return null;

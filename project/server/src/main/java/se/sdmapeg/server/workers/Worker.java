@@ -21,15 +21,16 @@ interface Worker {
 	 * assignment was successful. The worker will attempt to perform the
 	 * task and then return its result through the taskCompleted method of the
 	 * Callback. If the task could not be assigned for some reason (e.g. due to
-	 * the worker being shut down), this method will return false, and no side
-	 * effects of assigning the task will be seen. If the task is successfully
-	 * assigned it will be present in the Set returned by getActiveTasks until
-	 * it has been successfully completed.
+	 * the worker being shut down), this method will throw a
+	 * TaskRejectedException, and no side effects of assigning the task will be
+	 * seen. If the task is successfully assigned it will be present in the Set
+	 * returned by getActiveTasks until it has been successfully completed.
 	 *
 	 * @param taskId the TaskId of the task
 	 * @param task the Task to assign this worker
+	 * @throws TaskRejectedException if the task could not be assigned
 	 */
-	boolean assignTask(TaskId taskId, Task<?> task);
+	void assignTask(TaskId taskId, Task<?> task) throws TaskRejectedException;
 
 	/**
 	 * Cancels the execution of the task with the specified TaskId. If the task
