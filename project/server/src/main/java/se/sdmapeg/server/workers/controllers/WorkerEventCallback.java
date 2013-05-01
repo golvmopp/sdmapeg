@@ -1,12 +1,15 @@
-package se.sdmapeg.server.workers;
+package se.sdmapeg.server.workers.controllers;
 
+import se.sdmapeg.server.workers.models.Worker;
+import se.sdmapeg.server.workers.models.WorkerCoordinatorModel;
+import se.sdmapeg.server.workers.callbacks.WorkerCallback;
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.serverworker.TaskId;
 
 /**
  * A WorkerCallback that delegates its events to a WorkerCoordinatorModel.
  */
-final class WorkerEventCallback implements WorkerCallback {
+public final class WorkerEventCallback implements WorkerCallback {
 	private final WorkerCoordinatorModel state;
 	private final Worker worker;
 

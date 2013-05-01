@@ -1,10 +1,10 @@
-package se.sdmapeg.server.workers;
+package se.sdmapeg.server.workers.models;
 
 /**
  * Exception thrown to indicate that there are no workers available for
  * performing a task.
  */
-class NoWorkersAvailableException extends Exception {
+public class NoWorkersAvailableException extends Exception {
 	private static final long serialVersionUID = 1L;
 	/**
 	 * Creates a new instance of

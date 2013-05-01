@@ -1,9 +1,9 @@
-package se.sdmapeg.server.workers;
+package se.sdmapeg.server.workers.models;
 
 /**
  * Exception thrown to indicate that a worker was rejected for some reason.
  */
-class WorkerRejectedException extends Exception {
+public class WorkerRejectedException extends Exception {
 	private static final long serialVersionUID = 1L;
 
 	public WorkerRejectedException() {

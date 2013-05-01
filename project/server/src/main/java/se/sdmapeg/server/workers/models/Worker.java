@@ -1,5 +1,6 @@
-package se.sdmapeg.server.workers;
+package se.sdmapeg.server.workers.models;
 
+import se.sdmapeg.server.workers.callbacks.WorkerCallback;
 import java.net.InetAddress;
 import java.util.Set;
 import se.sdmapeg.common.tasks.Task;
@@ -8,7 +9,7 @@ import se.sdmapeg.serverworker.TaskId;
 /**
  * Interface for representing a worker connected to the server.
  */
-interface Worker {
+public interface Worker {
 	/**
 	 * Returns the address of this worker.
 	 *

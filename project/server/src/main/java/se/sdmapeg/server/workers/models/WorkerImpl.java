@@ -1,5 +1,6 @@
-package se.sdmapeg.server.workers;
+package se.sdmapeg.server.workers.models;
 
+import se.sdmapeg.server.workers.callbacks.WorkerCallback;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Collections;
@@ -21,7 +22,7 @@ import se.sdmapeg.serverworker.communication.*;
  * A Worker representation using an underlying Connection to communicate with
  * the actual worker.
  */
-final class WorkerImpl implements Worker {
+public final class WorkerImpl implements Worker {
 	private static final Logger LOG = LoggerFactory.getLogger(WorkerImpl.class);
 	private final Connection<ServerToWorkerMessage, WorkerToServerMessage> connection;
 	private final Set<TaskId> activeTasks = Collections.newSetFromMap(

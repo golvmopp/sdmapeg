@@ -1,9 +1,9 @@
-package se.sdmapeg.server.workers;
+package se.sdmapeg.server.workers.models;
 
 /**
  * Exception thrown to indicate that a task was rejected for some reason.
  */
-final class TaskRejectedException extends Exception {
+public final class TaskRejectedException extends Exception {
 	private static final long serialVersionUID = 1L;
 
 	public TaskRejectedException() {

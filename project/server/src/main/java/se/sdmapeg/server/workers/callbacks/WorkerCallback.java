@@ -1,4 +1,4 @@
-package se.sdmapeg.server.workers;
+package se.sdmapeg.server.workers.callbacks;
 
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.serverworker.TaskId;
@@ -6,7 +6,7 @@ import se.sdmapeg.serverworker.TaskId;
 /**
  * A callback to be notified by a Worker when an event occurs.
  */
-interface WorkerCallback {
+public interface WorkerCallback {
 
 	/**
 	 * Notifies this callback that the task with the specified TaskId has been

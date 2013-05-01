@@ -1,4 +1,4 @@
-package se.sdmapeg.server.workers;
+package se.sdmapeg.server.workers.models;
 
 import java.util.Collections;
 import java.util.Comparator;

@@ -1,5 +1,7 @@
-package se.sdmapeg.server.workers;
+package se.sdmapeg.server.workers.models;
 
+import se.sdmapeg.server.workers.callbacks.WorkerCoordinatorCallback;
+import se.sdmapeg.server.workers.callbacks.WorkerCoordinatorListener;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,12 +18,13 @@ import se.sdmapeg.common.listeners.Listenable;
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.SimpleFailure;
 import se.sdmapeg.common.tasks.Task;
+import se.sdmapeg.server.workers.callbacks.WorkerCoordinatorListenerSupport;
 import se.sdmapeg.serverworker.TaskId;
 
 /**
  * Class representing the internal state of a worker coordinator.
  */
-final class WorkerCoordinatorModel implements Listenable<WorkerCoordinatorListener> {
+public final class WorkerCoordinatorModel implements Listenable<WorkerCoordinatorListener> {
 	private static final Logger LOG = LoggerFactory.getLogger(WorkerCoordinatorModel.class);
 	private final WorkerCoordinatorListenerSupport listeners;
 	private final WorkerCoordinatorCallback callback;

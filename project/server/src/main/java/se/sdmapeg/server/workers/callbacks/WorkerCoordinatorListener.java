@@ -1,4 +1,4 @@
-package se.sdmapeg.server.workers;
+package se.sdmapeg.server.workers.callbacks;
 
 import java.net.InetAddress;
 import se.sdmapeg.serverworker.TaskId;

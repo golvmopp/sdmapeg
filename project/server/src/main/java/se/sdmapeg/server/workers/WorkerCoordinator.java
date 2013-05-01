@@ -1,5 +1,7 @@
 package se.sdmapeg.server.workers;
 
+import se.sdmapeg.server.workers.models.WorkerCoordinatorState;
+import se.sdmapeg.server.workers.callbacks.WorkerCoordinatorListener;
 import java.net.InetAddress;
 import se.sdmapeg.common.listeners.Listenable;
 import se.sdmapeg.common.tasks.Task;

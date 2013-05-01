@@ -1,4 +1,4 @@
-package se.sdmapeg.server.workers;
+package se.sdmapeg.server.workers.models;
 
 /**
  * Enum representing the state of a worker coordinator.

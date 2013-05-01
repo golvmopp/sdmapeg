@@ -1,5 +1,9 @@
-package se.sdmapeg.server.workers;
+package se.sdmapeg.server.workers.controllers;
 
+import se.sdmapeg.server.workers.models.WorkerRejectedException;
+import se.sdmapeg.server.workers.models.Worker;
+import se.sdmapeg.server.workers.models.WorkerImpl;
+import se.sdmapeg.server.workers.models.WorkerCoordinatorModel;
 import java.util.concurrent.ExecutorService;
 import se.sdmapeg.common.communication.Connection;
 import se.sdmapeg.server.communication.ConnectionAcceptorCallback;
@@ -9,7 +13,7 @@ import se.sdmapeg.serverworker.communication.WorkerToServerMessage;
 /**
  * Callback for taking care of connections from workers.
  */
-final class WorkerConnectionCallback implements
+public final class WorkerConnectionCallback implements
 		ConnectionAcceptorCallback<ServerToWorkerMessage, WorkerToServerMessage> {
 	private final WorkerCoordinatorModel state;
 	private final ExecutorService connectionThreadPool;
