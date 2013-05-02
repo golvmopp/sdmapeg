@@ -1,5 +1,8 @@
 package se.sdmapeg.server.workers.models;
 
+import se.sdmapeg.server.workers.exceptions.TaskRejectedException;
+import se.sdmapeg.server.workers.exceptions.WorkerRejectedException;
+import se.sdmapeg.server.workers.exceptions.NoWorkersAvailableException;
 import se.sdmapeg.server.workers.callbacks.WorkerCoordinatorCallback;
 import se.sdmapeg.server.workers.callbacks.WorkerCoordinatorListener;
 import java.net.InetAddress;
