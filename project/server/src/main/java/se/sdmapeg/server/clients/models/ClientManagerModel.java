@@ -4,7 +4,7 @@ import se.sdmapeg.server.clients.callbacks.ClientManagerListenerSupport;
 import se.sdmapeg.server.clients.callbacks.ClientManagerListener;
 import se.sdmapeg.server.clients.callbacks.ClientManagerCallback;
 import se.sdmapeg.server.clients.exceptions.ClientRejectedException;
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -29,7 +29,7 @@ public final class ClientManagerModel implements Listenable<ClientManagerListene
 	private final ClientManagerCallback callback;
 	private final Map<TaskId, Client> taskMap =
 									  new ConcurrentHashMap<>();
-	private final ConcurrentMap<InetAddress, Client> addressMap =
+	private final ConcurrentMap<InetSocketAddress, Client> addressMap =
 													 new ConcurrentHashMap<>();
 
 	public ClientManagerModel(ClientManagerListenerSupport listeners,
@@ -50,7 +50,7 @@ public final class ClientManagerModel implements Listenable<ClientManagerListene
 		}
 	}
 
-	public Client getClient(InetAddress clientAddress) {
+	public Client getClient(InetSocketAddress clientAddress) {
 		return addressMap.get(clientAddress);
 	}
 

@@ -2,7 +2,7 @@ package se.sdmapeg.server.workers;
 
 import se.sdmapeg.server.workers.models.WorkerCoordinatorState;
 import se.sdmapeg.server.workers.callbacks.WorkerCoordinatorListener;
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import se.sdmapeg.common.listeners.Listenable;
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.serverworker.TaskId;
@@ -37,7 +37,7 @@ public interface WorkerCoordinator extends Listenable<WorkerCoordinatorListener>
 	 *
 	 * @param workerAddress Address to the worker.
 	 */
-	void disconnectWorker(InetAddress workerAddress);
+	void disconnectWorker(InetSocketAddress workerAddress);
 
 	/**
 	 * Starts the Worker Coordinator.

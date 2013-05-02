@@ -1,13 +1,9 @@
 package se.sdmapeg.client;
 
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 
-import se.sdmapeg.common.communication.CommunicationException;
-import se.sdmapeg.common.communication.ConnectionClosedException;
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.serverclient.ClientTaskId;
-import se.sdmapeg.serverclient.communication.ClientToServerMessage;
-import se.sdmapeg.serverclient.communication.ServerToClientMessage;
 
 /**
  * Represents the server. Handles communication between Client and Server.
@@ -18,7 +14,7 @@ public interface Server {
 	 *
 	 * @return the address of the server
 	 */
-	InetAddress getAddress();
+	InetSocketAddress getAddress();
 
 	/**
 	 * Requests the server to perform the specified task.

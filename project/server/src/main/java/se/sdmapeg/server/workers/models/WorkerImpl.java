@@ -3,7 +3,7 @@ package se.sdmapeg.server.workers.models;
 import se.sdmapeg.server.workers.exceptions.TaskRejectedException;
 import se.sdmapeg.server.workers.callbacks.WorkerCallback;
 import java.io.IOException;
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -38,7 +38,7 @@ public final class WorkerImpl implements Worker {
 	}
 
 	@Override
-	public InetAddress getAddress() {
+	public InetSocketAddress getAddress() {
 		return connection.getAddress();
 	}
 

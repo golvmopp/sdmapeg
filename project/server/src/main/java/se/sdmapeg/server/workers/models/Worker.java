@@ -1,8 +1,8 @@
 package se.sdmapeg.server.workers.models;
 
+import java.net.InetSocketAddress;
 import se.sdmapeg.server.workers.exceptions.TaskRejectedException;
 import se.sdmapeg.server.workers.callbacks.WorkerCallback;
-import java.net.InetAddress;
 import java.util.Set;
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.serverworker.TaskId;
@@ -16,7 +16,7 @@ public interface Worker {
 	 *
 	 * @return the address of this worker
 	 */
-	InetAddress getAddress();
+	InetSocketAddress getAddress();
 
 	/**
 	 * Attempts to assign a task to this Worker, and returns true if the

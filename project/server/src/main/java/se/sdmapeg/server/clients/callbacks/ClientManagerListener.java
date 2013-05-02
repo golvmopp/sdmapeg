@@ -1,6 +1,7 @@
 package se.sdmapeg.server.clients.callbacks;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import se.sdmapeg.serverworker.TaskId;
 
 /**
@@ -13,7 +14,7 @@ public interface ClientManagerListener {
 	 *
 	 * @param address the address of the connected client
 	 */
-	void clientConnected(InetAddress address);
+	void clientConnected(InetSocketAddress address);
 
 	/**
 	 * Notifies this listener that the client with the specified address has
@@ -21,7 +22,7 @@ public interface ClientManagerListener {
 	 *
 	 * @param address the address of the disconnected client
 	 */
-	void clientDisconnected(InetAddress address);
+	void clientDisconnected(InetSocketAddress address);
 
 	
 	/**
@@ -31,7 +32,7 @@ public interface ClientManagerListener {
 	 * @param taskId the ID of the new task
 	 * @param address the address of the client the task was received from
 	 */
-	void taskReceived(TaskId taskId, InetAddress address);
+	void taskReceived(TaskId taskId, InetSocketAddress address);
 
 	/**
 	 * Notifies this listener that the task with the specified TaskId has been
@@ -40,7 +41,7 @@ public interface ClientManagerListener {
 	 * @param taskId the ID of the task which was cancelled
 	 * @param address the address of the client which cancelled the task
 	 */
-	void taskCancelled(TaskId taskId, InetAddress address);
+	void taskCancelled(TaskId taskId, InetSocketAddress address);
 
 	/**
 	 * Notifies this listener that the result for the task with the specified
@@ -49,5 +50,5 @@ public interface ClientManagerListener {
 	 * @param taskId the ID of the completed task
 	 * @param address the address of the client which the result was sent to
 	 */
-	void resultSent(TaskId taskId, InetAddress address);
+	void resultSent(TaskId taskId, InetSocketAddress address);
 }

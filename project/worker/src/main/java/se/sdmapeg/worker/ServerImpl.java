@@ -4,7 +4,7 @@ import se.sdmapeg.common.communication.Connection;
 import se.sdmapeg.serverworker.communication.*;
 
 import java.io.IOException;
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +28,7 @@ public final class ServerImpl implements Server {
 	}
 
 	@Override
-	public InetAddress getAddress() {
+	public InetSocketAddress getAddress() {
 		return connection.getAddress();
 	}
 

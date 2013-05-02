@@ -1,7 +1,7 @@
 package se.sdmapeg.server.clients.models;
 
 import se.sdmapeg.server.clients.callbacks.ClientCallback;
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.Set;
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.serverworker.TaskId;
@@ -33,7 +33,7 @@ public interface Client {
 	 *
 	 * @return the address of this client
 	 */
-	InetAddress getAddress();
+	InetSocketAddress getAddress();
 
 	/**
 	 * Continually listens to input from this Client, and calls the appropriate

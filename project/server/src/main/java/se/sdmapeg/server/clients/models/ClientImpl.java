@@ -2,7 +2,7 @@ package se.sdmapeg.server.clients.models;
 
 import se.sdmapeg.server.clients.callbacks.ClientCallback;
 import java.io.IOException;
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
@@ -44,7 +44,7 @@ public final class ClientImpl implements Client {
 	}
 
 	@Override
-	public InetAddress getAddress() {
+	public InetSocketAddress getAddress() {
 		return connection.getAddress();
 	}
 

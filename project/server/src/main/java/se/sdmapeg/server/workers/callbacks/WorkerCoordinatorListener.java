@@ -1,6 +1,7 @@
 package se.sdmapeg.server.workers.callbacks;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import se.sdmapeg.serverworker.TaskId;
 
 /**
@@ -13,7 +14,7 @@ public interface WorkerCoordinatorListener {
 	 *
 	 * @param address the address of the connected worker
 	 */
-	void workerConnected(InetAddress address);
+	void workerConnected(InetSocketAddress address);
 
 	/**
 	 * Notifies this listener that the worker with the specified address has
@@ -21,7 +22,7 @@ public interface WorkerCoordinatorListener {
 	 *
 	 * @param address the address of the disconnected worker
 	 */
-	void workerDisconnected(InetAddress address);
+	void workerDisconnected(InetSocketAddress address);
 	
 	/**
 	 * Notifies this listener that the result for the task with the specified
@@ -30,7 +31,7 @@ public interface WorkerCoordinatorListener {
 	 * @param taskId the ID of the completed task
 	 * @param address the address of the worker which completed the task
 	 */
-	void resultReceived(TaskId taskId, InetAddress address);
+	void resultReceived(TaskId taskId, InetSocketAddress address);
 
 	/**
 	 * Notifies this listener that the task with the specified TaskId has been
@@ -39,7 +40,7 @@ public interface WorkerCoordinatorListener {
 	 * @param taskId the ID of the assigned task
 	 * @param address the address of the worker which the task was assigned to
 	 */
-	void taskAssigned(TaskId taskId, InetAddress address);
+	void taskAssigned(TaskId taskId, InetSocketAddress address);
 
 	/**
 	 * Notifies this listener that the task with the specified TaskId was
@@ -48,5 +49,5 @@ public interface WorkerCoordinatorListener {
 	 * @param taskId the ID of the aborted task
 	 * @param address the address of the worker which aborted the task
 	 */
-	void taskAborted(TaskId taskId, InetAddress address);
+	void taskAborted(TaskId taskId, InetSocketAddress address);
 }
