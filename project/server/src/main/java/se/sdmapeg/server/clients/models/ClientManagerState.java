@@ -1,4 +1,4 @@
-package se.sdmapeg.server.clients;
+package se.sdmapeg.server.clients.models;
 
 /**
  * Enum representing the state of a client manager.

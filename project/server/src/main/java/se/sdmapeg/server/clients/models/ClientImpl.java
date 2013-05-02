@@ -1,5 +1,6 @@
-package se.sdmapeg.server.clients;
+package se.sdmapeg.server.clients.models;
 
+import se.sdmapeg.server.clients.callbacks.ClientCallback;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.Collections;
@@ -25,7 +26,7 @@ import se.sdmapeg.serverworker.TaskId;
  * A Client representation using an underlying Connection to communicate with
  * the actual client.
  */
-final class ClientImpl implements Client {
+public final class ClientImpl implements Client {
 	private static final Logger LOG = LoggerFactory.getLogger(ClientImpl.class);
 	private final Connection<ServerToClientMessage, ClientToServerMessage> connection;
 	private final IdGenerator<TaskId> taskIdGenerator;

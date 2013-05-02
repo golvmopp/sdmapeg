@@ -1,5 +1,6 @@
-package se.sdmapeg.server.clients;
+package se.sdmapeg.server.clients.models;
 
+import se.sdmapeg.server.clients.callbacks.ClientCallback;
 import java.net.InetAddress;
 import java.util.Set;
 import se.sdmapeg.common.tasks.Result;
@@ -10,7 +11,7 @@ import se.sdmapeg.serverworker.TaskId;
  * send tasks to the server, and wait for the tasks to be performed and have
  * their results sent back.
  */
-interface Client {
+public interface Client {
 
 	/**
 	 * Disconnects this client. A disconnected client will no longer be able to

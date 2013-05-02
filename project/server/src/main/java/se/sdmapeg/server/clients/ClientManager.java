@@ -1,5 +1,7 @@
 package se.sdmapeg.server.clients;
 
+import se.sdmapeg.server.clients.models.ClientManagerState;
+import se.sdmapeg.server.clients.callbacks.ClientManagerListener;
 import java.net.InetAddress;
 import se.sdmapeg.common.listeners.Listenable;
 import se.sdmapeg.common.tasks.Result;

@@ -1,4 +1,4 @@
-package se.sdmapeg.server.clients;
+package se.sdmapeg.server.clients.callbacks;
 
 import java.net.InetAddress;
 import java.util.concurrent.Executor;
@@ -10,7 +10,7 @@ import se.sdmapeg.serverworker.TaskId;
 /**
  * Class for providing support for ClientManagerListeners.
  */
-final class ClientManagerListenerSupport implements ClientManagerListener,
+public final class ClientManagerListenerSupport implements ClientManagerListener,
 		Listenable<ClientManagerListener> {
 	private final ListenerSupport<ClientManagerListener> listenerSupport;
 
