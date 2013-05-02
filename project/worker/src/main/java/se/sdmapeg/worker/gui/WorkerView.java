@@ -9,30 +9,35 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class WorkerView extends JFrame {
 	private final Worker worker;
 	private long startTime;
 	private int totalTasks = 0;
 	private int tasksPerformedCounter = 0;
+	private Map<TaskId, TaskView> taskViews;
 
 	private JLabel timer;
 	private JLabel tasksReceived;
 	private JLabel tasksPerformed;
 	private JLabel activeTasks;
 	private JLabel queueLength;
+	private JPanel workList;
 
 	public WorkerView(Worker worker) {
 		this.worker = worker;
 		this.startTime = System.currentTimeMillis();
 		worker.addListener(new WorkerListenerImpl());
+		taskViews = new HashMap<>();
 
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 		setTitle("SDMAPeG Worker");
 		setLayout(new BorderLayout());
 		getRootPane().setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 
-		JPanel content = new JPanel(new GridLayout(1, 2));
+		JPanel content = new JPanel(new GridLayout(1, 2, 0, 10));
 		add(content, BorderLayout.CENTER);
 
 		JButton exit = new JButton("Exit");
@@ -83,10 +88,9 @@ public final class WorkerView extends JFrame {
 		labels.add(queueLengthLabel);
 		values.add(queueLength);
 
-		add(statistics);
-
-		JPanel workList = new JPanel(new GridLayout(0, 1));
+		workList = new JPanel(new GridLayout(0, 1));
 		JScrollPane workListScrollPane = new JScrollPane(workList);
+		content.add(workListScrollPane);
 
 		pack();
 		setVisible(true);
@@ -119,34 +123,51 @@ public final class WorkerView extends JFrame {
 	}
 
 	public class WorkerListenerImpl implements WorkerListener {
-
 		@Override
 		public void taskAdded(TaskId taskId) {
 			totalTasks++;
+			TaskView taskView = new TaskView("Task");
+			workList.add(taskView);
+			taskViews.put(taskId, taskView);
 			updateStatistics();
 		}
 
 		@Override
 		public void taskStarted(TaskId taskId) {
-			//To change body of implemented methods use File | Settings | File Templates.
+			TaskView taskView = taskViews.get(taskId);
+			if (taskView != null) {
+				taskView.taskStarted(taskId);
+			}
 		}
 
 		@Override
 		public void taskFinished(TaskId taskId) {
 			tasksPerformedCounter++;
 			updateStatistics();
+			TaskView taskView = taskViews.get(taskId);
+			if (taskView != null) {
+				taskView.taskFinished(taskId);
+			}
 		}
 
 		@Override
 		public void taskCancelled(TaskId taskId) {
 			tasksPerformedCounter++;
 			updateStatistics();
+			TaskView taskView = taskViews.get(taskId);
+			if (taskView != null) {
+				taskView.taskCancelled(taskId);
+			}
 		}
 
 		@Override
 		public void taskStolen(TaskId taskId) {
 			totalTasks--;
 			updateStatistics();
+			TaskView taskView = taskViews.get(taskId);
+			if (taskView != null) {
+				taskView.taskStolen(taskId);
+			}
 		}
 	}
 }
