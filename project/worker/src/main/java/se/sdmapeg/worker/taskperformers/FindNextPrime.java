@@ -9,7 +9,6 @@ public class FindNextPrime {
 		if (!isPrime(prime)) {
 			return prime;
 		}
-		
 		return nextPrime(prime);
 	}
 
