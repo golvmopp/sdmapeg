@@ -1,7 +1,7 @@
 package se.sdmapeg.server;
 
 import java.net.InetAddress;
-import se.sdmapeg.server.clients.ClientManagerListener;
+import se.sdmapeg.server.clients.callbacks.ClientManagerListener;
 import se.sdmapeg.server.workers.callbacks.WorkerCoordinatorListener;
 import se.sdmapeg.serverworker.TaskId;
 

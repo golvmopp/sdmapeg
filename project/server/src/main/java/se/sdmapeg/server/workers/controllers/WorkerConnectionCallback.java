@@ -1,6 +1,6 @@
 package se.sdmapeg.server.workers.controllers;
 
-import se.sdmapeg.server.workers.models.WorkerRejectedException;
+import se.sdmapeg.server.workers.exceptions.WorkerRejectedException;
 import se.sdmapeg.server.workers.models.Worker;
 import se.sdmapeg.server.workers.models.WorkerImpl;
 import se.sdmapeg.server.workers.models.WorkerCoordinatorModel;

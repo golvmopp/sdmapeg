@@ -1,4 +1,4 @@
-package se.sdmapeg.server.clients;
+package se.sdmapeg.server.clients.callbacks;
 
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.serverworker.TaskId;
@@ -6,7 +6,7 @@ import se.sdmapeg.serverworker.TaskId;
 /**
  * A callback to be notified by a Client when an event occurs.
  */
-interface ClientCallback {
+public interface ClientCallback {
 
 	/**
 	 * Notifies this callback that a task has been received from the client.

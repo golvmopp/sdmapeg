@@ -1,5 +1,6 @@
 package se.sdmapeg.server.workers.models;
 
+import se.sdmapeg.server.workers.exceptions.TaskRejectedException;
 import se.sdmapeg.server.workers.callbacks.WorkerCallback;
 import java.io.IOException;
 import java.net.InetAddress;

@@ -1,4 +1,4 @@
-package se.sdmapeg.server.workers.models;
+package se.sdmapeg.server.workers.exceptions;
 
 /**
  * Exception thrown to indicate that a task was rejected for some reason.
