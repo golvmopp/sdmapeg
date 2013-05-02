@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Random;
@@ -27,10 +28,12 @@ public class ConnectionImplTest {
 	 */
 	@Test
 	public void testGetAddress() throws Exception {
-		InetAddress address = InetAddress.getByName(LOCALHOST);
+		InetAddress inetAddress = InetAddress.getByName(LOCALHOST);
 		try (Sockets sockets = new Sockets(6666)) {
 			Socket server = sockets.getServer();
 			Socket client = sockets.getClient();
+			InetSocketAddress address = new InetSocketAddress(inetAddress,
+					client.getPort());
 			new ObjectOutputStream(server.getOutputStream());
 			Connection<MockMessage, MockMessage> clientConnection =
 				ConnectionImpl.newConnection(client);
