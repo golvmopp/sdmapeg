@@ -1,6 +1,6 @@
 package se.sdmapeg.worker.taskperformers;
 
-public class FindNextPrime {
+public final class FindNextPrime {
 	/**
 	 * @param prime A prime number
 	 * @return given long if it isn't prime, next prime if prime is prime
