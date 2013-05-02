@@ -73,7 +73,6 @@
 		</pluginManagement>
 	</build>
 	<modules>
-		<module>testapp</module>
 		<module>common</module>
 		<module>server-client</module>
 		<module>server-worker</module>
