@@ -71,10 +71,10 @@ public final class ClientImpl implements Client {
 	@Override
 	public void taskCompleted(TaskId taskId, Result<?> result) {
 		ClientTaskId clientTaskId = taskIdMap.remove(taskId);
-		clientTaskIdMap.remove(clientTaskId);
 		if (clientTaskId == null) {
 			return;
 		}
+		clientTaskIdMap.remove(clientTaskId);
 		send(ServerToClientMessageFactory.newResultMessage(clientTaskId, result));
 	}
 
@@ -162,10 +162,10 @@ public final class ClientImpl implements Client {
 		public Void handle(TaskCancellationMessage mesage) {
 			ClientTaskId clientTaskId = mesage.getTaskId();
 			TaskId taskId = clientTaskIdMap.remove(clientTaskId);
-			taskIdMap.remove(taskId);
 			if (taskId == null) {
 				return null;
 			}
+			taskIdMap.remove(taskId);
 			callback.taskCancelled(taskId);
 			return null;
 		}
