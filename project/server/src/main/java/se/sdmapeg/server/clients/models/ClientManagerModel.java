@@ -27,7 +27,7 @@ public final class ClientManagerModel implements Listenable<ClientManagerListene
 								LoggerFactory.getLogger(ClientManagerModel.class);
 	private final ClientManagerListenerSupport listeners;
 	private final ClientManagerCallback callback;
-	private final Map<TaskId, Client> taskMap =
+	private final ConcurrentMap<TaskId, Client> taskMap =
 									  new ConcurrentHashMap<>();
 	private final ConcurrentMap<InetSocketAddress, Client> addressMap =
 													 new ConcurrentHashMap<>();
@@ -81,7 +81,13 @@ public final class ClientManagerModel implements Listenable<ClientManagerListene
 
 	public void addTask(Client client, TaskId taskId,
 						Task<?> task) {
-		taskMap.put(taskId, client);
+		if (taskMap.putIfAbsent(taskId, client) != null) {
+			return;
+		}
+		if (!addressMap.containsKey(client.getAddress())) {
+			taskMap.remove(taskId);
+			return;
+		}
 		LOG.info("Task {} received from {}", taskId, client);
 		listeners.taskReceived(taskId, client.getAddress());
 		callback.handleTask(taskId, task);
@@ -89,6 +95,9 @@ public final class ClientManagerModel implements Listenable<ClientManagerListene
 
 	public void cancelTask(TaskId task) {
 		Client client = taskMap.remove(task);
+		if (client == null) {
+			return;
+		}
 		LOG.info("Task {} cancelled by {}", task, client);
 		listeners.taskCancelled(task, client.getAddress());
 		callback.cancelTask(task);
