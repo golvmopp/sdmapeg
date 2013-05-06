@@ -25,7 +25,7 @@ public final class ClientManagerListenerSupport implements ClientManagerListener
 				new Notification<ClientManagerListener>() {
 			@Override
 			public void notifyListener(ClientManagerListener listener) {
-				listener.clientConnected(null);
+				listener.clientConnected(address);
 			}
 		});
 	}
