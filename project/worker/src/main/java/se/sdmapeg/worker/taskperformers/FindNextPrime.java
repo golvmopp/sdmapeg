@@ -6,14 +6,14 @@ public final class FindNextPrime {
 	/**
 	 * @param prime A prime number
 	 * @return next prime if prime is prime
-	 * @throws ExecutionException if prime isn't prime, or not greater than 0.
+	 * @throws IllegalArgumentException if prime isn't prime, or not greater than 0.
 	 */
 	public static long findNextPrime(long prime) throws ExecutionException {
 		if (prime <= 0) {
-			throw new ExecutionException(new ArithmeticException("Starting prime must be higher than 0"));
+			throw new ExecutionException(new IllegalArgumentException("Starting prime must be higher than 0"));
 		}
 		if (!isPrime(prime)) {
-			throw new ExecutionException(new ArithmeticException("Given long wasn't prime."));
+			throw new ExecutionException(new IllegalArgumentException("Given long wasn't prime."));
 		}
 		return nextPrime(prime);
 	}
