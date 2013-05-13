@@ -1,11 +1,13 @@
 package se.sdmapeg.worker.taskperformers;
 
+import java.util.concurrent.ExecutionException;
+
 public final class FindNextPrime {
 	/**
 	 * @param prime A prime number
 	 * @return given long if it isn't prime, next prime if prime is prime
 	 */
-	public static long findNextPrime(long prime) {
+	public static long findNextPrime(long prime) throws ExecutionException {
 		if (!isPrime(prime)) {
 			return prime;
 		}
