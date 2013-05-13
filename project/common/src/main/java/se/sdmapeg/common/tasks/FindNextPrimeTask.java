@@ -8,7 +8,7 @@ public final class FindNextPrimeTask implements Task<Long>{
 		this.firstPrime = prime;
 	}
 	
-	private long getFirstPrime() {
+	public long getFirstPrime() {
 		return firstPrime;
 	}
 	
