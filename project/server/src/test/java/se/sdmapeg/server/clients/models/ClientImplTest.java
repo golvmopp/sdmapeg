@@ -561,8 +561,7 @@ public class ClientImplTest {
 
 	private static MockConnection<ServerToClientMessage, ClientToServerMessage>
 			mockConnection(InetSocketAddress address) {
-		return new MockConnection<ServerToClientMessage, ClientToServerMessage>(
-				address, POISON_MESSAGE);
+		return new MockConnection<>(address, POISON_MESSAGE);
 	}
 
 	private static ClientToServerMessage createPoisonMessage() {
