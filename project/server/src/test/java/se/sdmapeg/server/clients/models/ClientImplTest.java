@@ -43,7 +43,7 @@ import se.sdmapeg.serverworker.TaskIdGenerator;
  */
 public class ClientImplTest {
 	private static final ClientToServerMessage POISON_MESSAGE = createPoisonMessage();
-	public static final InetSocketAddress DUMMY_ADDRESS =
+	private static final InetSocketAddress DUMMY_ADDRESS =
 										  InetSocketAddress.createUnresolved("localhost", 1337);
 	public ClientImplTest() {
 	}
