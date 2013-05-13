@@ -13,15 +13,13 @@ public final class FindNextPrime {
 	}
 
 	private static long nextPrime(long prime) {
+		prime++;
 		while (!isPrime(prime)) {
 			prime++;
 		}
 		return prime;
 	}
 
-	/**
-	 * @return true if prime.
-	 */
 	private static boolean isPrime(long prime) {
 		for (long i = 2; i < Math.sqrt(prime); i++) {
 			if (prime % i == 0) {
