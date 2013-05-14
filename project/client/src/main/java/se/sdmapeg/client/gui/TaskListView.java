@@ -17,7 +17,7 @@ import se.sdmapeg.client.gui.tasks.PythonTask.PythonEditor;
 import se.sdmapeg.common.tasks.PythonTask;
 import se.sdmapeg.serverclient.ClientTaskId;
 
-public class TaskListView extends JPanel {
+public class TaskListView extends JPanel{
 	private final Client client;
 	private final JPanel taskListView;
 	private final JLabel connectionInfoLabel;
@@ -49,6 +49,14 @@ public class TaskListView extends JPanel {
 		BottomButton clearButton = new BottomButton("Clear", true);
 		BottomButton addButton = new BottomButton("Add");
 		BottomButton sendButton = new BottomButton("Send");
+		addButton.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				new TaskCreationView();
+			}			
+		}
+		);
 
 		buttonPanel.add(clearButton);
 		buttonPanel.add(addButton);
@@ -91,9 +99,10 @@ public class TaskListView extends JPanel {
 	
 	//TODO: Remove this when done. Duh.
 	public static void main(String[] args){
-		//JFrame frame =  new TaskListView(null);
-		//frame.pack();
-		//frame.setVisible(true);
+		JPanel frame =  new TaskListView(null);
+		JFrame main = new JFrame();
+		main.add(frame);
+		main.setVisible(true);
 	}
 
 	private final class ClientListenerImpl implements ClientListener {
