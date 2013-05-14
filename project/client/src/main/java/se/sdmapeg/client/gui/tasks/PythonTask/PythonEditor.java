@@ -4,6 +4,13 @@ import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -13,16 +20,23 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Graphical editor for creating Python scripts.
  */
 public class PythonEditor implements ActionListener {
+	private static final Logger LOG = LoggerFactory.getLogger(PythonEditor.class);
 	private final Callback callback;
 	private final JFrame frame;
 	private final JTextArea textArea;
 
-	private PythonEditor(Callback callback) {
+	public PythonEditor(Callback callback) {
+		this(callback, null);
+	}
+
+	public PythonEditor(Callback callback, File file) {
 		this.callback = callback;
 
 		frame = new JFrame("Python editor");
@@ -33,9 +47,16 @@ public class PythonEditor implements ActionListener {
 		textArea = new RSyntaxTextArea(
 				new RSyntaxDocument(RSyntaxDocument.SYNTAX_STYLE_PYTHON));
 		textArea.setFont(Font.decode("Monospaced"));
+		if (file != null) {
+			try {
+				textArea.setText(readFile(file.getPath(), StandardCharsets.UTF_8));
+			} catch (IOException e) {
+				LOG.error("Couldn't load file.");
+			}
+		}
 		frame.add(new JScrollPane(textArea), BorderLayout.CENTER);
 		Box box = new Box(BoxLayout.LINE_AXIS);
-		JButton confirmButton = new JButton("Send task");
+		JButton confirmButton = new JButton("Add task");
 		box.add(confirmButton);
 		frame.add(box, BorderLayout.SOUTH);
 		frame.setLocationByPlatform(true);
@@ -44,8 +65,9 @@ public class PythonEditor implements ActionListener {
 		confirmButton.addActionListener(this);
 	}
 
-	public static PythonEditor newPythonEditor(Callback callback) {
-		return new PythonEditor(callback);
+	private String readFile(String path, Charset encoding) throws IOException {
+		byte[] encoded = Files.readAllBytes(Paths.get(path));
+		return encoding.decode(ByteBuffer.wrap(encoded)).toString();
 	}
 
 	@Override

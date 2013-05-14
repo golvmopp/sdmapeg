@@ -1,21 +1,43 @@
 package se.sdmapeg.client.gui.tasks.PythonTask;
 
+import com.sun.javafx.tools.packager.bundlers.IOUtils;
+
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-/**
- * Created with IntelliJ IDEA.
- * User: Oskar
- * Date: 2013-05-13
- * Time: 11:28
- * To change this template use File | Settings | File Templates.
- */
-public class PythonTask extends JPanel {
+public class PythonTask extends JPanel implements PythonEditor.Callback {
 
-	public static void main(String[] args) {
-		JFrame frame = new JFrame("Hurr Durr");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new PythonTask());
-		frame.pack();
-		frame.setVisible(true);
+	public PythonTask() {
+		setLayout(new BorderLayout());
+
+		JPanel buttons = new JPanel(new GridLayout(2, 1, 10, 10));
+		add(buttons, BorderLayout.NORTH);
+
+		JButton write = new JButton("Create Python script");
+		write.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new PythonEditor(PythonTask.this);
+			}
+		});
+		buttons.add(write);
+
+		JButton load = new JButton("Load Python script");
+		load.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser fileChooser = new JFileChooser();
+				fileChooser.showDialog(PythonTask.this, "Öppna");
+				new PythonEditor(PythonTask.this, fileChooser.getSelectedFile());
+			}
+		});
+		buttons.add(load);
+	}
+
+	@Override
+	public void submit(String pythonScript) {
+		//TODO: Connect to add task
 	}
 }
