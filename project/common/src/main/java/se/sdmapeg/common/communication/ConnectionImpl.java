@@ -4,7 +4,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketException;
 import org.slf4j.Logger;
@@ -17,6 +17,7 @@ public final class ConnectionImpl<S extends Message, R extends Message>
 		implements Connection<S, R> {
 	private static final Logger LOG = LoggerFactory.getLogger(ConnectionImpl.class);
 	private final Socket socket;
+	private final InetSocketAddress address;
 	private final ObjectOutputStream output;
 	private final ObjectInputStream input;
 
@@ -26,6 +27,8 @@ public final class ConnectionImpl<S extends Message, R extends Message>
 					"Socket must be open and connected.");
 		}
 		this.socket = socket;
+		this.address = new InetSocketAddress(socket.getInetAddress(),
+			socket.getPort());
 		try {
 			/*
 			 * During construction, ObjectOutputStream writes a serialization
@@ -58,8 +61,8 @@ public final class ConnectionImpl<S extends Message, R extends Message>
 	}
 
 	@Override
-	public InetAddress getAddress() {
-		return socket.getInetAddress();
+	public InetSocketAddress getAddress() {
+		return address;
 	}
 
 	@Override

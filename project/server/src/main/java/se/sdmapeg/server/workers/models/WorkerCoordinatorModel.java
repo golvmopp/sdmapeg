@@ -5,7 +5,7 @@ import se.sdmapeg.server.workers.exceptions.WorkerRejectedException;
 import se.sdmapeg.server.workers.exceptions.NoWorkersAvailableException;
 import se.sdmapeg.server.workers.callbacks.WorkerCoordinatorCallback;
 import se.sdmapeg.server.workers.callbacks.WorkerCoordinatorListener;
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -35,7 +35,7 @@ public final class WorkerCoordinatorModel implements Listenable<WorkerCoordinato
 									   new ConcurrentHashMap<>();
 	private final Map<TaskId, Worker> taskAssignmentMap =
 									  new ConcurrentHashMap<>();
-	private final ConcurrentMap<InetAddress, Worker> addressMap =
+	private final ConcurrentMap<InetSocketAddress, Worker> addressMap =
 													 new ConcurrentHashMap<>();
 
 	public WorkerCoordinatorModel(WorkerCoordinatorListenerSupport listeners,
@@ -56,7 +56,7 @@ public final class WorkerCoordinatorModel implements Listenable<WorkerCoordinato
 		}
 	}
 
-	public Worker getWorker(InetAddress workerAddress) {
+	public Worker getWorker(InetSocketAddress workerAddress) {
 		return addressMap.get(workerAddress);
 	}
 

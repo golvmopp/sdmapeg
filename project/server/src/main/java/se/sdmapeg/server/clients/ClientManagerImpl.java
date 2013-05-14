@@ -8,7 +8,7 @@ import se.sdmapeg.server.clients.callbacks.ClientManagerListenerSupport;
 import se.sdmapeg.server.clients.callbacks.ClientManagerListener;
 import se.sdmapeg.server.clients.callbacks.ClientManagerCallback;
 import java.io.IOException;
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -69,7 +69,7 @@ public final class ClientManagerImpl implements ClientManager {
 	}
 
 	@Override
-	public void disconnectClient(InetAddress clientAddress) {
+	public void disconnectClient(InetSocketAddress clientAddress) {
 		Client client = state.getClient(clientAddress);
 		if (client != null) {
 			client.disconnect();

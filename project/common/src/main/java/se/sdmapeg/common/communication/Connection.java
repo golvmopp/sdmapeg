@@ -1,7 +1,7 @@
 package se.sdmapeg.common.communication;
 
 import java.io.Closeable;
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 
 /**
  * Interface representing a network connection. The connection supports full
@@ -17,7 +17,7 @@ public interface Connection<S extends Message, R extends Message> extends Closea
 	 *
 	 * @return the remote address
 	 */
-	InetAddress getAddress();
+	InetSocketAddress getAddress();
 
 	/**
 	 * Sends a message over this connection.

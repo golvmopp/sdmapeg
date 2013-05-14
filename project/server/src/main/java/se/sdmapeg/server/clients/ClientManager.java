@@ -3,6 +3,7 @@ package se.sdmapeg.server.clients;
 import se.sdmapeg.server.clients.models.ClientManagerState;
 import se.sdmapeg.server.clients.callbacks.ClientManagerListener;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import se.sdmapeg.common.listeners.Listenable;
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.serverworker.TaskId;
@@ -30,7 +31,7 @@ public interface ClientManager extends Listenable<ClientManagerListener> {
 	 *
 	 * @param clientAddress Address to the client.
 	 */
-	void disconnectClient(InetAddress clientAddress);
+	void disconnectClient(InetSocketAddress clientAddress);
 
 	/**
 	 * Starts the Client Manager.

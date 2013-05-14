@@ -1,6 +1,6 @@
 package se.sdmapeg.worker;
 
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.Set;
 
 import se.sdmapeg.common.tasks.Result;
@@ -16,7 +16,7 @@ public interface Server {
 	 *
 	 * @return the address of the server
 	 */
-	InetAddress getAddress();
+	InetSocketAddress getAddress();
 
 	/**
 	 * Notifies the server that the task with the specified TaskId has been

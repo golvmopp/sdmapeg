@@ -1,6 +1,6 @@
 package se.sdmapeg.server;
 
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import se.sdmapeg.server.clients.callbacks.ClientManagerListener;
 import se.sdmapeg.server.workers.callbacks.WorkerCoordinatorListener;
 import se.sdmapeg.serverworker.TaskId;
@@ -49,52 +49,52 @@ final class ServerListeners {
 		}
 
 		@Override
-		public void clientConnected(InetAddress address) {
+		public void clientConnected(InetSocketAddress address) {
 			serverListener.clientConnected(address);
 		}
 
 		@Override
-		public void clientDisconnected(InetAddress address) {
+		public void clientDisconnected(InetSocketAddress address) {
 			serverListener.clientDisconnected(address);
 		}
 
 		@Override
-		public void taskReceived(TaskId taskId, InetAddress address) {
+		public void taskReceived(TaskId taskId, InetSocketAddress address) {
 			serverListener.taskReceivedFromClient(taskId, address);
 		}
 
 		@Override
-		public void taskCancelled(TaskId taskId, InetAddress address) {
+		public void taskCancelled(TaskId taskId, InetSocketAddress address) {
 			serverListener.taskCancelledByClient(taskId, address);
 		}
 
 		@Override
-		public void resultSent(TaskId taskId, InetAddress address) {
+		public void resultSent(TaskId taskId, InetSocketAddress address) {
 			serverListener.resultSentToClient(taskId, address);
 		}
 
 		@Override
-		public void workerConnected(InetAddress address) {
+		public void workerConnected(InetSocketAddress address) {
 			serverListener.workerConnected(address);
 		}
 
 		@Override
-		public void workerDisconnected(InetAddress address) {
+		public void workerDisconnected(InetSocketAddress address) {
 			serverListener.workerDisconnected(address);
 		}
 
 		@Override
-		public void resultReceived(TaskId taskId, InetAddress address) {
+		public void resultReceived(TaskId taskId, InetSocketAddress address) {
 			serverListener.resultReceivedFromWorker(taskId, address);
 		}
 
 		@Override
-		public void taskAssigned(TaskId taskId, InetAddress address) {
+		public void taskAssigned(TaskId taskId, InetSocketAddress address) {
 			serverListener.taskAssignedToWorker(taskId, address);
 		}
 
 		@Override
-		public void taskAborted(TaskId taskId, InetAddress address) {
+		public void taskAborted(TaskId taskId, InetSocketAddress address) {
 			serverListener.taskAbortedByWorker(taskId, address);
 		}
 	}

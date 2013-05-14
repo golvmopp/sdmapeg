@@ -8,7 +8,7 @@ import se.sdmapeg.server.workers.models.WorkerCoordinatorModel;
 import se.sdmapeg.server.workers.callbacks.WorkerCoordinatorCallback;
 import se.sdmapeg.server.workers.callbacks.WorkerCoordinatorListener;
 import java.io.IOException;
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -71,7 +71,7 @@ public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 	}
 
 	@Override
-	public void disconnectWorker(InetAddress workerAddress) {
+	public void disconnectWorker(InetSocketAddress workerAddress) {
 		Worker worker = state.getWorker(workerAddress);
 		if (worker != null) {
 			worker.disconnect();

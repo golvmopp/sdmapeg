@@ -10,4 +10,5 @@ public interface TaskPerformer {
     Result<String> performPythonTask(PythonTask pythonCode);
 	Result<Integer> performFindNextIntTask(FindNextIntTask nextIntTask);
 	Result<List<Long>> findPrimeFactors(PrimeFactorsTask primeFactorsTask);
+	Result<Long> performFindNextPrimeTask(FindNextPrimeTask findNextPrimeTask);
 }

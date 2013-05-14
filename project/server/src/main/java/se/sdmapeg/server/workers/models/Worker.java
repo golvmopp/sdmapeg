@@ -1,8 +1,8 @@
 package se.sdmapeg.server.workers.models;
 
+import java.net.InetSocketAddress;
 import se.sdmapeg.server.workers.exceptions.TaskRejectedException;
 import se.sdmapeg.server.workers.callbacks.WorkerCallback;
-import java.net.InetAddress;
 import java.util.Set;
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.serverworker.TaskId;
@@ -16,17 +16,17 @@ public interface Worker {
 	 *
 	 * @return the address of this worker
 	 */
-	InetAddress getAddress();
+	InetSocketAddress getAddress();
 
 	/**
-	 * Attempts to assign a task to this Worker, and returns true if the
-	 * assignment was successful. The worker will attempt to perform the
-	 * task and then return its result through the taskCompleted method of the
-	 * Callback. If the task could not be assigned for some reason (e.g. due to
-	 * the worker being shut down), this method will throw a
-	 * TaskRejectedException, and no side effects of assigning the task will be
-	 * seen. If the task is successfully assigned it will be present in the Set
-	 * returned by getActiveTasks until it has been successfully completed.
+	 * Attempts to assign a task to this Worker. If the task assignment was
+	 * successful, the worker will attempt to perform the task and then return
+	 * its result through the taskCompleted method of the callback.
+	 * If the task could not be assigned for some reason (e.g. due to the worker
+	 * being shut down), this method will throw a TaskRejectedException, and no
+	 * side effects of assigning the task will be seen. If the task is
+	 * successfully assigned it will be present in the Set returned by
+	 * getActiveTasks until it has been successfully completed or cancelled.
 	 *
 	 * @param taskId the TaskId of the task
 	 * @param task the Task to assign this worker
@@ -36,7 +36,9 @@ public interface Worker {
 
 	/**
 	 * Cancels the execution of the task with the specified TaskId. If the task
-	 * has already begun executing, an attempt to abort it will be made.
+	 * has already begun executing, an attempt to abort it will be made. The
+	 * cancelled task will no longer be present in the Set returned by
+	 * getActiveTasks.
 	 *
 	 * @param taskId the TaskId of the task to cancel
 	 */

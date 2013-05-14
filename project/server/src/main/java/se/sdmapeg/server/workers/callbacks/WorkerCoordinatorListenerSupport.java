@@ -1,7 +1,7 @@
 package se.sdmapeg.server.workers.callbacks;
 
 import se.sdmapeg.server.workers.callbacks.WorkerCoordinatorListener;
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.concurrent.Executor;
 import se.sdmapeg.common.listeners.Listenable;
 import se.sdmapeg.common.listeners.ListenerSupport;
@@ -21,7 +21,7 @@ public final class WorkerCoordinatorListenerSupport implements WorkerCoordinator
 	}
 
 	@Override
-	public void workerConnected(final InetAddress address) {
+	public void workerConnected(final InetSocketAddress address) {
 		listenerSupport.notifyListeners(
 				new Notification<WorkerCoordinatorListener>() {
 			@Override
@@ -32,7 +32,7 @@ public final class WorkerCoordinatorListenerSupport implements WorkerCoordinator
 	}
 
 	@Override
-	public void workerDisconnected(final InetAddress address) {
+	public void workerDisconnected(final InetSocketAddress address) {
 		listenerSupport.notifyListeners(
 				new Notification<WorkerCoordinatorListener>() {
 			@Override
@@ -43,7 +43,8 @@ public final class WorkerCoordinatorListenerSupport implements WorkerCoordinator
 	}
 
 	@Override
-	public void resultReceived(final TaskId taskId, final InetAddress address) {
+	public void resultReceived(final TaskId taskId,
+			final InetSocketAddress address) {
 		listenerSupport.notifyListeners(
 				new Notification<WorkerCoordinatorListener>() {
 			@Override
@@ -54,7 +55,8 @@ public final class WorkerCoordinatorListenerSupport implements WorkerCoordinator
 	}
 
 	@Override
-	public void taskAssigned(final TaskId taskId, final InetAddress address) {
+	public void taskAssigned(final TaskId taskId,
+			final InetSocketAddress address) {
 		listenerSupport.notifyListeners(
 				new Notification<WorkerCoordinatorListener>() {
 			@Override
@@ -65,7 +67,8 @@ public final class WorkerCoordinatorListenerSupport implements WorkerCoordinator
 	}
 
 	@Override
-	public void taskAborted(final TaskId taskId, final InetAddress address) {
+	public void taskAborted(final TaskId taskId,
+			final InetSocketAddress address) {
 		listenerSupport.notifyListeners(
 				new Notification<WorkerCoordinatorListener>() {
 			@Override

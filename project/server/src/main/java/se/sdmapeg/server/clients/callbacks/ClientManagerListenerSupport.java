@@ -1,6 +1,6 @@
 package se.sdmapeg.server.clients.callbacks;
 
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.concurrent.Executor;
 import se.sdmapeg.common.listeners.Listenable;
 import se.sdmapeg.common.listeners.ListenerSupport;
@@ -20,18 +20,18 @@ public final class ClientManagerListenerSupport implements ClientManagerListener
 	}
 
 	@Override
-	public void clientConnected(final InetAddress address) {
+	public void clientConnected(final InetSocketAddress address) {
 		listenerSupport.notifyListeners(
 				new Notification<ClientManagerListener>() {
 			@Override
 			public void notifyListener(ClientManagerListener listener) {
-				listener.clientConnected(null);
+				listener.clientConnected(address);
 			}
 		});
 	}
 
 	@Override
-	public void clientDisconnected(final InetAddress address) {
+	public void clientDisconnected(final InetSocketAddress address) {
 		listenerSupport.notifyListeners(
 				new Notification<ClientManagerListener>() {
 			@Override
@@ -42,7 +42,8 @@ public final class ClientManagerListenerSupport implements ClientManagerListener
 	}
 
 	@Override
-	public void taskReceived(final TaskId taskId, final InetAddress address) {
+	public void taskReceived(final TaskId taskId,
+			final InetSocketAddress address) {
 		listenerSupport.notifyListeners(
 				new Notification<ClientManagerListener>() {
 			@Override
@@ -53,7 +54,8 @@ public final class ClientManagerListenerSupport implements ClientManagerListener
 	}
 
 	@Override
-	public void taskCancelled(final TaskId taskId, final InetAddress address) {
+	public void taskCancelled(final TaskId taskId,
+			final InetSocketAddress address) {
 		listenerSupport.notifyListeners(
 				new Notification<ClientManagerListener>() {
 			@Override
@@ -64,7 +66,8 @@ public final class ClientManagerListenerSupport implements ClientManagerListener
 	}
 
 	@Override
-	public void resultSent(final TaskId taskId, final InetAddress address) {
+	public void resultSent(final TaskId taskId,
+			final InetSocketAddress address) {
 		listenerSupport.notifyListeners(
 				new Notification<ClientManagerListener>() {
 			@Override

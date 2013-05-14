@@ -1,6 +1,6 @@
 package se.sdmapeg.server;
 
-import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import se.sdmapeg.serverworker.TaskId;
 
 /**
@@ -13,7 +13,7 @@ public interface ServerListener {
 	 *
 	 * @param clientAddress the address of the connected client
 	 */
-	void clientConnected(InetAddress clientAddress);
+	void clientConnected(InetSocketAddress clientAddress);
 
 	/**
 	 * Notifies this listener that the client with the specified address has
@@ -21,7 +21,7 @@ public interface ServerListener {
 	 *
 	 * @param clientAddress the address of the disconnected client
 	 */
-	void clientDisconnected(InetAddress clientAddress);
+	void clientDisconnected(InetSocketAddress clientAddress);
 
 	/**
 	 * Notifies this listener that a new worker with the specified address has
@@ -29,7 +29,7 @@ public interface ServerListener {
 	 *
 	 * @param workerAddress the address of the connected worker
 	 */
-	void workerConnected(InetAddress workerAddress);
+	void workerConnected(InetSocketAddress workerAddress);
 
 	/**
 	 * Notifies this listener that the worker with the specified address has
@@ -37,7 +37,7 @@ public interface ServerListener {
 	 *
 	 * @param workerAddress the address of the disconnected worker
 	 */
-	void workerDisconnected(InetAddress workerAddress);
+	void workerDisconnected(InetSocketAddress workerAddress);
 
 	/**
 	 * Notifies this listener that a new task with the specified TaskId has been
@@ -46,7 +46,7 @@ public interface ServerListener {
 	 * @param taskId the ID of the new task
 	 * @param clientAddress the address of the client the task was received from
 	 */
-	void taskReceivedFromClient(TaskId taskId, InetAddress clientAddress);
+	void taskReceivedFromClient(TaskId taskId, InetSocketAddress clientAddress);
 
 	/**
 	 * Notifies this listener that the task with the specified TaskId has been
@@ -55,7 +55,7 @@ public interface ServerListener {
 	 * @param taskId the ID of the task which was cancelled
 	 * @param clientAddress the address of the client which cancelled the task
 	 */
-	void taskCancelledByClient(TaskId taskId, InetAddress clientAddress);
+	void taskCancelledByClient(TaskId taskId, InetSocketAddress clientAddress);
 
 	/**
 	 * Notifies this listener that the result for the task with the specified
@@ -65,7 +65,7 @@ public interface ServerListener {
 	 * @param clientAddress	the address of the client which the result was sent
 	 *						to
 	 */
-	void resultSentToClient(TaskId taskId, InetAddress clientAddress);
+	void resultSentToClient(TaskId taskId, InetSocketAddress clientAddress);
 
 	/**
 	 * Notifies this listener that the result for the task with the specified
@@ -74,7 +74,7 @@ public interface ServerListener {
 	 * @param taskId the ID of the completed task
 	 * @param workerAddress the address of the worker which completed the task
 	 */
-	void resultReceivedFromWorker(TaskId taskId, InetAddress workerAddress);
+	void resultReceivedFromWorker(TaskId taskId, InetSocketAddress workerAddress);
 
 	/**
 	 * Notifies this listener that the task with the specified TaskId has been
@@ -84,7 +84,7 @@ public interface ServerListener {
 	 * @param workerAddress	the address of the worker which the task was
 	 *						assigned to
 	 */
-	void taskAssignedToWorker(TaskId taskId, InetAddress workerAddress);
+	void taskAssignedToWorker(TaskId taskId, InetSocketAddress workerAddress);
 
 	/**
 	 * Notifies this listener that the task with the specified TaskId was
@@ -93,5 +93,5 @@ public interface ServerListener {
 	 * @param taskId the ID of the aborted task
 	 * @param workerAddress the address of the worker which aborted the task
 	 */
-	void taskAbortedByWorker(TaskId taskId, InetAddress workerAddress);
+	void taskAbortedByWorker(TaskId taskId, InetSocketAddress workerAddress);
 }
