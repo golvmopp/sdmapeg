@@ -21,7 +21,7 @@ public class TaskCreationView extends JFrame {
 	JPanel mainPanel;
 	
 	public TaskCreationView(){
-		this.setLayout(new BorderLayout());
+		setLayout(new BorderLayout());
 		final CardLayout cl = new CardLayout();
 		mainPanel = new JPanel();
 		
@@ -29,7 +29,7 @@ public class TaskCreationView extends JFrame {
 
 		PythonTask pythonTaskPanel = new PythonTask();		
 		
-		//TODO: Move this to seperate class
+		//TODO: Move this to separate class
 		JPanel primeFactorTaskPanel = new JPanel(new GridLayout(1, 0));
 		JTextField inData = new JTextField();
 		JButton submitButton = new JButton("Submit Task");	
@@ -47,5 +47,8 @@ public class TaskCreationView extends JFrame {
 				cl.show(mainPanel, (String) taskSelector.getSelectedItem());
 			}
 		});
+		
+		setVisible(true);
+		pack();
 	}
 }
