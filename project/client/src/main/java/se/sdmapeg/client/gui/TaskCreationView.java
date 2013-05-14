@@ -24,7 +24,7 @@ public class TaskCreationView extends JFrame {
 		
 		JPanel pythonPanel = new JPanel(new GridLayout(0, 1));
 		
-		cl.addLayoutComponent(pythonPanel, "PythonTask");
+		cl.addLayoutComponent(pythonPanel, "PythonTaskView");
 		
 		JComboBox<String> taskSelector = new JComboBox<String>();
 		this.add(taskSelector, BorderLayout.NORTH);
