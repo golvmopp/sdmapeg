@@ -22,6 +22,7 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import se.sdmapeg.common.tasks.PythonTask;
 
 /**
  * Graphical editor for creating Python scripts.
@@ -32,11 +33,25 @@ public class PythonEditor implements ActionListener {
 	private final JFrame frame;
 	private final JTextArea textArea;
 
-	public PythonEditor(Callback callback) {
-		this(callback, null);
+	public PythonEditor(Callback callback, PythonTask task, boolean readonly) {
+		this(callback);
+		textArea.setText(task.getPythonCode());
+		textArea.setEditable(false);
 	}
 
 	public PythonEditor(Callback callback, File file) {
+		this(callback);
+
+		if (file != null) {
+			try {
+				textArea.setText(readFile(file.getPath(), StandardCharsets.UTF_8));
+			} catch (IOException e) {
+				LOG.error("Couldn't load file.");
+			}
+		}
+	}
+
+	public PythonEditor(Callback callback) {
 		this.callback = callback;
 
 		frame = new JFrame("Python editor");
@@ -47,13 +62,6 @@ public class PythonEditor implements ActionListener {
 		textArea = new RSyntaxTextArea(
 				new RSyntaxDocument(RSyntaxDocument.SYNTAX_STYLE_PYTHON));
 		textArea.setFont(Font.decode("Monospaced"));
-		if (file != null) {
-			try {
-				textArea.setText(readFile(file.getPath(), StandardCharsets.UTF_8));
-			} catch (IOException e) {
-				LOG.error("Couldn't load file.");
-			}
-		}
 		frame.add(new JScrollPane(textArea), BorderLayout.CENTER);
 		Box box = new Box(BoxLayout.LINE_AXIS);
 		JButton confirmButton = new JButton("Add task");

@@ -5,9 +5,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class PythonTask extends JPanel implements PythonEditor.Callback {
+public class PythonTaskView extends JPanel implements PythonEditor.Callback {
 
-	public PythonTask() {
+	public PythonTaskView() {
 		setLayout(new BorderLayout());
 
 		JPanel buttons = new JPanel(new GridLayout(2, 1, 10, 10));
@@ -17,7 +17,7 @@ public class PythonTask extends JPanel implements PythonEditor.Callback {
 		write.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				new PythonEditor(PythonTask.this);
+				new PythonEditor(PythonTaskView.this);
 			}
 		});
 		buttons.add(write);
@@ -27,8 +27,8 @@ public class PythonTask extends JPanel implements PythonEditor.Callback {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JFileChooser fileChooser = new JFileChooser();
-				fileChooser.showDialog(PythonTask.this, "Öppna");
-				new PythonEditor(PythonTask.this, fileChooser.getSelectedFile());
+				fileChooser.showDialog(PythonTaskView.this, "Öppna");
+				new PythonEditor(PythonTaskView.this, fileChooser.getSelectedFile());
 			}
 		});
 		buttons.add(load);

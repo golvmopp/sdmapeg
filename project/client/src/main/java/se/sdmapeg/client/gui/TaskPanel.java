@@ -77,7 +77,7 @@ public class TaskPanel extends JPanel {
 	//TODO: Remove this when done. Duh. 
 	public static void main(String[] args){
 		JFrame frame = new JFrame();
-		frame.add(new TaskPanel("PythonTask", null));
+		frame.add(new TaskPanel("PythonTaskView"));
 		frame.setVisible(true);
 	}
 	

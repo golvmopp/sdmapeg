@@ -13,7 +13,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import se.sdmapeg.client.gui.tasks.PythonTask.PythonTask;
+import se.sdmapeg.client.gui.tasks.PythonTask.PythonTaskView;
+import se.sdmapeg.client.gui.tasks.PythonTask.PythonTaskView;
 
 public class TaskCreationView extends JFrame {
 	
@@ -27,7 +28,7 @@ public class TaskCreationView extends JFrame {
 		
 		mainPanel.setLayout(cl);
 
-		PythonTask pythonTaskPanel = new PythonTask();		
+		PythonTaskView pythonTaskPanel = new PythonTaskView();
 		
 		//TODO: Move this to separate class
 		JPanel primeFactorTaskPanel = new JPanel(new GridLayout(1, 0));
@@ -35,7 +36,6 @@ public class TaskCreationView extends JFrame {
 		JButton submitButton = new JButton("Submit Task");	
 		primeFactorTaskPanel.add(inData);
 		primeFactorTaskPanel.add(submitButton);
-		
 		cl.addLayoutComponent(pythonTaskPanel, "PythonTask");
 		cl.addLayoutComponent(primeFactorTaskPanel, "PrimeFactorTask");
 		

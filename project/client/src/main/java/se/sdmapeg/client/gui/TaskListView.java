@@ -115,7 +115,7 @@ public class TaskListView extends JPanel{
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					TaskPanel taskPanel = new TaskPanel("PythonTask", new TaskPanel.Callback() {
+					TaskPanel taskPanel = new TaskPanel("PythonTaskView", new TaskPanel.Callback() {
 						@Override
 						public void sendTask(ClientTaskId clientTaskId) {
 							client.sendTask(clientTaskId);
