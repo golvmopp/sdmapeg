@@ -7,9 +7,14 @@ import java.awt.GridLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
+
+import se.sdmapeg.client.gui.tasks.PythonTask.PythonTaskView;
+import se.sdmapeg.client.gui.tasks.PythonTask.PythonTaskView;
 
 public class TaskCreationView extends JFrame {
 	
@@ -18,20 +23,28 @@ public class TaskCreationView extends JFrame {
 	
 	public TaskCreationView(){
 		this.setLayout(new BorderLayout());
-		CardLayout cl = new CardLayout();
+		final CardLayout cl = new CardLayout();
+		mainPanel = new JPanel();
 		
 		mainPanel.setLayout(cl);
+
+		PythonTaskView pythonTaskPanel = new PythonTaskView();
 		
-		JPanel pythonPanel = new JPanel(new GridLayout(0, 1));
+		//TODO: Move this to seperate class
+		JPanel primeFactorTaskPanel = new JPanel(new GridLayout(1, 0));
+		JTextField inData = new JTextField();
+		JButton submitButton = new JButton("Submit Task");	
+		primeFactorTaskPanel.add(inData);
+		primeFactorTaskPanel.add(submitButton);
+		cl.addLayoutComponent(pythonTaskPanel, "PythonTask");
+		cl.addLayoutComponent(primeFactorTaskPanel, "PrimeFactorTask");
 		
-		cl.addLayoutComponent(pythonPanel, "PythonTaskView");
-		
-		JComboBox<String> taskSelector = new JComboBox<String>();
+		final JComboBox<String> taskSelector = new JComboBox<String>();
 		this.add(taskSelector, BorderLayout.NORTH);
 		taskSelector.addItemListener(new ItemListener() {			
 			@Override
 			public void itemStateChanged(ItemEvent e) {
-				//TODO: Set cardlayout to change
+				cl.show(mainPanel, (String) taskSelector.getSelectedItem());
 			}
 		});
 	}
