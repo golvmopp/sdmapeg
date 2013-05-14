@@ -1,7 +1,5 @@
 package se.sdmapeg.client.gui.tasks.PythonTask;
 
-import com.sun.javafx.tools.packager.bundlers.IOUtils;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
