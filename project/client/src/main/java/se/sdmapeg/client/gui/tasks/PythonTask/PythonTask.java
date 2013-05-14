@@ -1,39 +1,43 @@
 package se.sdmapeg.client.gui.tasks.PythonTask;
 
+import com.sun.javafx.tools.packager.bundlers.IOUtils;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class PythonTask extends JPanel {
+public class PythonTask extends JPanel implements PythonEditor.Callback {
 
 	public PythonTask() {
-		setLayout(new GridLayout(2, 1, 30, 10));
+		setLayout(new BorderLayout());
 
-		JButton write = new JButton("Create");
+		JPanel buttons = new JPanel(new GridLayout(2, 1, 10, 10));
+		add(buttons, BorderLayout.NORTH);
+
+		JButton write = new JButton("Create Python script");
 		write.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//To change body of implemented methods use File | Settings | File Templates.
+				new PythonEditor(PythonTask.this);
 			}
 		});
-		add(write);
+		buttons.add(write);
 
-		JButton load = new JButton("Load");
+		JButton load = new JButton("Load Python script");
 		load.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//To change body of implemented methods use File | Settings | File Templates.
+				JFileChooser fileChooser = new JFileChooser();
+				fileChooser.showDialog(PythonTask.this, "Öppna");
+				new PythonEditor(PythonTask.this, fileChooser.getSelectedFile());
 			}
 		});
-		add(load);
+		buttons.add(load);
 	}
 
-	public static void main(String[] args) {
-		JFrame frame = new JFrame("Hurr Durr");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(new PythonTask());
-		frame.pack();
-		frame.setVisible(true);
+	@Override
+	public void submit(String pythonScript) {
+		//TODO: Connect to add task
 	}
 }

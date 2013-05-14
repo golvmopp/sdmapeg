@@ -82,7 +82,7 @@ public class TaskListView extends JPanel{
 	}*/
 
 	private void addTask() {
-		PythonEditor.newPythonEditor(new PythonEditor.Callback() {
+		new PythonEditor(new PythonEditor.Callback() {
 			@Override
 			public void submit(String pythonScript) {
 				client.addTask(PythonTask.newPythonTask(pythonScript));
