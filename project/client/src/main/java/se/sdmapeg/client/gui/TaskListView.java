@@ -1,26 +1,19 @@
 package se.sdmapeg.client.gui;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 import org.jdesktop.swingx.JXHyperlink;
 
 import se.sdmapeg.client.Client;
-import se.sdmapeg.client.ClientImpl;
 import se.sdmapeg.client.ClientListener;
-import se.sdmapeg.client.gui.tasks.PythonEditor;
+import se.sdmapeg.client.gui.tasks.PythonTask.PythonEditor;
 import se.sdmapeg.common.tasks.PythonTask;
 import se.sdmapeg.serverclient.ClientTaskId;
 
