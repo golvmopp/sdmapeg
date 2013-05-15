@@ -74,13 +74,6 @@ public class TaskPanel extends JPanel {
 		this.name = name;
 	}
 	
-	//TODO: Remove this when done. Duh. 
-	public static void main(String[] args){
-		JFrame frame = new JFrame();
-		frame.add(new TaskPanel("PythonTaskView"));
-		frame.setVisible(true);
-	}
-	
 	public interface Callback {
 		void sendTask(ClientTaskId clientTaskId);
 		void cancelTask(ClientTaskId clientTaskId);
