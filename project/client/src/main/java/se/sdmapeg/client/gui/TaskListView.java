@@ -6,12 +6,7 @@ import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.border.LineBorder;
 
 import org.jdesktop.swingx.JXHyperlink;
@@ -29,7 +24,7 @@ public class TaskListView extends JPanel implements TaskCreationCallback {
 	private final JLabel connectionInfoLabel;
 	private final JXHyperlink connectButton;
 
-	private final Map<JPanel, ClientTaskId> taskPanels;
+	private final Map<ClientTaskId, ClientListener> taskPanels;
 	
 	public TaskListView(Client client){
 		taskPanels = new HashMap<>();
@@ -137,8 +132,13 @@ public class TaskListView extends JPanel implements TaskCreationCallback {
 						public void cancelTask(ClientTaskId clientTaskId) {
 							client.cancelTask(clientTaskId);
 						}
+
+						@Override
+						public void showResult(ClientTaskId clientTaskId) {
+							JOptionPane.showMessageDialog(null, client.getResult(clientTaskId));
+						}
 					}, clientTaskId);
-					taskPanels.put(taskPanel, clientTaskId);
+					taskPanels.put(clientTaskId, taskPanel);
 					taskListView.add(taskPanel);
 					SwingUtilities.getRoot(taskListView).validate();
 				}
@@ -147,17 +147,17 @@ public class TaskListView extends JPanel implements TaskCreationCallback {
 
 		@Override
 		public void taskSent(ClientTaskId clientTaskId) {
-			//To change body of implemented methods use File | Settings | File Templates.
+			taskPanels.get(clientTaskId).taskSent(clientTaskId);
 		}
 
 		@Override
 		public void taskCancelled(ClientTaskId clientTaskId) {
-			//To change body of implemented methods use File | Settings | File Templates.
+			taskPanels.get(clientTaskId).taskCancelled(clientTaskId);
 		}
 
 		@Override
 		public void resultReceived(ClientTaskId clientTaskId) {
-			//To change body of implemented methods use File | Settings | File Templates.
+			taskPanels.get(clientTaskId).resultReceived(clientTaskId);
 		}
 	}
 }

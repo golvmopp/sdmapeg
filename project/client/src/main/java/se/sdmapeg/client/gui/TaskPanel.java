@@ -9,19 +9,14 @@ import java.awt.event.ActionListener;
 import java.util.Calendar;
 import java.util.Date;
 
-import javax.swing.Box;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.border.LineBorder;
 
+import se.sdmapeg.client.ClientListener;
 import se.sdmapeg.common.TimeFormatter;
 import se.sdmapeg.serverclient.ClientTaskId;
 
-public class TaskPanel extends JPanel {
-
+public class TaskPanel extends JPanel implements ClientListener {
 	public enum TaskState {
 		CREATED, SENT, COMPLETED, FAILED;
 	}
@@ -34,11 +29,17 @@ public class TaskPanel extends JPanel {
 	private JLabel elapsedTimeLabel;
 	private TimeFormatter timeFormatter;
 	private JButton actionButton;
+	private JPanel actionButtonPanel;
 
-	private ClientTaskId clientTaskId;
+	private static final Color CREATED = Color.WHITE;
+	private static final Color SENT = new Color(195, 200, 72);
+	private static final Color COMPLETED = new Color(118, 217, 101);
+	private static final Color FAILED = new Color(255, 91, 90);
+
+	private final ClientTaskId clientTaskId;
 	
 	
-	public TaskPanel(String typeName, final Callback callback, ClientTaskId clientTaskId) {
+	public TaskPanel(String typeName, final Callback callback, final ClientTaskId clientTaskId) {
 		this.callback = callback;
 		this.typeName = typeName;
 		this.timeStamp = Calendar.getInstance();
@@ -48,10 +49,14 @@ public class TaskPanel extends JPanel {
 		this.clientTaskId = clientTaskId;
 		
 		JPanel centerPanel = new JPanel(new GridLayout(1, 2));
+		centerPanel.setOpaque(false);
 		JPanel centerPanelText = new JPanel(new GridLayout(3, 1));
+		centerPanelText.setOpaque(false);
 		centerPanel.add(centerPanelText);
 		JPanel checkBoxPanel = new JPanel(new BorderLayout());
-		final JPanel actionButtonPanel = new JPanel(new BorderLayout());
+		checkBoxPanel.setOpaque(false);
+		actionButtonPanel = new JPanel(new BorderLayout());
+		actionButtonPanel.setOpaque(false);
 		
 		centerPanelText.add(new JLabel(typeName));
 		centerPanelText.add(new JLabel("Created: " + timeStamp.get(Calendar.HOUR_OF_DAY) + 
@@ -65,25 +70,25 @@ public class TaskPanel extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (state == TaskState.CREATED) {
-					state = TaskState.SENT;
-					callback.sendTask(TaskPanel.this.clientTaskId);
-					actionButton.setText("Cancel");
+					send();
+				} else if (state == TaskState.SENT) {
+					cancel();
 				} else {
-					state = TaskState.FAILED;
-					callback.cancelTask(TaskPanel.this.clientTaskId);
-					actionButtonPanel.remove(actionButton);
+					callback.showResult(clientTaskId);
 				}
 			}
 		});
-		actionButtonPanel.add(actionButton);
+		actionButtonPanel.add(actionButton, BorderLayout.CENTER);
 		
 		JCheckBox selectBox = new JCheckBox();
-		checkBoxPanel.add(selectBox, BorderLayout.CENTER );
+		checkBoxPanel.add(selectBox, BorderLayout.CENTER);
 		checkBoxPanel.add(Box.createRigidArea(new Dimension(10, 0)), BorderLayout.EAST);
 		this.add(checkBoxPanel, BorderLayout.WEST);
 		this.add(centerPanel, BorderLayout.CENTER);
 
 		JButton cancelButton = new JButton("X");
+		cancelButton.setVerticalAlignment(SwingConstants.TOP);
+		cancelButton.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		this.add(cancelButton, BorderLayout.EAST);
 		
 		this.setBorder(new LineBorder(Color.BLACK));
@@ -94,9 +99,42 @@ public class TaskPanel extends JPanel {
 		this(typeName, callback, clientTaskId);
 		this.name = name;
 	}
+
+	private void cancel() {
+		callback.cancelTask(clientTaskId);
+		taskCancelled(clientTaskId);
+	}
+
+	private void send() {
+		state = TaskState.SENT;
+		callback.sendTask(clientTaskId);
+		setBackground(SENT);
+		actionButton.setText("Cancel");
+	}
+
+	@Override
+	public void taskCreated(ClientTaskId clientTaskId) {}
+	@Override
+	public void taskSent(ClientTaskId clientTaskId) {}
+
+	@Override
+	public void taskCancelled(ClientTaskId clientTaskId) {
+		state = TaskState.FAILED;
+		setBackground(FAILED);
+		actionButtonPanel.removeAll();
+		repaint();
+	}
+
+	@Override
+	public void resultReceived(final ClientTaskId clientTaskId) {
+		state = TaskState.COMPLETED;
+		setBackground(COMPLETED);
+		actionButton.setText("Show result");
+	}
 	
 	public interface Callback {
 		void sendTask(ClientTaskId clientTaskId);
 		void cancelTask(ClientTaskId clientTaskId);
+		void showResult(ClientTaskId clientTaskId);
 	}
 }
