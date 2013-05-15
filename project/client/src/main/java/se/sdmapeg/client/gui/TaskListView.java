@@ -3,6 +3,8 @@ package se.sdmapeg.client.gui;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -26,8 +28,12 @@ public class TaskListView extends JPanel implements TaskCreationCallback {
 	private final JPanel taskListView;
 	private final JLabel connectionInfoLabel;
 	private final JXHyperlink connectButton;
+
+	private final Map<JPanel, ClientTaskId> taskPanels;
 	
 	public TaskListView(Client client){
+		taskPanels = new HashMap<>();
+
 		setPreferredSize(new Dimension(300, 500));
 		//this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.client = client;
@@ -131,7 +137,8 @@ public class TaskListView extends JPanel implements TaskCreationCallback {
 						public void cancelTask(ClientTaskId clientTaskId) {
 							client.cancelTask(clientTaskId);
 						}
-					});
+					}, clientTaskId);
+					taskPanels.put(taskPanel, clientTaskId);
 					taskListView.add(taskPanel);
 					SwingUtilities.getRoot(taskListView).validate();
 				}

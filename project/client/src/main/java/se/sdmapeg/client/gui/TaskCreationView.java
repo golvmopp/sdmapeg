@@ -48,9 +48,9 @@ public class TaskCreationView extends JFrame implements TaskCreationCallback {
 				revalidate();
 			}
 		});
-		
-		setVisible(true);
+
 		pack();
+		setVisible(true);
 	}
 
 	private JPanel getTaskView(TaskType selectedItem) {
