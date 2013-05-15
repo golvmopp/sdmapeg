@@ -29,7 +29,7 @@ public class TaskListView extends JPanel implements TaskCreationCallback {
 	public TaskListView(Client client){
 		taskPanels = new HashMap<>();
 
-		setPreferredSize(new Dimension(300, 500));
+		setPreferredSize(new Dimension(290, 500));
 		this.client = client;
 
 		client.addListener(new ClientListenerImpl());

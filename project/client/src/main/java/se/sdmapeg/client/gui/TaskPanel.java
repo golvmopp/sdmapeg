@@ -68,7 +68,7 @@ public class TaskPanel extends JPanel implements ClientListener {
 						                               Integer.toString(timeStamp.get(Calendar.HOUR_OF_DAY)), 2) +
 				                               ":" + TimeFormatter.addLeadingZeros(
 				Integer.toString(timeStamp.get(Calendar.MINUTE)), 2)));
-		elapsedTimeLabel = new JLabel("Elapsed time: 00:00:00");
+		elapsedTimeLabel = new JLabel("Time: 00:00:00");
 		centerPanelText.add(elapsedTimeLabel);
 		centerPanel.add(actionButtonPanel, BorderLayout.CENTER);
 		
@@ -85,6 +85,7 @@ public class TaskPanel extends JPanel implements ClientListener {
 				}
 			}
 		});
+		actionButton.setPreferredSize(new Dimension(100, 0));
 		actionButtonPanel.add(actionButton, BorderLayout.CENTER);
 		
 		selectBox = new JCheckBox();
@@ -104,8 +105,7 @@ public class TaskPanel extends JPanel implements ClientListener {
 		cancelButton.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		this.add(cancelButton, BorderLayout.EAST);
 		
-		this.setBorder(new LineBorder(Color.BLACK));
-		this.setSize(new Dimension(0, 200));
+		this.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
 	}
 	
 	public TaskPanel(String typeName, String name, Callback callback, ClientTaskId clientTaskId) {
@@ -115,7 +115,7 @@ public class TaskPanel extends JPanel implements ClientListener {
 
 	private void updateTimer() {
 		TimeFormatter timeFormatter = new TimeFormatter(startTime);
-		elapsedTimeLabel.setText("Elapsed time: " + timeFormatter.getFormattedHours() + ":" + timeFormatter.getFormattedMinutes() + ":" + timeFormatter.getFormattedSeconds());
+		elapsedTimeLabel.setText("Time: " + timeFormatter.getFormattedHours() + ":" + timeFormatter.getFormattedMinutes() + ":" + timeFormatter.getFormattedSeconds());
 	}
 
 	public boolean isChecked() {
