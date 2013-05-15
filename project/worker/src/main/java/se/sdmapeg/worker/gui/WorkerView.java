@@ -12,7 +12,7 @@ import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class WorkerView extends JFrame {
+public final class WorkerView extends JFrame implements TaskView.TaskViewCallback {
 	private final Worker worker;
 	private long startTime;
 	private int totalTasks = 0;
@@ -127,11 +127,18 @@ public final class WorkerView extends JFrame {
 		super.dispose();
 	}
 
+	@Override
+	public void taskRemoved(JPanel panel) {
+		System.out.println("foo");
+		workList.remove(panel);
+		repaint();
+	}
+
 	public class WorkerListenerImpl implements WorkerListener {
 		@Override
 		public void taskAdded(TaskId taskId) {
 			totalTasks++;
-			TaskView taskView = new TaskView("Task");
+			TaskView taskView = new TaskView(WorkerView.this, "Task");
 			workList.add(taskView);
 			taskViews.put(taskId, taskView);
 			updateStatistics();
