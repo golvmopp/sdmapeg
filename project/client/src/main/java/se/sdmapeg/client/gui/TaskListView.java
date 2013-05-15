@@ -22,7 +22,7 @@ public class TaskListView extends JPanel implements TaskCreationCallback {
 	private final Client client;
 	private final JPanel taskListView;
 	private final JLabel connectionInfoLabel;
-	private final JXHyperlink connectButton;
+	//private final JXHyperlink connectButton;
 
 	private final Map<ClientTaskId, TaskPanel> taskPanels;
 	
@@ -89,11 +89,11 @@ public class TaskListView extends JPanel implements TaskCreationCallback {
 		
 		JPanel connectionBar = new JPanel(new BorderLayout());
 		add(connectionBar, BorderLayout.SOUTH);
-		connectionInfoLabel = new JLabel("Connected to ...");
-		connectButton = new JXHyperlink(); 
-		connectButton.setText("Connect");  
+		connectionInfoLabel = new JLabel("Connected to: " + client.getHost());
+		//connectButton = new JXHyperlink();
+		//connectButton.setText("Connect");
 		connectionBar.add(connectionInfoLabel, BorderLayout.WEST);
-		connectionBar.add(connectButton, BorderLayout.EAST);	
+		//connectionBar.add(connectButton, BorderLayout.EAST);
 	}
 
 	/*@Override

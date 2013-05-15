@@ -20,4 +20,6 @@ public interface Client extends Listenable<ClientListener> {
 	Result<?> getResult(ClientTaskId clientTaskId);
 
 	void shutDown();
+
+	String getHost();
 }
