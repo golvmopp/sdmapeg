@@ -129,7 +129,6 @@ public final class WorkerView extends JFrame implements TaskView.TaskViewCallbac
 
 	@Override
 	public void taskRemoved(JPanel panel) {
-		System.out.println("foo");
 		workList.remove(panel);
 		repaint();
 	}
