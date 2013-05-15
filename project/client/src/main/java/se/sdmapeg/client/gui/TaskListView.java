@@ -71,6 +71,16 @@ public class TaskListView extends JPanel implements TaskCreationCallback {
 				}
 			}
 		});
+		sendButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				for (ClientTaskId clientTaskId : taskPanels.keySet()) {
+					if (taskPanels.get(clientTaskId).isChecked()) {
+						sendTask(clientTaskId);
+					}
+				}
+			}
+		});
 
 		buttonPanel.add(clearButton);
 		buttonPanel.add(addButton);
@@ -99,6 +109,11 @@ public class TaskListView extends JPanel implements TaskCreationCallback {
 				client.addTask(PythonTask.newPythonTask(pythonScript));
 			}
 		});
+	}
+
+	private void sendTask(ClientTaskId clientTaskId) {
+		client.sendTask(clientTaskId);
+
 	}
 
 	private void removeTask(ClientTaskId clientTaskId, JPanel panel) {
@@ -144,7 +159,7 @@ public class TaskListView extends JPanel implements TaskCreationCallback {
 					TaskPanel taskPanel = new TaskPanel("PythonTaskView", new TaskPanel.Callback() {
 						@Override
 						public void sendTask(ClientTaskId clientTaskId) {
-							client.sendTask(clientTaskId);
+							TaskListView.this.sendTask(clientTaskId);
 						}
 
 						@Override

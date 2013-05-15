@@ -117,22 +117,26 @@ public class TaskPanel extends JPanel implements ClientListener {
 	}
 
 	private void send() {
-		state = TaskState.SENT;
 		callback.sendTask(clientTaskId);
-		setBackground(SENT);
-		actionButton.setText("Cancel");
+		taskSent(clientTaskId);
 	}
 
 	@Override
 	public void taskCreated(ClientTaskId clientTaskId) {}
 	@Override
-	public void taskSent(ClientTaskId clientTaskId) {}
+	public void taskSent(ClientTaskId clientTaskId) {
+		state = TaskState.SENT;
+		setBackground(SENT);
+		actionButton.setText("Cancel");
+		selectBox.setSelected(false);
+	}
 
 	@Override
 	public void taskCancelled(ClientTaskId clientTaskId) {
 		state = TaskState.FAILED;
 		setBackground(FAILED);
 		actionButtonPanel.removeAll();
+		selectBox.setSelected(false);
 		repaint();
 	}
 
