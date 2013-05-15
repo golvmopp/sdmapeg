@@ -37,7 +37,7 @@ public final class WorkerView extends JFrame {
 		setLayout(new BorderLayout());
 		getRootPane().setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 
-		JPanel content = new JPanel(new GridLayout(1, 2, 0, 10));
+		JPanel content = new JPanel(new GridLayout(1, 2, 10, 0));
 		add(content, BorderLayout.CENTER);
 
 		JButton exit = new JButton("Exit");
@@ -66,6 +66,11 @@ public final class WorkerView extends JFrame {
 		JLabel availableProcessors = new JLabel(Integer.toString(Runtime.getRuntime().availableProcessors()));
 		labels.add(availableProcessorsLabel);
 		values.add(availableProcessors);
+
+		JLabel ConnectedToLabel = new JLabel("Connected to: ", SwingConstants.RIGHT);
+		JLabel ConnectedTo = new JLabel(worker.getHost());
+		labels.add(ConnectedToLabel);
+		values.add(ConnectedTo);
 
 		JLabel tasksReceivedLabel = new JLabel("Number of received tasks: ", SwingConstants.RIGHT);
 		tasksReceived = new JLabel(Integer.toString(totalTasks));

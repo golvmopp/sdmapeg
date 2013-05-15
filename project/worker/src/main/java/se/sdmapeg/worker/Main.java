@@ -35,7 +35,7 @@ public final class Main {
 			throw new CommunicationException();
 		}
 		int poolSize = Runtime.getRuntime().availableProcessors();
-		Worker worker = WorkerImpl.newWorkerImpl(poolSize, server,
+		Worker worker = WorkerImpl.newWorkerImpl(poolSize, server, host,
 												new TaskPerformerImpl());
 		worker.start();
 		WorkerView view = new WorkerView(worker);

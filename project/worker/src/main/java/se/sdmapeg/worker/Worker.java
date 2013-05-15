@@ -10,4 +10,6 @@ public interface Worker extends Listenable<WorkerListener> {
     void start();
     
     void stop();
+
+	String getHost();
 }

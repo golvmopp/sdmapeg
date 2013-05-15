@@ -30,13 +30,14 @@ public final class WorkerImpl implements Worker {
 	private final ExecutorService serverListenerExecutor;
     private final TaskExecutor taskExecutor;
 	private final Server server;
+	private String host;
 	private final TaskPerformer taskPerformer;
 	private final int poolSize;
 	private final Map<TaskId, FutureTask<Void>> taskMap =
 		new ConcurrentHashMap<>();
 	private final Map<Runnable, TaskId> idMap = new ConcurrentHashMap<>();
 
-	private WorkerImpl(int poolSize, Server server,
+	private WorkerImpl(int poolSize, Server server, String host,
 					  TaskPerformer taskPerformer) {
 		this.listenerExecutor = Executors.newSingleThreadExecutor();
     	this.serverListenerExecutor = Executors.newSingleThreadExecutor();
@@ -45,6 +46,7 @@ public final class WorkerImpl implements Worker {
 		this.server = server;
 		this.taskPerformer = taskPerformer;
 		this.poolSize = poolSize;
+		this.host = host;
 	}
 
 	private void cancelTask(TaskId taskId) {
@@ -111,6 +113,11 @@ public final class WorkerImpl implements Worker {
 	}
 
 	@Override
+	public String getHost() {
+		return host;
+	}
+
+	@Override
 	public void addListener(WorkerListener listener) {
 		listeners.addListener(listener);
 	}
@@ -120,9 +127,9 @@ public final class WorkerImpl implements Worker {
 		listeners.removeListener(listener);
 	}
 	
-	public static WorkerImpl newWorkerImpl(int poolSize, Server server,
+	public static WorkerImpl newWorkerImpl(int poolSize, Server server, String host,
 					  TaskPerformer taskPerformer){
-	    return new WorkerImpl(poolSize, server, taskPerformer);
+	    return new WorkerImpl(poolSize, server, host, taskPerformer);
 	}
 
 	private final class MessageListener implements Runnable {
