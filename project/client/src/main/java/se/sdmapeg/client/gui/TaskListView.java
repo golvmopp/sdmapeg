@@ -137,6 +137,13 @@ public class TaskListView extends JPanel implements TaskCreationCallback {
 						public void showResult(ClientTaskId clientTaskId) {
 							JOptionPane.showMessageDialog(null, client.getResult(clientTaskId));
 						}
+
+						@Override
+						public void removeTaskPanel(ClientTaskId clientTaskId, JPanel panel) {
+							cancelTask(clientTaskId);
+							taskListView.remove(panel);
+							revalidate();
+						}
 					}, clientTaskId);
 					taskPanels.put(clientTaskId, taskPanel);
 					taskListView.add(taskPanel);

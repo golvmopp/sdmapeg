@@ -87,6 +87,12 @@ public class TaskPanel extends JPanel implements ClientListener {
 		this.add(centerPanel, BorderLayout.CENTER);
 
 		JButton cancelButton = new JButton("X");
+		cancelButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				callback.removeTaskPanel(clientTaskId, TaskPanel.this);
+			}
+		});
 		cancelButton.setVerticalAlignment(SwingConstants.TOP);
 		cancelButton.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		this.add(cancelButton, BorderLayout.EAST);
@@ -136,5 +142,6 @@ public class TaskPanel extends JPanel implements ClientListener {
 		void sendTask(ClientTaskId clientTaskId);
 		void cancelTask(ClientTaskId clientTaskId);
 		void showResult(ClientTaskId clientTaskId);
+		void removeTaskPanel(ClientTaskId clientTaskId, JPanel panel);
 	}
 }
