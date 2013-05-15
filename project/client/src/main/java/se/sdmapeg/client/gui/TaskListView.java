@@ -18,9 +18,10 @@ import se.sdmapeg.client.Client;
 import se.sdmapeg.client.ClientListener;
 import se.sdmapeg.client.gui.tasks.PythonTask.PythonEditor;
 import se.sdmapeg.common.tasks.PythonTask;
+import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.serverclient.ClientTaskId;
 
-public class TaskListView extends JPanel{
+public class TaskListView extends JPanel implements TaskCreationCallback {
 	private final Client client;
 	private final JPanel taskListView;
 	private final JLabel connectionInfoLabel;
@@ -56,7 +57,7 @@ public class TaskListView extends JPanel{
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				new TaskCreationView();
+				new TaskCreationView(TaskListView.this);
 			}			
 		}
 		);
@@ -106,6 +107,11 @@ public class TaskListView extends JPanel{
 		JFrame main = new JFrame();
 		main.add(frame);
 		main.setVisible(true);
+	}
+
+	@Override
+	public void addTask(Task task) {
+		client.addTask(task);
 	}
 
 	private final class ClientListenerImpl implements ClientListener {

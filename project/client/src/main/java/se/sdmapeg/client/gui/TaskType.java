@@ -14,17 +14,6 @@ public enum TaskType {
 		this.name = name;
 	}
 
-	public JPanel getObject() {
-		switch(this){
-		case PYTHON_TASK:
-			return new PythonTaskView();
-		case PRIME_FACTOR_TASK:
-			return new PrimeFactorTaskView();
-		default:
-			return new JPanel();
-		}
-	}
-
 	@Override
 	public String toString(){
 		return name;

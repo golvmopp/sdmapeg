@@ -17,13 +17,17 @@ import javax.swing.JTextField;
 import se.sdmapeg.client.gui.tasks.PrimeFactorTaskView;
 import se.sdmapeg.client.gui.tasks.PythonTask.PythonTaskView;
 import se.sdmapeg.client.gui.tasks.PythonTask.PythonTaskView;
+import se.sdmapeg.common.tasks.Task;
 
-public class TaskCreationView extends JFrame {
-	
-	
+public class TaskCreationView extends JFrame implements TaskCreationCallback {
+	TaskCreationCallback callback;
+
 	JPanel mainPanel;
-	
-	public TaskCreationView(){
+	JPanel visiblePanel;
+
+	public TaskCreationView(TaskCreationCallback callback){
+		this.callback = callback;
+
 		setLayout(new BorderLayout(15, 0));
 		
 		final JComboBox<TaskType> taskSelector = new JComboBox<>();
@@ -32,28 +36,37 @@ public class TaskCreationView extends JFrame {
 		}
 		
 		this.add(taskSelector, BorderLayout.NORTH);
-		this.add(TaskType.values()[0].getObject(), BorderLayout.CENTER);
+		visiblePanel = getTaskView(TaskType.values()[0]);
+		this.add(visiblePanel, BorderLayout.CENTER);
 		
 		taskSelector.addItemListener(new ItemListener() {			
 			@Override
 			public void itemStateChanged(ItemEvent e) {
-				TaskCreationView.this.add(addTaskView((TaskType)taskSelector.
-						getSelectedItem()), BorderLayout.CENTER);
-			}
-
-			private Component addTaskView(TaskType selectedItem) {
-				switch (selectedItem){
-				case PYTHON_TASK:
-					return new PythonTaskView();
-				case PRIME_FACTOR_TASK:
-					return new PrimeFactorTaskView();
-				default:
-					return new JPanel();
-				}
+				remove(visiblePanel);
+				visiblePanel = getTaskView((TaskType) taskSelector.getSelectedItem());
+				add(visiblePanel, BorderLayout.CENTER);
+				revalidate();
 			}
 		});
 		
 		setVisible(true);
 		pack();
+	}
+
+	private JPanel getTaskView(TaskType selectedItem) {
+		switch (selectedItem){
+			case PYTHON_TASK:
+				return new PythonTaskView(this);
+			case PRIME_FACTOR_TASK:
+				return new PrimeFactorTaskView(this);
+			default:
+				return new JPanel();
+		}
+	}
+
+	@Override
+	public void addTask(Task task) {
+		callback.addTask(task);
+		this.dispose();
 	}
 }

@@ -1,13 +1,19 @@
 package se.sdmapeg.client.gui.tasks.PythonTask;
 
+import se.sdmapeg.client.gui.TaskCreationCallback;
+import se.sdmapeg.common.tasks.PythonTask;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class PythonTaskView extends JPanel implements PythonEditor.Callback {
+	TaskCreationCallback callback;
 
-	public PythonTaskView() {
+	public PythonTaskView(TaskCreationCallback callback) {
+		this.callback = callback;
+
 		setLayout(new BorderLayout());
 
 		JPanel buttons = new JPanel(new GridLayout(2, 1, 10, 10));
@@ -36,6 +42,6 @@ public class PythonTaskView extends JPanel implements PythonEditor.Callback {
 
 	@Override
 	public void submit(String pythonScript) {
-		//TODO: Connect to add task
+		callback.addTask(PythonTask.newPythonTask(pythonScript));
 	}
 }
