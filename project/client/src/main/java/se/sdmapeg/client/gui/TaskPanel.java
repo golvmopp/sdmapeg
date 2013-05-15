@@ -30,6 +30,7 @@ public class TaskPanel extends JPanel implements ClientListener {
 	private TimeFormatter timeFormatter;
 	private JButton actionButton;
 	private JPanel actionButtonPanel;
+	private JCheckBox selectBox;
 
 	private static final Color CREATED = Color.WHITE;
 	private static final Color SENT = new Color(195, 200, 72);
@@ -80,7 +81,7 @@ public class TaskPanel extends JPanel implements ClientListener {
 		});
 		actionButtonPanel.add(actionButton, BorderLayout.CENTER);
 		
-		JCheckBox selectBox = new JCheckBox();
+		selectBox = new JCheckBox();
 		checkBoxPanel.add(selectBox, BorderLayout.CENTER);
 		checkBoxPanel.add(Box.createRigidArea(new Dimension(10, 0)), BorderLayout.EAST);
 		this.add(checkBoxPanel, BorderLayout.WEST);
@@ -90,7 +91,7 @@ public class TaskPanel extends JPanel implements ClientListener {
 		cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				callback.removeTaskPanel(clientTaskId, TaskPanel.this);
+				callback.taskRemoved(clientTaskId, TaskPanel.this);
 			}
 		});
 		cancelButton.setVerticalAlignment(SwingConstants.TOP);
@@ -104,6 +105,10 @@ public class TaskPanel extends JPanel implements ClientListener {
 	public TaskPanel(String typeName, String name, Callback callback, ClientTaskId clientTaskId) {
 		this(typeName, callback, clientTaskId);
 		this.name = name;
+	}
+
+	public boolean isChecked() {
+		return selectBox.isSelected();
 	}
 
 	private void cancel() {
@@ -142,6 +147,6 @@ public class TaskPanel extends JPanel implements ClientListener {
 		void sendTask(ClientTaskId clientTaskId);
 		void cancelTask(ClientTaskId clientTaskId);
 		void showResult(ClientTaskId clientTaskId);
-		void removeTaskPanel(ClientTaskId clientTaskId, JPanel panel);
+		void taskRemoved(ClientTaskId clientTaskId, JPanel panel);
 	}
 }

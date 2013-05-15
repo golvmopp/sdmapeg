@@ -24,13 +24,12 @@ public class TaskListView extends JPanel implements TaskCreationCallback {
 	private final JLabel connectionInfoLabel;
 	private final JXHyperlink connectButton;
 
-	private final Map<ClientTaskId, ClientListener> taskPanels;
+	private final Map<ClientTaskId, TaskPanel> taskPanels;
 	
 	public TaskListView(Client client){
 		taskPanels = new HashMap<>();
 
 		setPreferredSize(new Dimension(300, 500));
-		//this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.client = client;
 
 		client.addListener(new ClientListenerImpl());
@@ -62,6 +61,16 @@ public class TaskListView extends JPanel implements TaskCreationCallback {
 			}			
 		}
 		);
+		clearButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				for (ClientTaskId clientTaskId : taskPanels.keySet()) {
+					if (taskPanels.get(clientTaskId).isChecked()) {
+						removeTask(clientTaskId, taskPanels.get(clientTaskId));
+					}
+				}
+			}
+		});
 
 		buttonPanel.add(clearButton);
 		buttonPanel.add(addButton);
@@ -90,6 +99,16 @@ public class TaskListView extends JPanel implements TaskCreationCallback {
 				client.addTask(PythonTask.newPythonTask(pythonScript));
 			}
 		});
+	}
+
+	private void removeTask(ClientTaskId clientTaskId, JPanel panel) {
+		cancelTask(clientTaskId);
+		taskListView.remove(panel);
+		revalidate();
+	}
+
+	private void cancelTask(ClientTaskId clientTaskId) {
+		client.cancelTask(clientTaskId);
 	}
 
 	/*public void addTask(String typeName){
@@ -130,7 +149,7 @@ public class TaskListView extends JPanel implements TaskCreationCallback {
 
 						@Override
 						public void cancelTask(ClientTaskId clientTaskId) {
-							client.cancelTask(clientTaskId);
+							TaskListView.this.cancelTask(clientTaskId);
 						}
 
 						@Override
@@ -139,10 +158,8 @@ public class TaskListView extends JPanel implements TaskCreationCallback {
 						}
 
 						@Override
-						public void removeTaskPanel(ClientTaskId clientTaskId, JPanel panel) {
-							cancelTask(clientTaskId);
-							taskListView.remove(panel);
-							revalidate();
+						public void taskRemoved(ClientTaskId clientTaskId, JPanel panel) {
+							removeTask(clientTaskId, panel);
 						}
 					}, clientTaskId);
 					taskPanels.put(clientTaskId, taskPanel);
