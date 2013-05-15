@@ -106,6 +106,13 @@ public class TaskPanel extends JPanel implements ClientListener {
 		this.add(cancelButton, BorderLayout.EAST);
 		
 		this.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
+
+		timer = new Timer(1000, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				updateTimer();
+			}
+		});
 	}
 	
 	public TaskPanel(String typeName, String name, Callback callback, ClientTaskId clientTaskId) {
@@ -142,12 +149,6 @@ public class TaskPanel extends JPanel implements ClientListener {
 		selectBox.setSelected(false);
 
 		this.startTime = System.currentTimeMillis();
-		timer = new Timer(1000, new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				updateTimer();
-			}
-		});
 		timer.start();
 	}
 
