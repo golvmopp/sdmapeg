@@ -22,12 +22,17 @@ public class TaskPanel extends JPanel implements ClientListener {
 	}
 
 	private final Callback callback;
-	private final Calendar timeStamp;
-	private final  String typeName;
-	private String name;
+	private final ClientTaskId clientTaskId;
 	private TaskState state;
+	private long startTime;
+	private Calendar timeStamp;
+
+	private String name;
+	private final String typeName;
+
+	private Timer timer;
+
 	private JLabel elapsedTimeLabel;
-	private TimeFormatter timeFormatter;
 	private JButton actionButton;
 	private JPanel actionButtonPanel;
 	private JCheckBox selectBox;
@@ -36,8 +41,6 @@ public class TaskPanel extends JPanel implements ClientListener {
 	private static final Color SENT = new Color(195, 200, 72);
 	private static final Color COMPLETED = new Color(118, 217, 101);
 	private static final Color FAILED = new Color(255, 91, 90);
-
-	private final ClientTaskId clientTaskId;
 	
 	
 	public TaskPanel(String typeName, final Callback callback, final ClientTaskId clientTaskId) {
@@ -60,9 +63,12 @@ public class TaskPanel extends JPanel implements ClientListener {
 		actionButtonPanel.setOpaque(false);
 		
 		centerPanelText.add(new JLabel(typeName));
-		centerPanelText.add(new JLabel("Created: " + timeStamp.get(Calendar.HOUR_OF_DAY) + 
-				":" + timeStamp.get(Calendar.MINUTE)));
-		elapsedTimeLabel = new JLabel("Elapsed time: 0");
+		centerPanelText.add(new JLabel("Created: " +
+				                               TimeFormatter.addLeadingZeros(
+						                               Integer.toString(timeStamp.get(Calendar.HOUR_OF_DAY)), 2) +
+				                               ":" + TimeFormatter.addLeadingZeros(
+				Integer.toString(timeStamp.get(Calendar.MINUTE)), 2)));
+		elapsedTimeLabel = new JLabel("Elapsed time: 00:00:00");
 		centerPanelText.add(elapsedTimeLabel);
 		centerPanel.add(actionButtonPanel, BorderLayout.CENTER);
 		
@@ -107,6 +113,11 @@ public class TaskPanel extends JPanel implements ClientListener {
 		this.name = name;
 	}
 
+	private void updateTimer() {
+		TimeFormatter timeFormatter = new TimeFormatter(startTime);
+		elapsedTimeLabel.setText("Elapsed time: " + timeFormatter.getFormattedHours() + ":" + timeFormatter.getFormattedMinutes() + ":" + timeFormatter.getFormattedSeconds());
+	}
+
 	public boolean isChecked() {
 		return selectBox.isSelected();
 	}
@@ -129,6 +140,15 @@ public class TaskPanel extends JPanel implements ClientListener {
 		setBackground(SENT);
 		actionButton.setText("Cancel");
 		selectBox.setSelected(false);
+
+		this.startTime = System.currentTimeMillis();
+		timer = new Timer(1000, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				updateTimer();
+			}
+		});
+		timer.start();
 	}
 
 	@Override
@@ -137,6 +157,7 @@ public class TaskPanel extends JPanel implements ClientListener {
 		setBackground(FAILED);
 		actionButtonPanel.removeAll();
 		selectBox.setSelected(false);
+		timer.stop();
 		repaint();
 	}
 
@@ -145,6 +166,7 @@ public class TaskPanel extends JPanel implements ClientListener {
 		state = TaskState.COMPLETED;
 		setBackground(COMPLETED);
 		actionButton.setText("Show result");
+		timer.stop();
 	}
 	
 	public interface Callback {
