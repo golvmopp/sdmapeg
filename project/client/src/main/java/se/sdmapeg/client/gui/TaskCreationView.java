@@ -3,6 +3,7 @@ package se.sdmapeg.client.gui;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ItemEvent;
@@ -27,7 +28,7 @@ public class TaskCreationView extends JFrame implements TaskCreationCallback {
 
 	public TaskCreationView(TaskCreationCallback callback){
 		this.callback = callback;
-
+		
 		setLayout(new BorderLayout(15, 0));
 		
 		final JComboBox<TaskType> taskSelector = new JComboBox<>();
@@ -45,10 +46,10 @@ public class TaskCreationView extends JFrame implements TaskCreationCallback {
 				remove(visiblePanel);
 				visiblePanel = getTaskView((TaskType) taskSelector.getSelectedItem());
 				add(visiblePanel, BorderLayout.CENTER);
-				revalidate();
+				TaskCreationView.this.pack();
 			}
 		});
-
+		
 		pack();
 		setVisible(true);
 	}
