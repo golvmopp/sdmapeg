@@ -9,7 +9,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-public class PrimeFactorTaskView extends JPanel implements  {
+public class PrimeFactorTaskView extends JPanel {
 	
 	TaskCreationCallback callback;
 
