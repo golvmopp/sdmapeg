@@ -4,6 +4,8 @@ import se.sdmapeg.serverworker.TaskId;
 import se.sdmapeg.worker.WorkerListener;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -24,10 +26,12 @@ public class TaskView extends JPanel implements WorkerListener {
 
 	public TaskView(TaskViewCallback callback, String name) {
 		this.callback = callback;
-
+		
+		
 		setLayout(new BorderLayout());
-		setPreferredSize(new Dimension(150, 20));
-
+		setPreferredSize(new Dimension(200, 20));
+		setBorder(new LineBorder(Color.BLACK));
+		
 		JLabel nameLabel = new JLabel(name);
 		add(nameLabel, BorderLayout.CENTER);
 

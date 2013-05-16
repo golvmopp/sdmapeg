@@ -93,8 +93,11 @@ public final class WorkerView extends JFrame implements TaskView.TaskViewCallbac
 		labels.add(queueLengthLabel);
 		values.add(queueLength);
 
-		workList = new JPanel(new GridLayout(0, 1));
-		JScrollPane workListScrollPane = new JScrollPane(workList);
+		
+		workList = new JPanel(new GridLayout(0, 1, 0, 2));
+		JPanel proxyPanel = new JPanel(); // For making a proper list in scrollpane
+		JScrollPane workListScrollPane = new JScrollPane(proxyPanel);
+		proxyPanel.add(workList);
 		content.add(workListScrollPane);
 
 		pack();
@@ -137,7 +140,7 @@ public final class WorkerView extends JFrame implements TaskView.TaskViewCallbac
 		@Override
 		public void taskAdded(TaskId taskId) {
 			totalTasks++;
-			TaskView taskView = new TaskView(WorkerView.this, "Task");
+			TaskView taskView = new TaskView(WorkerView.this, "Task:" + taskId);
 			workList.add(taskView);
 			taskViews.put(taskId, taskView);
 			updateStatistics();

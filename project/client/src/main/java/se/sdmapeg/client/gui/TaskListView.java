@@ -35,7 +35,7 @@ public class TaskListView extends JPanel implements TaskCreationCallback {
 		client.addListener(new ClientListenerImpl());
 
 		setLayout(new BorderLayout());
-		JPanel proxyPanel = new JPanel();
+		JPanel proxyPanel = new JPanel(); //For making a proper list in scrollpane. 
 		JPanel centerList = new JPanel(new BorderLayout());
 		JLabel titleLabel = new JLabel("Tasks");
 		add(titleLabel, BorderLayout.NORTH);

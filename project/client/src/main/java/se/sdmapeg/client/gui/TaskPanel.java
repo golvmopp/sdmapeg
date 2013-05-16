@@ -52,6 +52,8 @@ public class TaskPanel extends JPanel implements ClientListener {
 		this.setLayout(new BorderLayout());
 		this.clientTaskId = clientTaskId;
 		
+		setBorder(new LineBorder(Color.BLACK));
+		
 		JPanel centerPanel = new JPanel(new GridLayout(1, 2));
 		centerPanel.setOpaque(false);
 		JPanel centerPanelText = new JPanel(new GridLayout(3, 1));
@@ -61,6 +63,7 @@ public class TaskPanel extends JPanel implements ClientListener {
 		checkBoxPanel.setOpaque(false);
 		actionButtonPanel = new JPanel(new BorderLayout());
 		actionButtonPanel.setOpaque(false);
+		
 		
 		centerPanelText.add(new JLabel(typeName));
 		centerPanelText.add(new JLabel("Created: " +

@@ -103,6 +103,7 @@ public final class ClientImpl implements Client {
 		listeners.resultReceived(clientTaskId);
 	}
 
+	@Override
 	public Result<?> getResult(ClientTaskId clientTaskId) {
 		return resultMap.get(clientTaskId);
 	}
