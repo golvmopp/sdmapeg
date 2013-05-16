@@ -4,30 +4,27 @@ import java.util.concurrent.ExecutionException;
 
 public final class FindNextPrime {
 	/**
-	 * @param prime A prime number
-	 * @return next prime if prime is prime
-	 * @throws IllegalArgumentException if prime isn't prime, or not greater than 0.
+	 * @param number A non-negative integer.
+	 * @return Closest prime number that is larger than number.
+	 * @throws IllegalArgumentException If number is negative.
 	 */
-	public static long findNextPrime(long prime) throws ExecutionException {
-		if (prime <= 0) {
-			throw new ExecutionException(new IllegalArgumentException("Starting prime must be higher than 0"));
+	public static long findNextPrime(long number) throws ExecutionException {
+		if (number < 0) {
+			throw new ExecutionException(new IllegalArgumentException("Starting number must not be negative"));
 		}
-		if (!isPrime(prime)) {
-			throw new ExecutionException(new IllegalArgumentException("Given long wasn't prime."));
-		}
-		return nextPrime(prime);
+		return nextPrime(number);
 	}
 
-	private static long nextPrime(long prime) {
-		prime++;
-		while (!isPrime(prime)) {
-			prime++;
+	private static long nextPrime(long number) {
+		number++;
+		while (!isPrime(number)) {
+			number++;
 		}
-		return prime;
+		return number;
 	}
 
 	private static boolean isPrime(long prime) {
-		for (long i = 2; i < Math.sqrt(prime); i++) {
+		for (long i = 2; i <= Math.sqrt(prime); i++) {
 			if (prime % i == 0) {
 				return false;
 			}
