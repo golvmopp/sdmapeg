@@ -29,7 +29,6 @@ public class ClientView extends JFrame implements ActionListener {
 
 		TaskListView taskList = new TaskListView(client);
 		add(taskList);
-
 		setVisible(true);
 		pack();
 	}

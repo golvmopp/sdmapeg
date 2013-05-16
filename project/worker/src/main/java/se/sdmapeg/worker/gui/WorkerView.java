@@ -12,7 +12,7 @@ import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class WorkerView extends JFrame {
+public final class WorkerView extends JFrame implements TaskView.TaskViewCallback {
 	private final Worker worker;
 	private long startTime;
 	private int totalTasks = 0;
@@ -37,7 +37,7 @@ public final class WorkerView extends JFrame {
 		setLayout(new BorderLayout());
 		getRootPane().setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
 
-		JPanel content = new JPanel(new GridLayout(1, 2, 0, 10));
+		JPanel content = new JPanel(new GridLayout(1, 2, 10, 0));
 		add(content, BorderLayout.CENTER);
 
 		JButton exit = new JButton("Exit");
@@ -67,6 +67,11 @@ public final class WorkerView extends JFrame {
 		labels.add(availableProcessorsLabel);
 		values.add(availableProcessors);
 
+		JLabel ConnectedToLabel = new JLabel("Connected to: ", SwingConstants.RIGHT);
+		JLabel ConnectedTo = new JLabel(worker.getHost());
+		labels.add(ConnectedToLabel);
+		values.add(ConnectedTo);
+
 		JLabel tasksReceivedLabel = new JLabel("Number of received tasks: ", SwingConstants.RIGHT);
 		tasksReceived = new JLabel(Integer.toString(totalTasks));
 		labels.add(tasksReceivedLabel);
@@ -88,8 +93,11 @@ public final class WorkerView extends JFrame {
 		labels.add(queueLengthLabel);
 		values.add(queueLength);
 
-		workList = new JPanel(new GridLayout(0, 1));
-		JScrollPane workListScrollPane = new JScrollPane(workList);
+		
+		workList = new JPanel(new GridLayout(0, 1, 0, 2));
+		JPanel proxyPanel = new JPanel(); // For making a proper list in scrollpane
+		JScrollPane workListScrollPane = new JScrollPane(proxyPanel);
+		proxyPanel.add(workList);
 		content.add(workListScrollPane);
 
 		pack();
@@ -122,11 +130,17 @@ public final class WorkerView extends JFrame {
 		super.dispose();
 	}
 
+	@Override
+	public void taskRemoved(JPanel panel) {
+		workList.remove(panel);
+		repaint();
+	}
+
 	public class WorkerListenerImpl implements WorkerListener {
 		@Override
 		public void taskAdded(TaskId taskId) {
 			totalTasks++;
-			TaskView taskView = new TaskView("Task");
+			TaskView taskView = new TaskView(WorkerView.this, "Task:" + taskId);
 			workList.add(taskView);
 			taskViews.put(taskId, taskView);
 			updateStatistics();

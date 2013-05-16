@@ -12,15 +12,13 @@ import java.util.Date;
  */
 public final class TimeFormatter {
 
-    long timeOfCreation;
-    Date date;
+    private final long timeOfCreation;
     
     /**
      * Creates a timeformatter with the current time as a startingtime. 
      */
     public TimeFormatter(){
-	date = new Date();
-	timeOfCreation = date.getTime();
+	timeOfCreation = System.currentTimeMillis();
     }
     
     /**
@@ -28,7 +26,6 @@ public final class TimeFormatter {
      * @param startTime
      */
     public TimeFormatter(long startTime){
-	date = new Date();
 	timeOfCreation = startTime;
     }
     
@@ -37,7 +34,7 @@ public final class TimeFormatter {
      * @return elapsed minutes. 
      */
     public long getHours(){
-	return (date.getTime() - timeOfCreation) / 3600000;
+	return (System.currentTimeMillis() - timeOfCreation) / 3600000;
     }
     
     /**
@@ -45,7 +42,7 @@ public final class TimeFormatter {
      * @return elapsed minutes. 
      */
     public long getMinutes(){
-	return (date.getTime() - timeOfCreation) / 60000 % 60;
+	return (System.currentTimeMillis() - timeOfCreation) / 60000 % 60;
     }
     
     /**
@@ -53,7 +50,7 @@ public final class TimeFormatter {
      * @return elapsed seconds.
      */
     public long getSeconds(){
-	return (date.getTime() - timeOfCreation) / 1000  % 60;
+	return (System.currentTimeMillis() - timeOfCreation) / 1000  % 60;
     }
 
 	/**
@@ -80,7 +77,7 @@ public final class TimeFormatter {
 		return addLeadingZeros(Long.toString(getSeconds()), 2);
 	}
 
-	private String addLeadingZeros(String string, int length) {
+	public static String addLeadingZeros(String string, int length) {
 		return string.length() == length ? string : addLeadingZeros(0 + string, length);
 	}
 }

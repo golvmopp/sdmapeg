@@ -1,6 +1,7 @@
 package se.sdmapeg.client;
 
 import se.sdmapeg.common.listeners.Listenable;
+import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.serverclient.ClientTaskId;
 
@@ -16,5 +17,9 @@ public interface Client extends Listenable<ClientListener> {
 
 	void cancelTask(ClientTaskId clientTaskId);
 
+	Result<?> getResult(ClientTaskId clientTaskId);
+
 	void shutDown();
+
+	String getHost();
 }

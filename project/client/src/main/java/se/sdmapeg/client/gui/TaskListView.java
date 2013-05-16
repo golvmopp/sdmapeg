@@ -1,12 +1,12 @@
 package se.sdmapeg.client.gui;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
 
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.border.LineBorder;
 
 import org.jdesktop.swingx.JXHyperlink;
@@ -15,29 +15,33 @@ import se.sdmapeg.client.Client;
 import se.sdmapeg.client.ClientListener;
 import se.sdmapeg.client.gui.tasks.PythonTask.PythonEditor;
 import se.sdmapeg.common.tasks.PythonTask;
+import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.serverclient.ClientTaskId;
 
-public class TaskListView extends JPanel {
+public class TaskListView extends JPanel implements TaskCreationCallback {
 	private final Client client;
 	private final JPanel taskListView;
 	private final JLabel connectionInfoLabel;
-	private final JXHyperlink connectButton;
+	//private final JXHyperlink connectButton;
+
+	private final Map<ClientTaskId, TaskPanel> taskPanels;
 	
 	public TaskListView(Client client){
-		setPreferredSize(new Dimension(300, 500));
-		//this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		taskPanels = new HashMap<>();
+
+		setPreferredSize(new Dimension(290, 500));
 		this.client = client;
 
 		client.addListener(new ClientListenerImpl());
 
 		setLayout(new BorderLayout());
-		JPanel proxyPanel = new JPanel();
+		JPanel proxyPanel = new JPanel(); //For making a proper list in scrollpane. 
 		JPanel centerList = new JPanel(new BorderLayout());
 		JLabel titleLabel = new JLabel("Tasks");
 		add(titleLabel, BorderLayout.NORTH);
 		add(centerList, BorderLayout.CENTER);
 		
-		taskListView = new JPanel(new GridLayout(0, 1));
+		taskListView = new JPanel(new GridLayout(0, 1, 0, 2));
 		JScrollPane taskList = new JScrollPane();
 		proxyPanel.add(taskListView);
 		taskList.setViewportView(proxyPanel);
@@ -49,6 +53,34 @@ public class TaskListView extends JPanel {
 		BottomButton clearButton = new BottomButton("Clear", true);
 		BottomButton addButton = new BottomButton("Add");
 		BottomButton sendButton = new BottomButton("Send");
+		addButton.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				new TaskCreationView(TaskListView.this);
+			}			
+		}
+		);
+		clearButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				for (ClientTaskId clientTaskId : taskPanels.keySet()) {
+					if (taskPanels.get(clientTaskId).isChecked()) {
+						removeTask(clientTaskId, taskPanels.get(clientTaskId));
+					}
+				}
+			}
+		});
+		sendButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				for (ClientTaskId clientTaskId : taskPanels.keySet()) {
+					if (taskPanels.get(clientTaskId).isChecked()) {
+						sendTask(clientTaskId);
+					}
+				}
+			}
+		});
 
 		buttonPanel.add(clearButton);
 		buttonPanel.add(addButton);
@@ -57,11 +89,11 @@ public class TaskListView extends JPanel {
 		
 		JPanel connectionBar = new JPanel(new BorderLayout());
 		add(connectionBar, BorderLayout.SOUTH);
-		connectionInfoLabel = new JLabel("Connected to ...");
-		connectButton = new JXHyperlink(); 
-		connectButton.setText("Connect");  
+		connectionInfoLabel = new JLabel("Connected to: " + client.getHost());
+		//connectButton = new JXHyperlink();
+		//connectButton.setText("Connect");
 		connectionBar.add(connectionInfoLabel, BorderLayout.WEST);
-		connectionBar.add(connectButton, BorderLayout.EAST);	
+		//connectionBar.add(connectButton, BorderLayout.EAST);
 	}
 
 	/*@Override
@@ -71,12 +103,27 @@ public class TaskListView extends JPanel {
 	}*/
 
 	private void addTask() {
-		PythonEditor.newPythonEditor(new PythonEditor.Callback() {
+		new PythonEditor(new PythonEditor.Callback() {
 			@Override
 			public void submit(String pythonScript) {
 				client.addTask(PythonTask.newPythonTask(pythonScript));
 			}
 		});
+	}
+
+	private void sendTask(ClientTaskId clientTaskId) {
+		client.sendTask(clientTaskId);
+
+	}
+
+	private void removeTask(ClientTaskId clientTaskId, JPanel panel) {
+		cancelTask(clientTaskId);
+		taskListView.remove(panel);
+		revalidate();
+	}
+
+	private void cancelTask(ClientTaskId clientTaskId) {
+		client.cancelTask(clientTaskId);
 	}
 
 	/*public void addTask(String typeName){
@@ -91,9 +138,15 @@ public class TaskListView extends JPanel {
 	
 	//TODO: Remove this when done. Duh.
 	public static void main(String[] args){
-		//JFrame frame =  new TaskListView(null);
-		//frame.pack();
-		//frame.setVisible(true);
+		JPanel frame =  new TaskListView(null);
+		JFrame main = new JFrame();
+		main.add(frame);
+		main.setVisible(true);
+	}
+
+	@Override
+	public void addTask(Task task) {
+		client.addTask(task);
 	}
 
 	private final class ClientListenerImpl implements ClientListener {
@@ -103,17 +156,28 @@ public class TaskListView extends JPanel {
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					TaskPanel taskPanel = new TaskPanel("PythonTask", new TaskPanel.Callback() {
+					TaskPanel taskPanel = new TaskPanel("PythonTaskView", new TaskPanel.Callback() {
 						@Override
 						public void sendTask(ClientTaskId clientTaskId) {
-							client.sendTask(clientTaskId);
+							TaskListView.this.sendTask(clientTaskId);
 						}
 
 						@Override
 						public void cancelTask(ClientTaskId clientTaskId) {
-							client.cancelTask(clientTaskId);
+							TaskListView.this.cancelTask(clientTaskId);
 						}
-					});
+
+						@Override
+						public void showResult(ClientTaskId clientTaskId) {
+							JOptionPane.showMessageDialog(null, client.getResult(clientTaskId));
+						}
+
+						@Override
+						public void taskRemoved(ClientTaskId clientTaskId, JPanel panel) {
+							removeTask(clientTaskId, panel);
+						}
+					}, clientTaskId);
+					taskPanels.put(clientTaskId, taskPanel);
 					taskListView.add(taskPanel);
 					SwingUtilities.getRoot(taskListView).validate();
 				}
@@ -122,17 +186,17 @@ public class TaskListView extends JPanel {
 
 		@Override
 		public void taskSent(ClientTaskId clientTaskId) {
-			//To change body of implemented methods use File | Settings | File Templates.
+			taskPanels.get(clientTaskId).taskSent(clientTaskId);
 		}
 
 		@Override
 		public void taskCancelled(ClientTaskId clientTaskId) {
-			//To change body of implemented methods use File | Settings | File Templates.
+			taskPanels.get(clientTaskId).taskCancelled(clientTaskId);
 		}
 
 		@Override
 		public void resultReceived(ClientTaskId clientTaskId) {
-			//To change body of implemented methods use File | Settings | File Templates.
+			taskPanels.get(clientTaskId).resultReceived(clientTaskId);
 		}
 	}
 }

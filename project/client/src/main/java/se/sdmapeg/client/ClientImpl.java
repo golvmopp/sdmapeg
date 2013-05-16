@@ -33,6 +33,7 @@ public final class ClientImpl implements Client {
 	private final ExecutorService listenerExecutor;
 	private final ExecutorService serverListenerExecutor;
 	private final Server server;
+	private final String host;
 	private final Map<ClientTaskId, Task<?>> taskMap;
 	private final Map<ClientTaskId, Result<?>> resultMap;
 	private final IdGenerator<ClientTaskId> idGenerator;
@@ -52,6 +53,7 @@ public final class ClientImpl implements Client {
 		taskMap = new ConcurrentHashMap<>();
 		resultMap = new ConcurrentHashMap<>();
 		idGenerator = new ClientTaskIdGenerator();
+		this.host = host;
 	}
 
 	@Override
@@ -91,9 +93,19 @@ public final class ClientImpl implements Client {
 		listenerExecutor.shutdown();
 	}
 
+	@Override
+	public String getHost() {
+		return host;
+	}
+
 	private void handleResult(ClientTaskId clientTaskId, Result<?> result) {
 		resultMap.put(clientTaskId, result);
 		listeners.resultReceived(clientTaskId);
+	}
+
+	@Override
+	public Result<?> getResult(ClientTaskId clientTaskId) {
+		return resultMap.get(clientTaskId);
 	}
 
 	@Override
