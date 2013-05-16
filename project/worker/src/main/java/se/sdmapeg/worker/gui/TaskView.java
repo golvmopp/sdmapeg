@@ -17,6 +17,7 @@ public class TaskView extends JPanel implements WorkerListener {
 
 	private Status status;
 	private final TaskViewCallback callback;
+	private final JButton removeButton;
 	private static final Color RECEIVED = Color.WHITE;
 	private static final Color QUEUED = new Color(98, 173, 200);
 	private static final Color STARTED = new Color(195, 200, 72);
@@ -26,7 +27,9 @@ public class TaskView extends JPanel implements WorkerListener {
 
 	public TaskView(TaskViewCallback callback, String name) {
 		this.callback = callback;
-		
+		this.removeButton = new JButton("X");
+		this.removeButton.setPreferredSize(new Dimension(25, 20));
+		this.removeButton.setBorder(BorderFactory.createEmptyBorder());	
 		
 		setLayout(new BorderLayout());
 		setPreferredSize(new Dimension(200, 20));
@@ -38,6 +41,8 @@ public class TaskView extends JPanel implements WorkerListener {
 		status = Status.RECEIVED;
 		setBackground(RECEIVED);
 		taskAdded(null);
+		
+		
 	}
 
 	@Override
@@ -56,9 +61,6 @@ public class TaskView extends JPanel implements WorkerListener {
 	public void taskFinished(TaskId taskId) {
 		status = Status.FINISHED;
 		setBackground(FINISHED);
-		JButton removeButton = new JButton("X");
-		removeButton.setPreferredSize(new Dimension(25, 20));
-		removeButton.setBorder(BorderFactory.createEmptyBorder());
 		removeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -102,5 +104,6 @@ public class TaskView extends JPanel implements WorkerListener {
 
 	public interface TaskViewCallback {
 		void taskRemoved(JPanel panel);
+	
 	}
 }
