@@ -29,18 +29,18 @@ import se.sdmapeg.common.tasks.PythonTask;
  */
 public class PythonEditor implements ActionListener {
 	private static final Logger LOG = LoggerFactory.getLogger(PythonEditor.class);
-	private final Callback callback;
+	private final PythonEditorListener listener;
 	private final JFrame frame;
 	private final JTextArea textArea;
 
-	public PythonEditor(Callback callback, PythonTask task, boolean readonly) {
-		this(callback);
+	public PythonEditor(PythonEditorListener listener, PythonTask task, boolean readonly) {
+		this(listener);
 		textArea.setText(task.getPythonCode());
 		textArea.setEditable(false);
 	}
 
-	public PythonEditor(Callback callback, File file) {
-		this(callback);
+	public PythonEditor(PythonEditorListener listener, File file) {
+		this(listener);
 
 		if (file != null) {
 			try {
@@ -51,8 +51,8 @@ public class PythonEditor implements ActionListener {
 		}
 	}
 
-	public PythonEditor(Callback callback) {
-		this.callback = callback;
+	public PythonEditor(PythonEditorListener listener) {
+		this.listener = listener;
 
 		frame = new JFrame("Python editor");
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -81,10 +81,10 @@ public class PythonEditor implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		frame.dispose();
-		callback.submit(textArea.getText());	
+		listener.finnishedEditing(textArea.getText());
 	}
 
-	public interface Callback {
-		void submit(String pythonScript);
+	public interface PythonEditorListener {
+		void finnishedEditing(String pythonScript);
 	}
 }
