@@ -1,24 +1,17 @@
 package se.sdmapeg.server.clients.models;
 
-import se.sdmapeg.server.test.PairIterator;
-import se.sdmapeg.server.test.MockConnection;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Test;
 import se.sdmapeg.common.IdGenerator;
 import se.sdmapeg.common.communication.CommunicationException;
 import se.sdmapeg.common.communication.Connection;
@@ -26,7 +19,10 @@ import se.sdmapeg.common.tasks.FindNextIntTask;
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.SimpleFailure;
 import se.sdmapeg.common.tasks.Task;
-import se.sdmapeg.server.clients.callbacks.ClientCallback;
+import se.sdmapeg.server.clients.models.test.ClientCallbackListener;
+import se.sdmapeg.server.clients.models.test.ClientInteractionTester;
+import se.sdmapeg.server.test.MockConnection;
+import se.sdmapeg.server.test.PairIterator;
 import se.sdmapeg.serverclient.ClientTaskId;
 import se.sdmapeg.serverclient.ClientTaskIdGenerator;
 import se.sdmapeg.serverclient.communication.ClientToServerMessage;
@@ -83,67 +79,25 @@ public class ClientImplTest {
 		MockConnection<ServerToClientMessage, ClientToServerMessage> mockConnection =
 			mockConnection(DUMMY_ADDRESS);
 		ClientTaskIdGenerator clientTaskIdGenerator = new ClientTaskIdGenerator();
-		final Task<?> firstTask = FindNextIntTask.newNextIntTask(2);
-		final ClientTaskId firstId = clientTaskIdGenerator.newId();
-		final Task<?> secondTask = FindNextIntTask.newNextIntTask(3);
-		final ClientTaskId secondId = clientTaskIdGenerator.newId();
-		mockConnection.addReceived(ClientToServerMessageFactory.newTaskMessage(
-				firstTask, firstId));
-		mockConnection.addReceived(ClientToServerMessageFactory.newTaskMessage(
-				secondTask, secondId));
-		mockConnection.addReceived(
-				ClientToServerMessageFactory.newTaskCancellationMessage(firstId));
-		mockConnection.addReceiveDisconnection();
-		ClientCallback callback = new ClientCallback() {
-			private final Map<TaskId, Task<?>> taskMap = new HashMap<>();
-			private int state = 0;
-
-			@Override
-			public void taskReceived(TaskId taskId, Task<?> task) {
-				taskMap.put(taskId, task);
-				switch (state) {
-					case 0:
-						assertEquals(firstTask, task);
-						break;
-					case 1:
-						assertEquals(secondTask, task);
-						break;
-					default:
-						fail("Received task at unexpected time");
-						break;
-				}
-				state++;
-			}
-
-			@Override
-			public void taskCancelled(TaskId taskId) {
-				Task<?> task = taskMap.get(taskId);
-				switch (state) {
-					case 2:
-						assertEquals(firstTask, task);
-						break;
-					default:
-						fail("Cancelled task at unexpected time");
-						break;
-				}
-				state++;
-			}
-
-			@Override
-			public void clientDisconnected() {
-				switch (state) {
-					case 3:
-						break;
-					default:
-						fail("Client disconnected at unexpected time");
-						break;
-				}
-				state++;
-			}
-		};
+		Task<?> firstTask = FindNextIntTask.newNextIntTask(2);
+		ClientTaskId firstId = clientTaskIdGenerator.newId();
+		Task<?> secondTask = FindNextIntTask.newNextIntTask(3);
+		ClientTaskId secondId = clientTaskIdGenerator.newId();
 		Client instance = ClientImpl.newClient(mockConnection,
-											   createIdGenerator());
-		instance.listen(callback);
+			createIdGenerator());
+		new ClientInteractionTester(instance, mockConnection)
+			.addReceived(ClientToServerMessageFactory.newTaskMessage(
+				firstTask, firstId))
+			.expectTaskReceived(firstTask)
+			.addReceived(ClientToServerMessageFactory.newTaskMessage(
+				secondTask, secondId))
+			.expectTaskReceived(secondTask)
+			.addReceived(ClientToServerMessageFactory
+				.newTaskCancellationMessage(firstId))
+			.expectTaskCancelled(firstTask)
+			.addReceiveDisconnection()
+			.expectDisconnection()
+			.runTest();
 	}
 
 	@Test
@@ -151,89 +105,45 @@ public class ClientImplTest {
 		MockConnection<ServerToClientMessage, ClientToServerMessage> mockConnection =
 			mockConnection(DUMMY_ADDRESS);
 		ClientTaskIdGenerator clientTaskIdGenerator = new ClientTaskIdGenerator();
-		final Task<?> task = FindNextIntTask.newNextIntTask(2);
-		final Result<?> result = SimpleFailure.newSimpleFailure(
+		Task<?> task = FindNextIntTask.newNextIntTask(2);
+		Result<?> result = SimpleFailure.newSimpleFailure(
 				new ExecutionException(new AssertionError()));
-		final ClientTaskId taskId = clientTaskIdGenerator.newId();
-		mockConnection.addReceived(ClientToServerMessageFactory.newTaskMessage(
-				task, taskId));
-		mockConnection.addReceived(
-				ClientToServerMessageFactory.newTaskCancellationMessage(taskId));
-		mockConnection.addReceiveDisconnection();
-		final Client instance = ClientImpl.newClient(mockConnection,
-												   createIdGenerator());
-		ClientCallback callback = new ClientCallback() {
-			@Override
-			public void taskReceived(TaskId taskId, Task<?> task) {
-				instance.taskCompleted(taskId, result);
-			}
-
-			@Override
-			public void taskCancelled(TaskId taskId) {
-				fail("The task should already be completed");
-			}
-
-			@Override
-			public void clientDisconnected() {
-			}
-		};
-		instance.listen(callback);
+		Client instance = ClientImpl.newClient(mockConnection,
+			createIdGenerator());
+		ClientTaskId taskId = clientTaskIdGenerator.newId();
+		new ClientInteractionTester(instance, mockConnection)
+			.addReceived(ClientToServerMessageFactory.newTaskMessage(
+				task, taskId))
+			.expectTaskReceived(task)
+			.addTaskCompleted(task, result)
+			.addReceived(
+				ClientToServerMessageFactory.newTaskCancellationMessage(taskId))
+			.addReceiveDisconnection()
+			.expectDisconnection()
+			.runTest();
 	}
 
 	@Test
 	public void testListenCommunicationError() {
 		MockConnection<ServerToClientMessage, ClientToServerMessage> mockConnection =
 			mockConnection(DUMMY_ADDRESS);
-		mockConnection.addReceiveException(createPoisonMessage(),
-			new CommunicationException());
-		final Client instance = ClientImpl.newClient(mockConnection,
-												   createIdGenerator());
-		ClientCallback callback = new ClientCallback() {
-			@Override
-			public void taskReceived(TaskId taskId, Task<?> task) {
-			}
-
-			@Override
-			public void taskCancelled(TaskId taskId) {
-			}
-
-			@Override
-			public void clientDisconnected() {
-			}
-		};
-		instance.listen(callback);
+		Client instance = ClientImpl.newClient(mockConnection,
+			createIdGenerator());
+		new ClientInteractionTester(instance, mockConnection)
+			.addReceiveException(createPoisonMessage(),
+				new CommunicationException())
+			.expectDisconnection()
+			.runTest();
 	}
 
 	@Test
 	public void testListenDisconnect() {
 		MockConnection<ServerToClientMessage, ClientToServerMessage> mockConnection =
 			mockConnection(DUMMY_ADDRESS);
-		final Client instance = ClientImpl.newClient(mockConnection,
-												   createIdGenerator());
-		FutureTask<Throwable> listenerTask = new FutureTask<>(
-				new Callable<Throwable>() {
-			@Override
-			public Throwable call() throws Exception {
-				try {
-					instance.listen(new ClientCallback() {
-						@Override
-						public void taskReceived(TaskId taskId, Task<?> task) {
-						}
-
-						@Override
-						public void taskCancelled(TaskId taskId) {
-						}
-
-						@Override
-						public void clientDisconnected() {
-						}
-					});
-				} catch (Throwable ex) {
-					return ex;
-				}
-				return null;
-			}
-		});
+		Client instance = ClientImpl.newClient(mockConnection,
+			createIdGenerator());
+		FutureTask<Throwable> listenerTask =
+			new FutureTask<>(new ClientCallbackListener(instance));
 		new Thread(listenerTask).start();
 		instance.disconnect();
 		try {
@@ -259,32 +169,10 @@ public class ClientImplTest {
 			mockConnection(DUMMY_ADDRESS);
 		mockConnection.addReceived(ClientToServerMessageFactory
 				.newClientIdentificationMessage());
-		final Client instance = ClientImpl.newClient(mockConnection,
-												   createIdGenerator());
+		Client instance = ClientImpl.newClient(mockConnection,
+			createIdGenerator());
 		FutureTask<Throwable> listenerTask = new FutureTask<>(
-				new Callable<Throwable>() {
-			@Override
-			public Throwable call() throws Exception {
-				try {
-					instance.listen(new ClientCallback() {
-						@Override
-						public void taskReceived(TaskId taskId, Task<?> task) {
-						}
-
-						@Override
-						public void taskCancelled(TaskId taskId) {
-						}
-
-						@Override
-						public void clientDisconnected() {
-						}
-					});
-				} catch (Throwable ex) {
-					return ex;
-				}
-				return null;
-			}
-		});
+				new ClientCallbackListener(instance));
 		new Thread(listenerTask).start();
 		try {
 			Throwable exception = listenerTask.get(1, TimeUnit.SECONDS);
@@ -312,32 +200,20 @@ public class ClientImplTest {
 		MockConnection<ServerToClientMessage, ClientToServerMessage> mockConnection =
 			mockConnection(DUMMY_ADDRESS);
 		ClientTaskIdGenerator clientTaskIdGenerator = new ClientTaskIdGenerator();
-		final Task<?> task = FindNextIntTask.newNextIntTask(2);
+		Task<?> task = FindNextIntTask.newNextIntTask(2);
 		final Result<?> result = SimpleFailure.newSimpleFailure(
 				new ExecutionException(new AssertionError()));
 		final ClientTaskId taskId = clientTaskIdGenerator.newId();
-		mockConnection.addReceived(ClientToServerMessageFactory.newTaskMessage(
-				task, taskId));
 		final Client instance = ClientImpl.newClient(mockConnection,
-												   createIdGenerator());
-		ClientCallback callback = new ClientCallback() {
-			@Override
-			public void taskReceived(TaskId taskId, Task<?> task) {
-				assertTrue(instance.getActiveTasks().contains(taskId));
-				instance.taskCompleted(taskId, result);
-				assertFalse(instance.getActiveTasks().contains(taskId));
-				instance.disconnect();
-			}
-
-			@Override
-			public void taskCancelled(TaskId taskId) {
-			}
-
-			@Override
-			public void clientDisconnected() {
-			}
-		};
-		instance.listen(callback);
+			createIdGenerator());
+		new ClientInteractionTester(instance, mockConnection)
+			.addReceived(ClientToServerMessageFactory.newTaskMessage(
+				task, taskId))
+			.expectTaskReceived(task)
+			.addTaskCompleted(task, result)
+			.addReceiveDisconnection()
+			.expectDisconnection()
+			.runTest();
 		ServerToClientMessage sentMessage = mockConnection.getSent();
 		assertNotNull(sentMessage);
 		sentMessage.accept(new ServerToClientMessage.Handler<Void>() {
@@ -352,108 +228,72 @@ public class ClientImplTest {
 
 	@Test
 	public void testTaskCompletedAfterCancel() {
-		final MockConnection<ServerToClientMessage, ClientToServerMessage> mockConnection =
+		MockConnection<ServerToClientMessage, ClientToServerMessage> mockConnection =
 			mockConnection(DUMMY_ADDRESS);
 		ClientTaskIdGenerator clientTaskIdGenerator = new ClientTaskIdGenerator();
-		final Task<?> task = FindNextIntTask.newNextIntTask(2);
-		final Result<?> result = SimpleFailure.newSimpleFailure(
+		Task<?> task = FindNextIntTask.newNextIntTask(2);
+		Result<?> result = SimpleFailure.newSimpleFailure(
 				new ExecutionException(new AssertionError()));
-		final ClientTaskId clientTaskId = clientTaskIdGenerator.newId();
-		mockConnection.addReceived(ClientToServerMessageFactory.newTaskMessage(
-				task, clientTaskId));
-		final Client instance = ClientImpl.newClient(mockConnection,
-												   createIdGenerator());
-		ClientCallback callback = new ClientCallback() {
-
-			@Override
-			public void taskReceived(TaskId taskId, Task<?> task) {
-				assertTrue(instance.getActiveTasks().contains(taskId));
-				mockConnection.addReceived(ClientToServerMessageFactory
-						.newTaskCancellationMessage(clientTaskId));
-			}
-
-			@Override
-			public void taskCancelled(TaskId taskId) {
-				assertFalse(instance.getActiveTasks().contains(taskId));
-				instance.taskCompleted(taskId, result);
-				mockConnection.addReceiveDisconnection();
-			}
-
-			@Override
-			public void clientDisconnected() {
-			}
-		};
-		instance.listen(callback);
+		ClientTaskId clientTaskId = clientTaskIdGenerator.newId();
+		Client instance = ClientImpl.newClient(mockConnection,
+			createIdGenerator());
+		new ClientInteractionTester(instance, mockConnection)
+			.addReceived(ClientToServerMessageFactory.newTaskMessage(task,
+				clientTaskId))
+			.expectTaskReceived(task)
+			.addReceived(ClientToServerMessageFactory
+				.newTaskCancellationMessage(clientTaskId))
+			.expectTaskCancelled(task)
+			.addTaskCompleted(task, result)
+			.addReceiveDisconnection()
+			.expectDisconnection()
+			.runTest();
 		ServerToClientMessage sentMessage = mockConnection.getSent();
 		assertNull(sentMessage);
 	}
 
 	@Test
 	public void testTaskCompletedConnectionClosed() {
-		final MockConnection<ServerToClientMessage, ClientToServerMessage> mockConnection =
+		MockConnection<ServerToClientMessage, ClientToServerMessage> mockConnection =
 			mockConnection(DUMMY_ADDRESS);
 		ClientTaskIdGenerator clientTaskIdGenerator = new ClientTaskIdGenerator();
-		final Task<?> task = FindNextIntTask.newNextIntTask(2);
-		final Result<?> result = SimpleFailure.newSimpleFailure(
+		Task<?> task = FindNextIntTask.newNextIntTask(2);
+		Result<?> result = SimpleFailure.newSimpleFailure(
 				new ExecutionException(new AssertionError()));
-		final ClientTaskId clientTaskId = clientTaskIdGenerator.newId();
-		mockConnection.addReceived(ClientToServerMessageFactory.newTaskMessage(
-				task, clientTaskId));
-		final Client instance = ClientImpl.newClient(mockConnection,
-												   createIdGenerator());
-		ClientCallback callback = new ClientCallback() {
-
-			@Override
-			public void taskReceived(TaskId taskId, Task<?> task) {
-				assertTrue(instance.getActiveTasks().contains(taskId));
-				mockConnection.addSendDisconnection();
-				instance.taskCompleted(taskId, result);
-			}
-
-			@Override
-			public void taskCancelled(TaskId taskId) {
-			}
-
-			@Override
-			public void clientDisconnected() {
-			}
-		};
-		instance.listen(callback);
+		ClientTaskId clientTaskId = clientTaskIdGenerator.newId();
+		Client instance = ClientImpl.newClient(mockConnection,
+			createIdGenerator());
+		new ClientInteractionTester(instance, mockConnection)
+			.addReceived(ClientToServerMessageFactory.newTaskMessage(task,
+				clientTaskId))
+			.expectTaskReceived(task)
+			.addSendDisconnection()
+			.addTaskCompleted(task, result)
+			.expectDisconnection()
+			.runTest();
 		ServerToClientMessage sentMessage = mockConnection.getSent();
 		assertNull(sentMessage);
 	}
 
 	@Test
 	public void testTaskCompletedCommunicationError() {
-		final MockConnection<ServerToClientMessage, ClientToServerMessage> mockConnection =
+		MockConnection<ServerToClientMessage, ClientToServerMessage> mockConnection =
 			mockConnection(DUMMY_ADDRESS);
 		ClientTaskIdGenerator clientTaskIdGenerator = new ClientTaskIdGenerator();
-		final Task<?> task = FindNextIntTask.newNextIntTask(2);
-		final Result<?> result = SimpleFailure.newSimpleFailure(
+		Task<?> task = FindNextIntTask.newNextIntTask(2);
+		Result<?> result = SimpleFailure.newSimpleFailure(
 				new ExecutionException(new AssertionError()));
-		final ClientTaskId clientTaskId = clientTaskIdGenerator.newId();
-		mockConnection.addReceived(ClientToServerMessageFactory.newTaskMessage(
-				task, clientTaskId));
-		final Client instance = ClientImpl.newClient(mockConnection,
-												   createIdGenerator());
-		ClientCallback callback = new ClientCallback() {
-
-			@Override
-			public void taskReceived(TaskId taskId, Task<?> task) {
-				assertTrue(instance.getActiveTasks().contains(taskId));
-				mockConnection.addSendException(new CommunicationException());
-				instance.taskCompleted(taskId, result);
-			}
-
-			@Override
-			public void taskCancelled(TaskId taskId) {
-			}
-
-			@Override
-			public void clientDisconnected() {
-			}
-		};
-		instance.listen(callback);
+		ClientTaskId clientTaskId = clientTaskIdGenerator.newId();
+		Client instance = ClientImpl.newClient(mockConnection,
+			createIdGenerator());
+		new ClientInteractionTester(instance, mockConnection)
+			.addReceived(ClientToServerMessageFactory.newTaskMessage(task,
+				clientTaskId))
+			.expectTaskReceived(task)
+			.addSendException(new CommunicationException())
+			.addTaskCompleted(task, result)
+			.expectDisconnection()
+			.runTest();
 		ServerToClientMessage sentMessage = mockConnection.getSent();
 		assertNull(sentMessage);
 	}
@@ -466,72 +306,32 @@ public class ClientImplTest {
 		MockConnection<ServerToClientMessage, ClientToServerMessage> mockConnection =
 			mockConnection(DUMMY_ADDRESS);
 		ClientTaskIdGenerator clientTaskIdGenerator = new ClientTaskIdGenerator();
-		final Client instance = ClientImpl.newClient(mockConnection,
+		Client instance = ClientImpl.newClient(mockConnection,
 													 new TaskIdGenerator());
-		Set<Set<TaskId>> taskSets = new HashSet<>();
 		Set<TaskId> noActiveTasks = instance.getActiveTasks();
 		assertTrue(noActiveTasks.isEmpty());
-		final Result<?> result = SimpleFailure.newSimpleFailure(
+		Result<?> result = SimpleFailure.newSimpleFailure(
 				new ExecutionException(new AssertionError()));
-		final Task<?> firstTask = FindNextIntTask.newNextIntTask(2);
-		final ClientTaskId firstId = clientTaskIdGenerator.newId();
-		final Task<?> secondTask = FindNextIntTask.newNextIntTask(3);
-		final ClientTaskId secondId = clientTaskIdGenerator.newId();
-		final Task<?> thirdTask = FindNextIntTask.newNextIntTask(6);
-		final ClientTaskId thirdId = clientTaskIdGenerator.newId();
-		mockConnection.addReceived(ClientToServerMessageFactory.newTaskMessage(
-				firstTask, firstId));
-		mockConnection.addReceived(ClientToServerMessageFactory.newTaskMessage(
-				secondTask, secondId));
-		mockConnection.addReceived(ClientToServerMessageFactory.newTaskMessage(
-				thirdTask, thirdId));
-		mockConnection.addReceiveDisconnection();
-		instance.listen(new ClientCallback() {
-			private Set<TaskId> memory = new HashSet<>();
-			private int state = 0;
-			@Override
-			public void taskReceived(TaskId taskId, Task<?> task) {
-				Set<TaskId> activeTasks = instance.getActiveTasks();
-				assertTrue(activeTasks.contains(taskId));
-				switch (state) {
-					case 0:
-						assertEquals(1, activeTasks.size());
-						instance.taskCompleted(taskId, result);
-						activeTasks = instance.getActiveTasks();
-						assertTrue(activeTasks.isEmpty());
-						break;
-					case 1:
-						assertEquals(1, activeTasks.size());
-						memory.add(taskId);
-						break;
-					case 2:
-						assertEquals(2, activeTasks.size());
-						for (TaskId memoryId : memory) {
-							instance.taskCompleted(memoryId, result);
-						}
-						activeTasks = instance.getActiveTasks();
-						assertEquals(1, activeTasks.size());
-						assertTrue(activeTasks.contains(taskId));
-						for (TaskId memoryId : memory) {
-							assertFalse(activeTasks.contains(memoryId));
-						}
-						memory.clear();
-						break;
-					default:
-						fail("Unexpected state");
-						break;
-				}
-				state++;
-			}
-
-			@Override
-			public void taskCancelled(TaskId taskId) {
-			}
-
-			@Override
-			public void clientDisconnected() {
-			}
-		});
+		Task<?> firstTask = FindNextIntTask.newNextIntTask(2);
+		ClientTaskId firstId = clientTaskIdGenerator.newId();
+		Task<?> secondTask = FindNextIntTask.newNextIntTask(3);
+		ClientTaskId secondId = clientTaskIdGenerator.newId();
+		Task<?> thirdTask = FindNextIntTask.newNextIntTask(6);
+		ClientTaskId thirdId = clientTaskIdGenerator.newId();
+		new ClientInteractionTester(instance, mockConnection)
+			.addReceived(ClientToServerMessageFactory.newTaskMessage(firstTask,
+				firstId))
+			.addReceived(ClientToServerMessageFactory.newTaskMessage(secondTask,
+				secondId))
+			.addReceived(ClientToServerMessageFactory.newTaskMessage(thirdTask,
+				thirdId))
+			.expectTaskReceived(firstTask)
+			.addTaskCompleted(firstTask, result)
+			.expectTaskReceived(secondTask)
+			.expectTaskReceived(thirdTask)
+			.addReceiveDisconnection()
+			.expectDisconnection()
+			.runTest();
 	}
 
 	/**
@@ -539,20 +339,20 @@ public class ClientImplTest {
 	 */
 	@Test
 	public void testDisconnect() {
-		final MockConnection<ServerToClientMessage, ClientToServerMessage> mockConnection =
+		MockConnection<ServerToClientMessage, ClientToServerMessage> mockConnection =
 			mockConnection(DUMMY_ADDRESS);
-		final Client instance = ClientImpl.newClient(mockConnection,
-													 createIdGenerator());
+		Client instance = ClientImpl.newClient(mockConnection,
+			createIdGenerator());
 		instance.disconnect();
 	}
 
 	@Test
 	public void testDisconnectException() {
-		final MockConnection<ServerToClientMessage, ClientToServerMessage> mockConnection =
+		MockConnection<ServerToClientMessage, ClientToServerMessage> mockConnection =
 			mockConnection(DUMMY_ADDRESS);
 		mockConnection.setExceptionOnClose(true);
-		final Client instance = ClientImpl.newClient(mockConnection,
-													 createIdGenerator());
+		Client instance = ClientImpl.newClient(mockConnection,
+			createIdGenerator());
 		instance.disconnect();
 	}
 
