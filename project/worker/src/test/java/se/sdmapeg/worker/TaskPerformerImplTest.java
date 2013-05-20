@@ -29,7 +29,7 @@ public class TaskPerformerImplTest {
 	}
 	
 	@Test
-	public void testPerformFindNextIntTaskUpperBound() {
+	public void testPerformFindNextIntTaskFailedTask() {
 		FindNextIntTask testTask = FindNextIntTask.newNextIntTask(Integer.MAX_VALUE);
 		TaskPerformerImpl instance = new TaskPerformerImpl();
 		Result<Integer> result = instance.performFindNextIntTask(testTask);
@@ -54,21 +54,8 @@ public class TaskPerformerImplTest {
 	}
 	
 	@Test
-	public void testPerformFindNextPrimeTaskTooLargeNumber() {
+	public void testPerformFindNextPrimeTaskFailedTask() {
 		FindNextPrimeTask testTask = FindNextPrimeTask.newFindNextPrimeTask(Long.MAX_VALUE);
-		TaskPerformerImpl instance = new TaskPerformerImpl();
-		Result<Long> result = instance.performFindNextPrimeTask(testTask);
-		try {
-			result.get();
-			fail();
-		} catch (ExecutionException ex) {
-			// Success!
-		}
-	}
-	
-	@Test
-	public void testPerformFindNextPrimeTaskNegativeNumber() {
-		FindNextPrimeTask testTask = FindNextPrimeTask.newFindNextPrimeTask(-12);
 		TaskPerformerImpl instance = new TaskPerformerImpl();
 		Result<Long> result = instance.performFindNextPrimeTask(testTask);
 		try {
@@ -93,7 +80,7 @@ public class TaskPerformerImplTest {
 	}
 	
 	@Test
-	public void testPerformPythonTaskSyntaxError() {
+	public void testPerformPythonTaskFailedTask() {
 		String pythonCode = "result = ";
 		PythonTask testTask = PythonTask.newPythonTask(pythonCode);
 		TaskPerformerImpl instance = new TaskPerformerImpl();
@@ -119,7 +106,7 @@ public class TaskPerformerImplTest {
 	}
 	
 	@Test
-	public void testFindPrimeFactorsLowerBound() {
+	public void testFindPrimeFactorsFailedTask() {
 		PrimeFactorsTask testTask = PrimeFactorsTask.newPrimeFactorTask(-12);
 		TaskPerformerImpl instance = new TaskPerformerImpl();
 		Result<List<Long>> result = instance.findPrimeFactors(testTask);
