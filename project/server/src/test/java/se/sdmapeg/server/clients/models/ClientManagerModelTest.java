@@ -1,23 +1,23 @@
 package se.sdmapeg.server.clients.models;
 
 import java.net.InetSocketAddress;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
+import org.hamcrest.core.IsEqual;
 import static org.junit.Assert.*;
 import org.junit.Test;
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.Task;
-import se.sdmapeg.common.tasks.TaskPerformer;
-import se.sdmapeg.server.clients.callbacks.ClientCallback;
 import se.sdmapeg.server.clients.callbacks.ClientManagerCallback;
 import se.sdmapeg.server.clients.callbacks.ClientManagerListener;
 import se.sdmapeg.server.clients.callbacks.ClientManagerListenerSupport;
 import se.sdmapeg.server.clients.exceptions.ClientRejectedException;
+import se.sdmapeg.server.clients.models.test.MockClient;
+import se.sdmapeg.server.clients.models.test.MockTask;
+import se.sdmapeg.server.clients.models.test.NotificationCountingListener;
+import se.sdmapeg.server.clients.models.test.SpecificNotificationListener;
+import se.sdmapeg.server.test.CurrentThreadExecutor;
 import se.sdmapeg.serverworker.TaskId;
 import se.sdmapeg.serverworker.TaskIdGenerator;
 
@@ -59,47 +59,14 @@ public class ClientManagerModelTest {
 	public void testAddClientNotifyListener() throws Exception {
 		final Client client = new MockClient(InetSocketAddress.createUnresolved(
 				"localhost", 1337));
-		ClientManagerCallback callback = new ClientManagerCallback() {
-
-			@Override
-			public void handleTask(TaskId taskId, Task<?> task) {
-			}
-
-			@Override
-			public void cancelTask(TaskId taskId) {
-			}
-		};
+		ClientManagerCallback callback = EMPTY_CALLBACK;
 		ClientManagerModel instance = createClientManagerModel(callback);
-		final AtomicBoolean notified = new AtomicBoolean(false);
-		instance.addListener(new ClientManagerListener() {
-			@Override
-			public void clientConnected(InetSocketAddress address) {
-				assertEquals(client.getAddress(), address);
-				notified.set(true);
-			}
-
-			@Override
-			public void clientDisconnected(InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-
-			@Override
-			public void taskReceived(TaskId taskId, InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-
-			@Override
-			public void taskCancelled(TaskId taskId, InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-
-			@Override
-			public void resultSent(TaskId taskId, InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-		});
+		SpecificNotificationListener listener =
+			SpecificNotificationListener.clientConnected(
+				IsEqual.equalTo(client.getAddress()));
+		instance.addListener(listener);
 		instance.addClient(client);
-		assertTrue(notified.get());
+		assertTrue(listener.wasNotified());
 	}
 
 	@Test
@@ -275,36 +242,12 @@ public class ClientManagerModelTest {
 		ClientManagerCallback callback = EMPTY_CALLBACK;
 		ClientManagerModel instance = createClientManagerModel(callback);
 		instance.addClient(client);
-		final AtomicBoolean notified = new AtomicBoolean(false);
-		instance.addListener(new ClientManagerListener() {
-			@Override
-			public void clientConnected(InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-
-			@Override
-			public void clientDisconnected(InetSocketAddress address) {
-				assertEquals(client.getAddress(), address);
-				notified.set(true);
-			}
-
-			@Override
-			public void taskReceived(TaskId taskId, InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-
-			@Override
-			public void taskCancelled(TaskId taskId, InetSocketAddress address) {
-				fail("The removed client should not have any active tasks");
-			}
-
-			@Override
-			public void resultSent(TaskId taskId, InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-		});
+		SpecificNotificationListener listener =
+			SpecificNotificationListener.clientDisconnected(
+				IsEqual.equalTo(address));
+		instance.addListener(listener);
 		instance.removeClient(client);
-		assertTrue(notified.get());
+		assertTrue(listener.wasNotified());
 	}
 
 	@Test
@@ -333,17 +276,7 @@ public class ClientManagerModelTest {
 		ClientManagerModel instance = createClientManagerModel(callback);
 		instance.addClient(client);
 		for (TaskId taskId : remainingListenerTasks) {
-			instance.addTask(client, taskId, new Task<Void>() {
-				@Override
-				public Result<Void> perform(TaskPerformer taskPerformer) {
-					return null;
-				}
-
-				@Override
-				public Class<Void> resultType() {
-					return Void.TYPE;
-				}
-			});
+			instance.addTask(client, taskId, new MockTask());
 		}
 		instance.addListener(new ClientManagerListener() {
 			@Override
@@ -388,53 +321,18 @@ public class ClientManagerModelTest {
 		ClientManagerCallback callback = EMPTY_CALLBACK;
 		ClientManagerModel instance = createClientManagerModel(callback);
 		instance.addClient(client);
-		instance.addTask(client, task, new Task<Void>() {
-				@Override
-				public Result<Void> perform(TaskPerformer taskPerformer) {
-					return null;
-				}
-
-				@Override
-				public Class<Void> resultType() {
-					return Void.TYPE;
-				}
-			});
-		final AtomicBoolean notified = new AtomicBoolean(false);
-		instance.addListener(new ClientManagerListener() {
-			@Override
-			public void clientConnected(InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-
-			@Override
-			public void clientDisconnected(InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-
-			@Override
-			public void taskReceived(TaskId taskId, InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-
-			@Override
-			public void taskCancelled(TaskId taskId, InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-
-			@Override
-			public void resultSent(TaskId taskId, InetSocketAddress address) {
-				assertEquals(task, taskId);
-				assertEquals(client.getAddress(), address);
-				notified.set(true);
-			}
-		});
+		instance.addTask(client, task, new MockTask());
+		SpecificNotificationListener listener =
+			SpecificNotificationListener.resultSent(IsEqual.equalTo(task),
+				IsEqual.equalTo(address));
+		instance.addListener(listener);
 		instance.handleResult(task, new Result<Void>() {
 			@Override
 			public Void get() throws ExecutionException {
 				return null;
 			}
 		});
-		assertTrue(notified.get());
+		assertTrue(listener.wasNotified());
 		assertFalse(client.getActiveTasks().contains(task));
 	}
 
@@ -448,40 +346,16 @@ public class ClientManagerModelTest {
 		ClientManagerCallback callback = EMPTY_CALLBACK;
 		ClientManagerModel instance = createClientManagerModel(callback);
 		instance.addClient(client);
-		final AtomicBoolean notified = new AtomicBoolean(false);
-		instance.addListener(new ClientManagerListener() {
-			@Override
-			public void clientConnected(InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-
-			@Override
-			public void clientDisconnected(InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-
-			@Override
-			public void taskReceived(TaskId taskId, InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-
-			@Override
-			public void taskCancelled(TaskId taskId, InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-
-			@Override
-			public void resultSent(TaskId taskId, InetSocketAddress address) {
-				notified.set(true);
-			}
-		});
+		SpecificNotificationListener listener =
+			SpecificNotificationListener.anyResultSent();
+		instance.addListener(listener);
 		instance.handleResult(task, new Result<Void>() {
 			@Override
 			public Void get() throws ExecutionException {
 				return null;
 			}
 		});
-		assertFalse(notified.get());
+		assertFalse(listener.wasNotified());
 	}
 
 	/**
@@ -497,47 +371,12 @@ public class ClientManagerModelTest {
 		ClientManagerCallback callback = EMPTY_CALLBACK;
 		ClientManagerModel instance = createClientManagerModel(callback);
 		instance.addClient(client);
-		final AtomicBoolean notified = new AtomicBoolean(false);
-		instance.addListener(new ClientManagerListener() {
-			@Override
-			public void clientConnected(InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-
-			@Override
-			public void clientDisconnected(InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-
-			@Override
-			public void taskReceived(TaskId taskId, InetSocketAddress address) {
-				assertEquals(task, taskId);
-				assertEquals(client.getAddress(), address);
-				notified.set(true);
-			}
-
-			@Override
-			public void taskCancelled(TaskId taskId, InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-
-			@Override
-			public void resultSent(TaskId taskId, InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-		});
-		instance.addTask(client, task, new Task<Void>() {
-				@Override
-				public Result<Void> perform(TaskPerformer taskPerformer) {
-					return null;
-				}
-
-				@Override
-				public Class<Void> resultType() {
-					return Void.TYPE;
-				}
-			});
-		assertTrue(notified.get());
+		SpecificNotificationListener listener =
+			SpecificNotificationListener.taskReceived(
+				IsEqual.equalTo(task), IsEqual.equalTo(address));
+		instance.addListener(listener);
+		instance.addTask(client, task, new MockTask());
+		assertTrue(listener.wasNotified());
 	}
 
 	@Test
@@ -550,58 +389,12 @@ public class ClientManagerModelTest {
 		ClientManagerCallback callback = EMPTY_CALLBACK;
 		ClientManagerModel instance = createClientManagerModel(callback);
 		instance.addClient(client);
-		instance.addTask(client, task, new Task<Void>() {
-				@Override
-				public Result<Void> perform(TaskPerformer taskPerformer) {
-					return null;
-				}
-
-				@Override
-				public Class<Void> resultType() {
-					return Void.TYPE;
-				}
-			});
-		final AtomicBoolean notified = new AtomicBoolean(false);
-		instance.addListener(new ClientManagerListener() {
-			@Override
-			public void clientConnected(InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-
-			@Override
-			public void clientDisconnected(InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-
-			@Override
-			public void taskReceived(TaskId taskId, InetSocketAddress address) {
-				assertEquals(task, taskId);
-				assertEquals(client.getAddress(), address);
-				notified.set(true);
-			}
-
-			@Override
-			public void taskCancelled(TaskId taskId, InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-
-			@Override
-			public void resultSent(TaskId taskId, InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-		});
-		instance.addTask(client, task, new Task<Void>() {
-				@Override
-				public Result<Void> perform(TaskPerformer taskPerformer) {
-					return null;
-				}
-
-				@Override
-				public Class<Void> resultType() {
-					return Void.TYPE;
-				}
-			});
-		assertFalse(notified.get());
+		instance.addTask(client, task, new MockTask());
+		SpecificNotificationListener listener =
+			SpecificNotificationListener.anyTaskReceived();
+		instance.addListener(listener);
+		instance.addTask(client, task, new MockTask());
+		assertFalse(listener.wasNotified());
 	}
 
 	@Test
@@ -613,45 +406,11 @@ public class ClientManagerModelTest {
 		client.addTask(task);
 		ClientManagerCallback callback = EMPTY_CALLBACK;
 		ClientManagerModel instance = createClientManagerModel(callback);
-		final AtomicBoolean notified = new AtomicBoolean(false);
-		instance.addListener(new ClientManagerListener() {
-			@Override
-			public void clientConnected(InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-
-			@Override
-			public void clientDisconnected(InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-
-			@Override
-			public void taskReceived(TaskId taskId, InetSocketAddress address) {
-				notified.set(true);
-			}
-
-			@Override
-			public void taskCancelled(TaskId taskId, InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-
-			@Override
-			public void resultSent(TaskId taskId, InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-		});
-		instance.addTask(client, task, new Task<Void>() {
-				@Override
-				public Result<Void> perform(TaskPerformer taskPerformer) {
-					return null;
-				}
-
-				@Override
-				public Class<Void> resultType() {
-					return Void.TYPE;
-				}
-			});
-		assertFalse(notified.get());
+		SpecificNotificationListener listener =
+			SpecificNotificationListener.anyTaskReceived();
+		instance.addListener(listener);
+		instance.addTask(client, task, new MockTask());
+		assertFalse(listener.wasNotified());
 	}
 
 	/**
@@ -667,48 +426,13 @@ public class ClientManagerModelTest {
 		ClientManagerCallback callback = EMPTY_CALLBACK;
 		ClientManagerModel instance = createClientManagerModel(callback);
 		instance.addClient(client);
-		instance.addTask(client, task, new Task<Void>() {
-				@Override
-				public Result<Void> perform(TaskPerformer taskPerformer) {
-					return null;
-				}
-
-				@Override
-				public Class<Void> resultType() {
-					return Void.TYPE;
-				}
-			});
-		final AtomicBoolean notified = new AtomicBoolean(false);
-		instance.addListener(new ClientManagerListener() {
-			@Override
-			public void clientConnected(InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-
-			@Override
-			public void clientDisconnected(InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-
-			@Override
-			public void taskReceived(TaskId taskId, InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-
-			@Override
-			public void taskCancelled(TaskId taskId, InetSocketAddress address) {
-				assertEquals(task, taskId);
-				assertEquals(client.getAddress(), address);
-				notified.set(true);
-			}
-
-			@Override
-			public void resultSent(TaskId taskId, InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-		});
+		instance.addTask(client, task, new MockTask());
+		SpecificNotificationListener listener =
+			SpecificNotificationListener.taskCancelled(IsEqual.equalTo(task),
+				IsEqual.equalTo(address));
+		instance.addListener(listener);
 		instance.cancelTask(task);
-		assertTrue(notified.get());
+		assertTrue(listener.wasNotified());
 	}
 
 	@Test
@@ -716,35 +440,11 @@ public class ClientManagerModelTest {
 		final TaskId task = new TaskIdGenerator().newId();
 		ClientManagerCallback callback = EMPTY_CALLBACK;
 		ClientManagerModel instance = createClientManagerModel(callback);
-		final AtomicBoolean notified = new AtomicBoolean(false);
-		instance.addListener(new ClientManagerListener() {
-			@Override
-			public void clientConnected(InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-
-			@Override
-			public void clientDisconnected(InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-
-			@Override
-			public void taskReceived(TaskId taskId, InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-
-			@Override
-			public void taskCancelled(TaskId taskId, InetSocketAddress address) {
-				notified.set(true);
-			}
-
-			@Override
-			public void resultSent(TaskId taskId, InetSocketAddress address) {
-				fail("Wrong listener notification");
-			}
-		});
+		SpecificNotificationListener listener =
+			SpecificNotificationListener.anyTaskCancelled();
+		instance.addListener(listener);
 		instance.cancelTask(task);
-		assertFalse(notified.get());
+		assertFalse(listener.wasNotified());
 	}
 
 	/**
@@ -754,60 +454,18 @@ public class ClientManagerModelTest {
 	public void testAddListener() throws Exception {
 		ClientManagerCallback callback = EMPTY_CALLBACK;
 		ClientManagerModel instance = createClientManagerModel(callback);
-		final AtomicInteger firstListenerNotifications = new AtomicInteger(0);
-		final AtomicInteger secondListenerNotifications = new AtomicInteger(0);
-		ClientManagerListener firstListener = new ClientManagerListener() {
-			@Override
-			public void clientConnected(InetSocketAddress address) {
-				firstListenerNotifications.incrementAndGet();
-			}
-
-			@Override
-			public void clientDisconnected(InetSocketAddress address) {
-			}
-
-			@Override
-			public void taskReceived(TaskId taskId, InetSocketAddress address) {
-			}
-
-			@Override
-			public void taskCancelled(TaskId taskId, InetSocketAddress address) {
-			}
-
-			@Override
-			public void resultSent(TaskId taskId, InetSocketAddress address) {
-			}
-		};
-		ClientManagerListener secondListener = new ClientManagerListener() {
-			@Override
-			public void clientConnected(InetSocketAddress address) {
-				secondListenerNotifications.incrementAndGet();
-			}
-
-			@Override
-			public void clientDisconnected(InetSocketAddress address) {
-			}
-
-			@Override
-			public void taskReceived(TaskId taskId, InetSocketAddress address) {
-			}
-
-			@Override
-			public void taskCancelled(TaskId taskId, InetSocketAddress address) {
-			}
-
-			@Override
-			public void resultSent(TaskId taskId, InetSocketAddress address) {
-			}
-		};
-		final Client firstClient = new MockClient(
-				InetSocketAddress.createUnresolved("localhost", 1337));
-		final Client secondClient = new MockClient(
-				InetSocketAddress.createUnresolved("remotehost", 1337));
-		final Client thirdClient = new MockClient(
-				InetSocketAddress.createUnresolved("localhost", 1338));
-		final Client fourthClient = new MockClient(
-				InetSocketAddress.createUnresolved("www.example.com", 1337));
+		NotificationCountingListener firstListener =
+			new NotificationCountingListener();
+		NotificationCountingListener secondListener =
+			new NotificationCountingListener();
+		Client firstClient = new MockClient(InetSocketAddress.createUnresolved(
+				"localhost", 1337));
+		Client secondClient = new MockClient(InetSocketAddress.createUnresolved(
+				"remotehost", 1337));
+		Client thirdClient = new MockClient(InetSocketAddress.createUnresolved(
+				"localhost", 1338));
+		Client fourthClient = new MockClient(InetSocketAddress.createUnresolved(
+				"www.example.com", 1337));
 		instance.addClient(firstClient);
 		instance.addListener(firstListener);
 		instance.addClient(secondClient);
@@ -815,8 +473,8 @@ public class ClientManagerModelTest {
 		instance.addClient(thirdClient);
 		instance.addListener(firstListener);
 		instance.addClient(fourthClient);
-		assertEquals(3, firstListenerNotifications.get());
-		assertEquals(2, secondListenerNotifications.get());
+		assertEquals(3, firstListener.getNotifications());
+		assertEquals(2, secondListener.getNotifications());
 	}
 
 	/**
@@ -826,60 +484,18 @@ public class ClientManagerModelTest {
 	public void testRemoveListener() throws Exception {
 		ClientManagerCallback callback = EMPTY_CALLBACK;
 		ClientManagerModel instance = createClientManagerModel(callback);
-		final AtomicInteger firstListenerNotifications = new AtomicInteger(0);
-		final AtomicInteger secondListenerNotifications = new AtomicInteger(0);
-		ClientManagerListener firstListener = new ClientManagerListener() {
-			@Override
-			public void clientConnected(InetSocketAddress address) {
-				firstListenerNotifications.incrementAndGet();
-			}
-
-			@Override
-			public void clientDisconnected(InetSocketAddress address) {
-			}
-
-			@Override
-			public void taskReceived(TaskId taskId, InetSocketAddress address) {
-			}
-
-			@Override
-			public void taskCancelled(TaskId taskId, InetSocketAddress address) {
-			}
-
-			@Override
-			public void resultSent(TaskId taskId, InetSocketAddress address) {
-			}
-		};
-		ClientManagerListener secondListener = new ClientManagerListener() {
-			@Override
-			public void clientConnected(InetSocketAddress address) {
-				secondListenerNotifications.incrementAndGet();
-			}
-
-			@Override
-			public void clientDisconnected(InetSocketAddress address) {
-			}
-
-			@Override
-			public void taskReceived(TaskId taskId, InetSocketAddress address) {
-			}
-
-			@Override
-			public void taskCancelled(TaskId taskId, InetSocketAddress address) {
-			}
-
-			@Override
-			public void resultSent(TaskId taskId, InetSocketAddress address) {
-			}
-		};
-		final Client firstClient = new MockClient(
-				InetSocketAddress.createUnresolved("localhost", 1337));
-		final Client secondClient = new MockClient(
-				InetSocketAddress.createUnresolved("remotehost", 1337));
-		final Client thirdClient = new MockClient(
-				InetSocketAddress.createUnresolved("localhost", 1338));
-		final Client fourthClient = new MockClient(
-				InetSocketAddress.createUnresolved("www.example.com", 1337));
+		NotificationCountingListener firstListener =
+			new NotificationCountingListener();
+		NotificationCountingListener secondListener =
+			new NotificationCountingListener();
+		Client firstClient = new MockClient(InetSocketAddress.createUnresolved(
+			"localhost", 1337));
+		Client secondClient = new MockClient(InetSocketAddress.createUnresolved(
+			"remotehost", 1337));
+		Client thirdClient = new MockClient(InetSocketAddress.createUnresolved(
+			"localhost", 1338));
+		Client fourthClient = new MockClient(InetSocketAddress.createUnresolved(
+			"www.example.com", 1337));
 		instance.addListener(firstListener);
 		instance.addListener(secondListener);
 		instance.addClient(firstClient);
@@ -889,8 +505,8 @@ public class ClientManagerModelTest {
 		instance.addClient(thirdClient);
 		instance.removeListener(secondListener);
 		instance.addClient(fourthClient);
-		assertEquals(1, firstListenerNotifications.get());
-		assertEquals(3, secondListenerNotifications.get());
+		assertEquals(1, firstListener.getNotifications());
+		assertEquals(3, secondListener.getNotifications());
 	}
 
 	private ClientManagerModel createClientManagerModel(
@@ -898,54 +514,5 @@ public class ClientManagerModelTest {
 		return new ClientManagerModel(
 				ClientManagerListenerSupport.newListenerSupport(
 				new CurrentThreadExecutor()), callback);
-	}
-
-	private static final class MockClient implements Client {
-		private final InetSocketAddress address;
-		private final Set<TaskId> activeTasks = new HashSet<>();
-
-		public MockClient(InetSocketAddress address) {
-			this.address = address;
-		}
-
-		@Override
-		public void disconnect() {
-		}
-
-		@Override
-		public Set<TaskId> getActiveTasks() {
-			return Collections.unmodifiableSet(new HashSet<>(activeTasks));
-		}
-
-		@Override
-		public InetSocketAddress getAddress() {
-			return address;
-			
-		}
-
-		@Override
-		public void listen(ClientCallback callback) {
-			callback.clientDisconnected();
-		}
-
-		@Override
-		public void taskCompleted(TaskId taskId, Result<?> result) {
-			removeTask(taskId);
-		}
-
-		public void addTask(TaskId taskId) {
-			activeTasks.add(taskId);
-		}
-
-		public void removeTask(TaskId taskId) {
-			activeTasks.remove(taskId);
-		}
-	}
-
-	private static final class CurrentThreadExecutor implements Executor {
-		@Override
-		public void execute(Runnable command) {
-			command.run();
-		}
 	}
 }
