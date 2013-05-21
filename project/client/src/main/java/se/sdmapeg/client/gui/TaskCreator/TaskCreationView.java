@@ -1,33 +1,39 @@
-package se.sdmapeg.client.gui;
+package se.sdmapeg.client.gui.TaskCreator;
 
 import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 
 import se.sdmapeg.client.gui.tasks.PrimeFactorTaskView;
 import se.sdmapeg.client.gui.tasks.PythonTask.PythonTaskView;
-import se.sdmapeg.client.gui.tasks.PythonTask.PythonTaskView;
 import se.sdmapeg.common.tasks.Task;
 
-public class TaskCreationView extends JFrame implements TaskCreationCallback {
-	TaskCreationCallback callback;
+public class TaskCreationView extends JFrame {
+	public enum TaskType {
+		PYTHON_TASK("Python Task"), PRIME_FACTOR_TASK("Prime Factor Task");
 
-	JPanel mainPanel;
+		private final String name;
+
+		private TaskType(String name) {
+			this.name = name;
+		}
+
+		@Override
+		public String toString(){
+			return name;
+		}
+	}
+
+	TaskCreationListener listener;
+
 	JPanel visiblePanel;
 
-	public TaskCreationView(TaskCreationCallback callback){
-		this.callback = callback;
+	public TaskCreationView(TaskCreationListener listener){
+		this.listener = listener;
 		
 		setLayout(new BorderLayout(15, 0));
 		
@@ -49,25 +55,22 @@ public class TaskCreationView extends JFrame implements TaskCreationCallback {
 				TaskCreationView.this.pack();
 			}
 		});
-		
-		pack();
+
 		setVisible(true);
 	}
 
 	private JPanel getTaskView(TaskType selectedItem) {
 		switch (selectedItem){
 			case PYTHON_TASK:
-				return new PythonTaskView(this);
+				return new PythonTaskView(listener);
 			case PRIME_FACTOR_TASK:
-				return new PrimeFactorTaskView(this);
+				return new PrimeFactorTaskView(listener);
 			default:
 				return new JPanel();
 		}
 	}
 
-	@Override
-	public void addTask(Task task) {
-		callback.addTask(task);
-		this.dispose();
+	public interface TaskCreationListener {
+		void taskFinnished(Task<?> task);
 	}
 }

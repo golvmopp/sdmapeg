@@ -1,6 +1,6 @@
 package se.sdmapeg.client.gui.tasks;
 
-import se.sdmapeg.client.gui.TaskCreationCallback;
+import se.sdmapeg.client.gui.TaskCreator.TaskCreationView;
 
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -11,10 +11,10 @@ import javax.swing.JTextField;
 
 public class PrimeFactorTaskView extends JPanel {
 	
-	TaskCreationCallback callback;
+	TaskCreationView.TaskCreationListener listener;
 
-	public PrimeFactorTaskView(TaskCreationCallback callback){
-		this.callback = callback;
+	public PrimeFactorTaskView(TaskCreationView.TaskCreationListener listener){
+		this.listener = listener;
 		
 		setLayout(new GridLayout(0, 1));
 

@@ -1,4 +1,4 @@
-package se.sdmapeg.client.gui;
+package se.sdmapeg.client.gui.TaskManager;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -7,7 +7,6 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Calendar;
-import java.util.Date;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -21,7 +20,7 @@ public class TaskPanel extends JPanel implements ClientListener {
 		CREATED, SENT, COMPLETED, FAILED;
 	}
 
-	private final Callback callback;
+	private final TaskPanelListener listener;
 	private final ClientTaskId clientTaskId;
 	private TaskState state;
 	private long startTime;
@@ -43,8 +42,8 @@ public class TaskPanel extends JPanel implements ClientListener {
 	private static final Color FAILED = new Color(255, 91, 90);
 	
 	
-	public TaskPanel(String typeName, final Callback callback, final ClientTaskId clientTaskId) {
-		this.callback = callback;
+	public TaskPanel(String typeName, final TaskPanelListener listener, final ClientTaskId clientTaskId) {
+		this.listener = listener;
 		this.typeName = typeName;
 		this.timeStamp = Calendar.getInstance();
 		this.state = TaskState.CREATED;
@@ -84,7 +83,7 @@ public class TaskPanel extends JPanel implements ClientListener {
 				} else if (state == TaskState.SENT) {
 					cancel();
 				} else {
-					callback.showResult(clientTaskId);
+					listener.showResult(clientTaskId);
 				}
 			}
 		});
@@ -101,7 +100,7 @@ public class TaskPanel extends JPanel implements ClientListener {
 		cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				callback.taskRemoved(clientTaskId, TaskPanel.this);
+				listener.taskRemoved(clientTaskId, TaskPanel.this);
 			}
 		});
 		cancelButton.setVerticalAlignment(SwingConstants.TOP);
@@ -118,8 +117,8 @@ public class TaskPanel extends JPanel implements ClientListener {
 		});
 	}
 	
-	public TaskPanel(String typeName, String name, Callback callback, ClientTaskId clientTaskId) {
-		this(typeName, callback, clientTaskId);
+	public TaskPanel(String typeName, String name, TaskPanelListener listener, ClientTaskId clientTaskId) {
+		this(typeName, listener, clientTaskId);
 		this.name = name;
 	}
 
@@ -133,12 +132,12 @@ public class TaskPanel extends JPanel implements ClientListener {
 	}
 
 	private void cancel() {
-		callback.cancelTask(clientTaskId);
+		listener.cancelTask(clientTaskId);
 		taskCancelled(clientTaskId);
 	}
 
 	private void send() {
-		callback.sendTask(clientTaskId);
+		listener.sendTask(clientTaskId);
 		taskSent(clientTaskId);
 	}
 
@@ -173,7 +172,7 @@ public class TaskPanel extends JPanel implements ClientListener {
 		timer.stop();
 	}
 	
-	public interface Callback {
+	public interface TaskPanelListener {
 		void sendTask(ClientTaskId clientTaskId);
 		void cancelTask(ClientTaskId clientTaskId);
 		void showResult(ClientTaskId clientTaskId);

@@ -1,4 +1,4 @@
-package se.sdmapeg.client.gui;
+package se.sdmapeg.client.gui.TaskManager;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -9,17 +9,14 @@ import java.util.Map;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 
-import org.jdesktop.swingx.JXHyperlink;
-
 import se.sdmapeg.client.Client;
 import se.sdmapeg.client.ClientListener;
-import se.sdmapeg.client.gui.tasks.PythonTask.PythonEditor;
-import se.sdmapeg.common.tasks.PythonTask;
-import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.serverclient.ClientTaskId;
 
-public class TaskListView extends JPanel implements TaskCreationCallback {
+public class TaskListView extends JPanel {
 	private final Client client;
+	private TaskListViewListener listener;
+
 	private final JPanel taskListView;
 	private final JLabel connectionInfoLabel;
 	//private final JXHyperlink connectButton;
@@ -57,7 +54,7 @@ public class TaskListView extends JPanel implements TaskCreationCallback {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				new TaskCreationView(TaskListView.this);
+				listener.addButtonPressed();
 			}			
 		}
 		);
@@ -96,21 +93,6 @@ public class TaskListView extends JPanel implements TaskCreationCallback {
 		//connectionBar.add(connectButton, BorderLayout.EAST);
 	}
 
-	/*@Override
-	public void dispose(){
-		client.shutDown();
-		super.dispose();
-	}*/
-
-	private void addTask() {
-		new PythonEditor(new PythonEditor.Callback() {
-			@Override
-			public void submit(String pythonScript) {
-				client.addTask(PythonTask.newPythonTask(pythonScript));
-			}
-		});
-	}
-
 	private void sendTask(ClientTaskId clientTaskId) {
 		client.sendTask(clientTaskId);
 
@@ -126,27 +108,9 @@ public class TaskListView extends JPanel implements TaskCreationCallback {
 		client.cancelTask(clientTaskId);
 	}
 
-	/*public void addTask(String typeName){
-		taskListView.add(new TaskPanel(typeName));
-		SwingUtilities.getRoot(taskListView).validate();
-	}
-	
-	public void addTask(String typeName, String taskName){
-		taskListView.add(new TaskPanel(typeName, taskName));
-	}*/
-		
-	
-	//TODO: Remove this when done. Duh.
-	public static void main(String[] args){
-		JPanel frame =  new TaskListView(null);
-		JFrame main = new JFrame();
-		main.add(frame);
-		main.setVisible(true);
-	}
 
-	@Override
-	public void addTask(Task task) {
-		client.addTask(task);
+	public void addListener(TaskListViewListener listener) {
+		this.listener = listener;
 	}
 
 	private final class ClientListenerImpl implements ClientListener {
@@ -156,7 +120,7 @@ public class TaskListView extends JPanel implements TaskCreationCallback {
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					TaskPanel taskPanel = new TaskPanel("PythonTaskView", new TaskPanel.Callback() {
+					TaskPanel taskPanel = new TaskPanel("PythonTaskView", new TaskPanel.TaskPanelListener() {
 						@Override
 						public void sendTask(ClientTaskId clientTaskId) {
 							TaskListView.this.sendTask(clientTaskId);
@@ -198,5 +162,9 @@ public class TaskListView extends JPanel implements TaskCreationCallback {
 		public void resultReceived(ClientTaskId clientTaskId) {
 			taskPanels.get(clientTaskId).resultReceived(clientTaskId);
 		}
+	}
+
+	public interface TaskListViewListener {
+		void addButtonPressed();
 	}
 }

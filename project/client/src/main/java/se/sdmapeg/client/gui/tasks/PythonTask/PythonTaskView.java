@@ -1,6 +1,6 @@
 package se.sdmapeg.client.gui.tasks.PythonTask;
 
-import se.sdmapeg.client.gui.TaskCreationCallback;
+import se.sdmapeg.client.gui.TaskCreator.TaskCreationView;
 import se.sdmapeg.common.tasks.PythonTask;
 
 import javax.swing.*;
@@ -8,11 +8,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class PythonTaskView extends JPanel implements PythonEditor.Callback {
-	TaskCreationCallback callback;
+public class PythonTaskView extends JPanel implements PythonEditor.PythonEditorListener {
+	TaskCreationView.TaskCreationListener listener;
 
-	public PythonTaskView(TaskCreationCallback callback) {
-		this.callback = callback;
+	public PythonTaskView(TaskCreationView.TaskCreationListener listener) {
+		this.listener = listener;
 
 		setLayout(new BorderLayout());
 
@@ -41,7 +41,7 @@ public class PythonTaskView extends JPanel implements PythonEditor.Callback {
 	}
 
 	@Override
-	public void submit(String pythonScript) {
-		callback.addTask(PythonTask.newPythonTask(pythonScript));
+	public void finnishedEditing(String pythonScript) {
+		listener.taskFinnished(PythonTask.newPythonTask(pythonScript));
 	}
 }
