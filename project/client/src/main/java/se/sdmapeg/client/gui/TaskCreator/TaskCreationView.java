@@ -71,6 +71,6 @@ public class TaskCreationView extends JFrame {
 	}
 
 	public interface TaskCreationListener {
-		void taskFinnished(Task<?> task);
+		void taskFinished(Task<?> task);
 	}
 }

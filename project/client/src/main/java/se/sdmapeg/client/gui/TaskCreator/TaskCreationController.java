@@ -19,8 +19,9 @@ public class TaskCreationController implements TaskCreationView.TaskCreationList
 	}
 
 	@Override
-	public void taskFinnished(Task<?> task) {
+	public void taskFinished(Task<?> task) {
 		model.addTask(task);
+		view.dispose();
 	}
 
 	public static TaskCreationController newTaskCreationController(Client model) {

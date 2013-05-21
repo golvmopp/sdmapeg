@@ -26,7 +26,9 @@ public class TaskController implements TaskPanel.TaskPanelListener, ClientListen
 	}
 
 	public void send() {
-		client.sendTask(model.getClientTaskId());
+		if (model.getState() == TaskModel.TaskState.CREATED) {
+			client.sendTask(model.getClientTaskId());
+		}
 	}
 
 	public void cancel() {
