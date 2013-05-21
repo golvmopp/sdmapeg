@@ -1,4 +1,4 @@
-package se.sdmapeg.server.clients.models.test;
+package se.sdmapeg.server.clients.models;
 
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.Task;

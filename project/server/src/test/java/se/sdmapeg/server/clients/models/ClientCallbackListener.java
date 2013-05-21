@@ -1,4 +1,4 @@
-package se.sdmapeg.server.clients.models.test;
+package se.sdmapeg.server.clients.models;
 
 import java.util.concurrent.Callable;
 import se.sdmapeg.common.tasks.Task;

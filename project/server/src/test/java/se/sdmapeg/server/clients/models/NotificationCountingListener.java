@@ -1,4 +1,4 @@
-package se.sdmapeg.server.clients.models.test;
+package se.sdmapeg.server.clients.models;
 
 import java.net.InetSocketAddress;
 import se.sdmapeg.server.clients.callbacks.ClientManagerListener;

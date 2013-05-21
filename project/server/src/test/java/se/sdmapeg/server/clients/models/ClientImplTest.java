@@ -19,8 +19,6 @@ import se.sdmapeg.common.tasks.FindNextIntTask;
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.SimpleFailure;
 import se.sdmapeg.common.tasks.Task;
-import se.sdmapeg.server.clients.models.test.ClientCallbackListener;
-import se.sdmapeg.server.clients.models.test.ClientInteractionTester;
 import se.sdmapeg.server.test.MockConnection;
 import se.sdmapeg.server.test.PairIterator;
 import se.sdmapeg.serverclient.ClientTaskId;
