@@ -16,19 +16,8 @@ import se.sdmapeg.common.TimeFormatter;
 import se.sdmapeg.serverclient.ClientTaskId;
 
 public class TaskPanel extends JPanel implements ClientListener {
-	public enum TaskState {
-		CREATED, SENT, COMPLETED, FAILED;
-	}
-
+	private final TaskModel model;
 	private final TaskPanelListener listener;
-	private final ClientTaskId clientTaskId;
-	private TaskState state;
-	private long startTime;
-	private Calendar timeStamp;
-
-	private String name;
-	private final String typeName;
-
 	private Timer timer;
 
 	private JLabel elapsedTimeLabel;
@@ -42,14 +31,10 @@ public class TaskPanel extends JPanel implements ClientListener {
 	private static final Color FAILED = new Color(255, 91, 90);
 	
 	
-	public TaskPanel(String typeName, final TaskPanelListener listener, final ClientTaskId clientTaskId) {
+	public TaskPanel(TaskModel model, TaskPanelListener listener) {
+		this.model = model;
 		this.listener = listener;
-		this.typeName = typeName;
-		this.timeStamp = Calendar.getInstance();
-		this.state = TaskState.CREATED;
-		this.name = null;
 		this.setLayout(new BorderLayout());
-		this.clientTaskId = clientTaskId;
 		
 		setBorder(new LineBorder(Color.BLACK));
 		
@@ -64,12 +49,12 @@ public class TaskPanel extends JPanel implements ClientListener {
 		actionButtonPanel.setOpaque(false);
 		
 		
-		centerPanelText.add(new JLabel(typeName));
+		centerPanelText.add(new JLabel(model.getTypeName()));
 		centerPanelText.add(new JLabel("Created: " +
 				                               TimeFormatter.addLeadingZeros(
-						                               Integer.toString(timeStamp.get(Calendar.HOUR_OF_DAY)), 2) +
+						                               Integer.toString(model.getTimeStamp().get(Calendar.HOUR_OF_DAY)), 2) +
 				                               ":" + TimeFormatter.addLeadingZeros(
-				Integer.toString(timeStamp.get(Calendar.MINUTE)), 2)));
+				Integer.toString(model.getTimeStamp().get(Calendar.MINUTE)), 2)));
 		elapsedTimeLabel = new JLabel("Time: 00:00:00");
 		centerPanelText.add(elapsedTimeLabel);
 		centerPanel.add(actionButtonPanel, BorderLayout.CENTER);
@@ -78,12 +63,12 @@ public class TaskPanel extends JPanel implements ClientListener {
 		actionButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (state == TaskState.CREATED) {
-					send();
-				} else if (state == TaskState.SENT) {
-					cancel();
+				if (TaskPanel.this.model.getState() == TaskModel.TaskState.CREATED) {
+					TaskPanel.this.listener.sendButtonPressed();
+				} else if (TaskPanel.this.model.getState() == TaskModel.TaskState.SENT) {
+					TaskPanel.this.listener.cancelButtonPressed();
 				} else {
-					listener.showResult(clientTaskId);
+					TaskPanel.this.listener.showResultButtonPressed();
 				}
 			}
 		});
@@ -100,7 +85,7 @@ public class TaskPanel extends JPanel implements ClientListener {
 		cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				listener.taskRemoved(clientTaskId, TaskPanel.this);
+				TaskPanel.this.listener.removeButtonPressed();
 			}
 		});
 		cancelButton.setVerticalAlignment(SwingConstants.TOP);
@@ -116,14 +101,9 @@ public class TaskPanel extends JPanel implements ClientListener {
 			}
 		});
 	}
-	
-	public TaskPanel(String typeName, String name, TaskPanelListener listener, ClientTaskId clientTaskId) {
-		this(typeName, listener, clientTaskId);
-		this.name = name;
-	}
 
 	private void updateTimer() {
-		TimeFormatter timeFormatter = new TimeFormatter(startTime);
+		TimeFormatter timeFormatter = new TimeFormatter(model.getStartTime());
 		elapsedTimeLabel.setText("Time: " + timeFormatter.getFormattedHours() + ":" + timeFormatter.getFormattedMinutes() + ":" + timeFormatter.getFormattedSeconds());
 	}
 
@@ -131,32 +111,20 @@ public class TaskPanel extends JPanel implements ClientListener {
 		return selectBox.isSelected();
 	}
 
-	private void cancel() {
-		listener.cancelTask(clientTaskId);
-		taskCancelled(clientTaskId);
-	}
-
-	private void send() {
-		listener.sendTask(clientTaskId);
-		taskSent(clientTaskId);
-	}
-
 	@Override
 	public void taskCreated(ClientTaskId clientTaskId) {}
+
 	@Override
 	public void taskSent(ClientTaskId clientTaskId) {
-		state = TaskState.SENT;
 		setBackground(SENT);
 		actionButton.setText("Cancel");
 		selectBox.setSelected(false);
 
-		this.startTime = System.currentTimeMillis();
 		timer.start();
 	}
 
 	@Override
 	public void taskCancelled(ClientTaskId clientTaskId) {
-		state = TaskState.FAILED;
 		setBackground(FAILED);
 		actionButtonPanel.removeAll();
 		selectBox.setSelected(false);
@@ -165,17 +133,16 @@ public class TaskPanel extends JPanel implements ClientListener {
 	}
 
 	@Override
-	public void resultReceived(final ClientTaskId clientTaskId) {
-		state = TaskState.COMPLETED;
+	public void resultReceived(ClientTaskId clientTaskId) {
 		setBackground(COMPLETED);
 		actionButton.setText("Show result");
 		timer.stop();
 	}
 	
 	public interface TaskPanelListener {
-		void sendTask(ClientTaskId clientTaskId);
-		void cancelTask(ClientTaskId clientTaskId);
-		void showResult(ClientTaskId clientTaskId);
-		void taskRemoved(ClientTaskId clientTaskId, JPanel panel);
+		void sendButtonPressed();
+		void cancelButtonPressed();
+		void showResultButtonPressed();
+		void removeButtonPressed();
 	}
 }

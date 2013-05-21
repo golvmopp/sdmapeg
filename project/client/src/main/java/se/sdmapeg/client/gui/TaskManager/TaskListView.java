@@ -21,10 +21,10 @@ public class TaskListView extends JPanel {
 	private final JLabel connectionInfoLabel;
 	//private final JXHyperlink connectButton;
 
-	private final Map<ClientTaskId, TaskPanel> taskPanels;
+	private final Map<ClientTaskId, TaskController> tasks;
 	
 	public TaskListView(Client client){
-		taskPanels = new HashMap<>();
+		tasks = new HashMap<>();
 
 		setPreferredSize(new Dimension(290, 500));
 		this.client = client;
@@ -61,9 +61,9 @@ public class TaskListView extends JPanel {
 		clearButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				for (ClientTaskId clientTaskId : taskPanels.keySet()) {
-					if (taskPanels.get(clientTaskId).isChecked()) {
-						removeTask(clientTaskId, taskPanels.get(clientTaskId));
+				for (ClientTaskId clientTaskId : tasks.keySet()) {
+					if (tasks.get(clientTaskId).isSelected()) {
+						removeTask(clientTaskId);
 					}
 				}
 			}
@@ -71,9 +71,9 @@ public class TaskListView extends JPanel {
 		sendButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				for (ClientTaskId clientTaskId : taskPanels.keySet()) {
-					if (taskPanels.get(clientTaskId).isChecked()) {
-						sendTask(clientTaskId);
+				for (ClientTaskId clientTaskId : tasks.keySet()) {
+					if (tasks.get(clientTaskId).isSelected()) {
+						tasks.get(clientTaskId).send();
 					}
 				}
 			}
@@ -93,56 +93,34 @@ public class TaskListView extends JPanel {
 		//connectionBar.add(connectButton, BorderLayout.EAST);
 	}
 
-	private void sendTask(ClientTaskId clientTaskId) {
-		client.sendTask(clientTaskId);
-
-	}
-
-	private void removeTask(ClientTaskId clientTaskId, JPanel panel) {
-		cancelTask(clientTaskId);
-		taskListView.remove(panel);
+	private void removeTask(ClientTaskId clientTaskId) {
+		taskListView.remove(tasks.get(clientTaskId).getView());
 		revalidate();
 	}
-
-	private void cancelTask(ClientTaskId clientTaskId) {
-		client.cancelTask(clientTaskId);
-	}
-
 
 	public void addListener(TaskListViewListener listener) {
 		this.listener = listener;
 	}
 
 	private final class ClientListenerImpl implements ClientListener {
-
 		@Override
 		public void taskCreated(final ClientTaskId clientTaskId) {
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					TaskPanel taskPanel = new TaskPanel("PythonTaskView", new TaskPanel.TaskPanelListener() {
+					TaskController task = TaskController.newTaskController(client, "PythonTaskView", clientTaskId, new TaskController.TaskListener() {
 						@Override
-						public void sendTask(ClientTaskId clientTaskId) {
-							TaskListView.this.sendTask(clientTaskId);
-						}
-
-						@Override
-						public void cancelTask(ClientTaskId clientTaskId) {
-							TaskListView.this.cancelTask(clientTaskId);
-						}
-
-						@Override
-						public void showResult(ClientTaskId clientTaskId) {
+						public void showResultButtonPressed(ClientTaskId clientTaskId) {
 							JOptionPane.showMessageDialog(null, client.getResult(clientTaskId));
 						}
 
 						@Override
-						public void taskRemoved(ClientTaskId clientTaskId, JPanel panel) {
-							removeTask(clientTaskId, panel);
+						public void removed(ClientTaskId clientTaskId) {
+							removeTask(clientTaskId);
 						}
-					}, clientTaskId);
-					taskPanels.put(clientTaskId, taskPanel);
-					taskListView.add(taskPanel);
+					});
+					tasks.put(clientTaskId, task);
+					taskListView.add(task.getView());
 					SwingUtilities.getRoot(taskListView).validate();
 				}
 			});
@@ -150,17 +128,17 @@ public class TaskListView extends JPanel {
 
 		@Override
 		public void taskSent(ClientTaskId clientTaskId) {
-			taskPanels.get(clientTaskId).taskSent(clientTaskId);
+			tasks.get(clientTaskId).taskSent(clientTaskId);
 		}
 
 		@Override
 		public void taskCancelled(ClientTaskId clientTaskId) {
-			taskPanels.get(clientTaskId).taskCancelled(clientTaskId);
+			tasks.get(clientTaskId).taskCancelled(clientTaskId);
 		}
 
 		@Override
 		public void resultReceived(ClientTaskId clientTaskId) {
-			taskPanels.get(clientTaskId).resultReceived(clientTaskId);
+			tasks.get(clientTaskId).resultReceived(clientTaskId);
 		}
 	}
 
