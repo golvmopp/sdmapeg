@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.Set;
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.server.clients.callbacks.ClientCallback;
-import se.sdmapeg.server.clients.models.Client;
 import se.sdmapeg.serverworker.TaskId;
 
 /**

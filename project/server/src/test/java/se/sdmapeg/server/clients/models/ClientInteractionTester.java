@@ -15,7 +15,6 @@ import se.sdmapeg.common.communication.CommunicationException;
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.server.clients.callbacks.ClientCallback;
-import se.sdmapeg.server.clients.models.Client;
 import se.sdmapeg.server.test.MockConnection;
 import se.sdmapeg.serverclient.communication.ClientToServerMessage;
 import se.sdmapeg.serverclient.communication.ServerToClientMessage;
@@ -32,7 +31,7 @@ public class ClientInteractionTester {
 	private List<Runnable> actions = new ArrayList<>();
 	private final Map<TaskId, Integer> taskIdDictionary = new HashMap<>();
 	private final Map<Integer, Task<?>> taskDictionary = new HashMap<>();
-	private final HashSet<Integer> activeTaskNumbers = new HashSet<>();
+	private final Set<Integer> activeTaskNumbers = new HashSet<>();
 	private final AtomicInteger taskIdCounter = new AtomicInteger(0);
 
 	public ClientInteractionTester(Client client,

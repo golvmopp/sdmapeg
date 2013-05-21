@@ -3,7 +3,6 @@ package se.sdmapeg.server.clients.models;
 import java.util.concurrent.Callable;
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.server.clients.callbacks.ClientCallback;
-import se.sdmapeg.server.clients.models.Client;
 import se.sdmapeg.serverworker.TaskId;
 
 /**
