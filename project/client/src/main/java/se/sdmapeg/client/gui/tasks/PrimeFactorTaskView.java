@@ -1,16 +1,17 @@
 package se.sdmapeg.client.gui.tasks;
 
 import se.sdmapeg.client.gui.TaskCreator.TaskCreationView;
+import se.sdmapeg.common.tasks.PrimeFactorsTask;
+import se.sdmapeg.common.tasks.Task;
 
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 public class PrimeFactorTaskView extends JPanel {
-	
 	TaskCreationView.TaskCreationListener listener;
 
 	public PrimeFactorTaskView(TaskCreationView.TaskCreationListener listener){
@@ -18,11 +19,25 @@ public class PrimeFactorTaskView extends JPanel {
 		
 		setLayout(new GridLayout(0, 1));
 
-		JTextField inData = new JTextField();
+		final JTextField inData = new JTextField();
 		inData.setPreferredSize(new Dimension(120, 25));
 		
 		JButton submitButton = new JButton("Submit Task");	
 		submitButton.setPreferredSize(new Dimension(120, 30));
+		submitButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					long number = Long.parseLong(inData.getText());
+					PrimeFactorsTask task = PrimeFactorsTask.newPrimeFactorTask(number);
+					PrimeFactorTaskView.this.listener.taskFinished(task);
+				} catch(NumberFormatException ex) {
+					JOptionPane.showMessageDialog(PrimeFactorTaskView.this, "NaN");
+				}
+
+			}
+		});
+
 		add(inData);
 		add(submitButton);
 	}

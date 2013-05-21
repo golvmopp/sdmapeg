@@ -42,6 +42,6 @@ public class PythonTaskView extends JPanel implements PythonEditor.PythonEditorL
 
 	@Override
 	public void finnishedEditing(String pythonScript) {
-		listener.taskFinnished(PythonTask.newPythonTask(pythonScript));
+		listener.taskFinished(PythonTask.newPythonTask(pythonScript));
 	}
 }
