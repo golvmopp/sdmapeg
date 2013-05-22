@@ -36,6 +36,8 @@ public final class WorkerImpl implements Worker {
 	private final Map<TaskId, FutureTask<Void>> taskMap =
 		new ConcurrentHashMap<>();
 	private final Map<Runnable, TaskId> idMap = new ConcurrentHashMap<>();
+	private final Map<TaskId, String> nameMap = new ConcurrentHashMap<>(); // TODO: Zarth, check this. 
+	
 
 	private WorkerImpl(int poolSize, Server server, String host,
 					  TaskPerformer taskPerformer) {
@@ -47,6 +49,11 @@ public final class WorkerImpl implements Worker {
 		this.taskPerformer = taskPerformer;
 		this.poolSize = poolSize;
 		this.host = host;
+	}
+	
+	@Override
+	public String getTaskName(TaskId taskId){
+		return nameMap.get(taskId);
 	}
 
 	private void cancelTask(TaskId taskId) {
@@ -66,6 +73,7 @@ public final class WorkerImpl implements Worker {
 		LOG.info("Queueing task {}", taskId);
 		taskMap.put(taskId, futureTask);
 		idMap.put(futureTask, taskId);
+		nameMap.put(taskId, task.getName()); 
 		taskExecutor.submit(futureTask);
 		listeners.taskAdded(taskId);
 	}
@@ -78,6 +86,7 @@ public final class WorkerImpl implements Worker {
 	private void completeTask(TaskId taskId, Result<?> result) {
 	    FutureTask<Void> futureTask = taskMap.remove(taskId); 
 	    idMap.remove(futureTask);
+	    nameMap.remove(taskId); 
 		server.taskCompleted(taskId, result);
 		listeners.taskFinished(taskId);
 	}
@@ -127,6 +136,7 @@ public final class WorkerImpl implements Worker {
 		listeners.removeListener(listener);
 	}
 	
+	
 	public static WorkerImpl newWorkerImpl(int poolSize, Server server, String host,
 					  TaskPerformer taskPerformer){
 	    return new WorkerImpl(poolSize, server, host, taskPerformer);
@@ -162,7 +172,8 @@ public final class WorkerImpl implements Worker {
 		@Override
 		public void connectionClosed() {
 			stop();
-		}		
+		}	
+		
 	}
 
 	/**
@@ -184,6 +195,7 @@ public final class WorkerImpl implements Worker {
 			Result<?> result = runTask(task);
 			completeTask(taskId, result);
 		}
+		
 	}
 
 	private static final class Listeners

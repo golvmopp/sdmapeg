@@ -3,6 +3,7 @@ package se.sdmapeg.worker.gui;
 import se.sdmapeg.common.TimeFormatter;
 import se.sdmapeg.serverworker.TaskId;
 import se.sdmapeg.worker.Worker;
+import se.sdmapeg.worker.WorkerImpl;
 import se.sdmapeg.worker.WorkerListener;
 
 import javax.swing.*;
@@ -140,10 +141,18 @@ public final class WorkerView extends JFrame implements TaskView.TaskViewCallbac
 		@Override
 		public void taskAdded(TaskId taskId) {
 			totalTasks++;
-			TaskView taskView = new TaskView(WorkerView.this, "Task:" + taskId);
+			TaskView taskView = createTaskView(taskId);
 			workList.add(taskView);
 			taskViews.put(taskId, taskView);
 			updateStatistics();
+		}
+
+		private TaskView createTaskView(TaskId taskId) {
+			String taskName = worker.getTaskName(taskId);
+			if(taskName != null && taskName != ""){
+				return new TaskView(WorkerView.this, taskName);
+			}
+			return new TaskView(WorkerView.this, "Unnamed task with ID " + taskId);
 		}
 
 		@Override
