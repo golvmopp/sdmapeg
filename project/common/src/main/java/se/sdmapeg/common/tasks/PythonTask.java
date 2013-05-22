@@ -29,6 +29,11 @@ public final class PythonTask implements Task<String> {
 		return name;
 	}
 
+	@Override
+	public String getTypeName() {
+		return "Python Task";
+	}
+
 	public static PythonTask newPythonTask(String pythonCode, String name) {
 		return new PythonTask(pythonCode, name);
 	}

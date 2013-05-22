@@ -107,7 +107,7 @@ public class TaskListView extends JPanel {
 				@Override
 				public void run() {
 					TaskController task = TaskController
-							.newTaskController(client, client.getTask(clientTaskId).getName(), clientTaskId,
+							.newTaskController(client, client.getTask(clientTaskId), clientTaskId,
 							                   new TaskListener() {
 						@Override
 						public void showResultButtonPressed(ClientTaskId clientTaskId) {

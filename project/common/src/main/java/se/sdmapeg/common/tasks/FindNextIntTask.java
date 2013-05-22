@@ -29,6 +29,11 @@ public final class FindNextIntTask implements Task<Integer> {
 		return name;
 	}
 
+	@Override
+	public String getTypeName() {
+		return "Next Integer Task";
+	}
+
 	public static FindNextIntTask newNextIntTask(int start, String name) {
 		return new FindNextIntTask(start, name);
 	}

@@ -348,6 +348,11 @@ public class ClientManagerModelTest {
 				public String getName() {
 					return "test";
 				}
+
+				@Override
+				public String getTypeName() {
+					return "Test Task";
+				}
 			});
 		}
 		instance.addListener(new ClientManagerListener() {
@@ -408,6 +413,11 @@ public class ClientManagerModelTest {
 				public String getName() {
 					return "test";
 				}
+
+			@Override
+			public String getTypeName() {
+				return "Test Task";
+			}
 			});
 		final AtomicBoolean notified = new AtomicBoolean(false);
 		instance.addListener(new ClientManagerListener() {
@@ -551,6 +561,11 @@ public class ClientManagerModelTest {
 				public String getName() {
 					return "test";
 				}
+
+				@Override
+				public String getTypeName() {
+					return "Test Task";
+				}
 			});
 		assertTrue(notified.get());
 	}
@@ -579,6 +594,11 @@ public class ClientManagerModelTest {
 				@Override
 				public String getName() {
 					return "test";
+				}
+
+				@Override
+				public String getTypeName() {
+					return "Test Task";
 				}
 			});
 		final AtomicBoolean notified = new AtomicBoolean(false);
@@ -624,6 +644,11 @@ public class ClientManagerModelTest {
 				@Override
 				public String getName() {
 					return "test";
+				}
+
+				@Override
+				public String getTypeName() {
+					return "Test Task";
 				}
 			});
 		assertFalse(notified.get());
@@ -680,6 +705,11 @@ public class ClientManagerModelTest {
 				public String getName() {
 					return "test";
 				}
+
+				@Override
+				public String getTypeName() {
+					return "Test Task";
+				}
 			});
 		assertFalse(notified.get());
 	}
@@ -711,6 +741,11 @@ public class ClientManagerModelTest {
 				@Override
 				public String getName() {
 					return "test";
+				}
+
+				@Override
+				public String getTypeName() {
+					return "Test Task";
 				}
 			});
 		final AtomicBoolean notified = new AtomicBoolean(false);

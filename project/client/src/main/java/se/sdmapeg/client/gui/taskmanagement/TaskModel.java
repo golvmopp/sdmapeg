@@ -1,5 +1,6 @@
 package se.sdmapeg.client.gui.taskmanagement;
 
+import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.serverclient.ClientTaskId;
 
 import java.util.Calendar;
@@ -14,12 +15,12 @@ public class TaskModel {
 	private long startTime;
 	private Calendar timeStamp;
 
-	private String name;
+	private Task<?> task;
 
-	private TaskModel(String name, ClientTaskId clientTaskId) {
+	private TaskModel(Task<?> task, ClientTaskId clientTaskId) {
 		this.timeStamp = Calendar.getInstance();
 		this.state = TaskState.CREATED;
-		this.name = name;
+		this.task = task;
 		this.clientTaskId = clientTaskId;
 	}
 
@@ -40,7 +41,11 @@ public class TaskModel {
 	}
 
 	public String getName() {
-		return name;
+		return task.getName();
+	}
+
+	public String getTypeName() {
+		return task.getTypeName();
 	}
 
 	public void setStartTime(long startTime) {
@@ -51,7 +56,7 @@ public class TaskModel {
 		this.state = state;
 	}
 
-	public static TaskModel newTaskModel(String typeName, ClientTaskId clientTaskId) {
-		return new TaskModel(typeName, clientTaskId);
+	public static TaskModel newTaskModel(Task<?> task, ClientTaskId clientTaskId) {
+		return new TaskModel(task, clientTaskId);
 	}
 }

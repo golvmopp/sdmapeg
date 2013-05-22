@@ -4,6 +4,7 @@ import se.sdmapeg.client.gui.listeners.TaskListener;
 import se.sdmapeg.client.gui.listeners.TaskPanelListener;
 import se.sdmapeg.client.models.Client;
 import se.sdmapeg.client.models.ClientListener;
+import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.serverclient.ClientTaskId;
 
 public class TaskController implements TaskPanelListener, ClientListener {
@@ -12,9 +13,9 @@ public class TaskController implements TaskPanelListener, ClientListener {
 	private final TaskPanel view;
 	private final TaskListener listener;
 
-	private TaskController(Client client, String name, ClientTaskId clientTaskId, TaskListener listener) {
+	private TaskController(Client client, Task<?> task, ClientTaskId clientTaskId, TaskListener listener) {
 		this.client = client;
-		this.model = TaskModel.newTaskModel(name, clientTaskId);
+		this.model = TaskModel.newTaskModel(task, clientTaskId);
 		this.view = new TaskPanel(model, this);
 		this.listener = listener;
 	}
@@ -37,8 +38,8 @@ public class TaskController implements TaskPanelListener, ClientListener {
 		client.cancelTask(model.getClientTaskId());
 	}
 
-	public static TaskController newTaskController(Client client, String typeName, ClientTaskId clientTaskId, TaskListener listener) {
-		return new TaskController(client, typeName, clientTaskId, listener);
+	public static TaskController newTaskController(Client client, Task<?> task, ClientTaskId clientTaskId, TaskListener listener) {
+		return new TaskController(client, task, clientTaskId, listener);
 	}
 
 	@Override

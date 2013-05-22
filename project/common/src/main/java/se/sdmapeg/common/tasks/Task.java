@@ -29,7 +29,14 @@ public interface Task<R> extends Serializable {
 	/**
 	 * Returns the name of this task.
 	 *
-	 * @returnthe name of this task.
+	 * @return the name of this task.
 	 */
 	String getName();
+
+	/**
+	 * Returns the name of the type of the task.
+	 *
+	 * @return the name of the type of the task.
+	 */
+	String getTypeName();
 }

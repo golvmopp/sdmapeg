@@ -35,6 +35,11 @@ public final class PrimeFactorsTask implements Task<List<Long>> {
 		return name;
 	}
 
+	@Override
+	public String getTypeName() {
+		return "Prime Factorization Task";
+	}
+
 	public static PrimeFactorsTask newPrimeFactorTask(long number, String name) {
 		return new PrimeFactorsTask(number, name);
 	}

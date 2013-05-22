@@ -29,6 +29,11 @@ public final class FindNextPrimeTask implements Task<Long>{
 		return name;
 	}
 
+	@Override
+	public String getTypeName() {
+		return "Next Prime Task";
+	}
+
 	public static FindNextPrimeTask newFindNextPrimeTask(long prime, String name) {
 		return new FindNextPrimeTask(prime, name);
 	}
