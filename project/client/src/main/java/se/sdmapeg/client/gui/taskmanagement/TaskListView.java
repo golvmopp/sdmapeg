@@ -21,7 +21,6 @@ public class TaskListView extends JPanel {
 
 	private final JPanel taskListView;
 	private final JLabel connectionInfoLabel;
-	//private final JXHyperlink connectButton;
 
 	private final Map<ClientTaskId, TaskController> tasks;
 	
@@ -89,10 +88,7 @@ public class TaskListView extends JPanel {
 		JPanel connectionBar = new JPanel(new BorderLayout());
 		add(connectionBar, BorderLayout.SOUTH);
 		connectionInfoLabel = new JLabel("Connected to: " + client.getHost());
-		//connectButton = new JXHyperlink();
-		//connectButton.setText("Connect");
 		connectionBar.add(connectionInfoLabel, BorderLayout.WEST);
-		//connectionBar.add(connectButton, BorderLayout.EAST);
 	}
 
 	private void removeTask(ClientTaskId clientTaskId) {

@@ -9,12 +9,14 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import se.sdmapeg.client.gui.listeners.TaskCreationListener;
+import se.sdmapeg.client.gui.tasks.FindNextPrimeTaskView;
 import se.sdmapeg.client.gui.tasks.PrimeFactorTaskView;
 import se.sdmapeg.client.gui.tasks.PythonTask.PythonTaskView;
 
 public class TaskCreationView extends JFrame {
 	public enum TaskType {
-		PYTHON_TASK("Python Task"), PRIME_FACTOR_TASK("Prime Factor Task");
+		PYTHON_TASK("Python Task"), PRIME_FACTOR_TASK("Prime Factor Task"), 
+		NEXT_PRIME_TASK("Find Next Prime Task");
 
 		private final String name;
 
@@ -65,6 +67,8 @@ public class TaskCreationView extends JFrame {
 				return new PythonTaskView(listener);
 			case PRIME_FACTOR_TASK:
 				return new PrimeFactorTaskView(listener);
+			case NEXT_PRIME_TASK:
+				return new FindNextPrimeTaskView(listener);
 			default:
 				return new JPanel();
 		}
