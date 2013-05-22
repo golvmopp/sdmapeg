@@ -12,9 +12,9 @@ public class TaskController implements TaskPanelListener, ClientListener {
 	private final TaskPanel view;
 	private final TaskListener listener;
 
-	private TaskController(Client client, String typeName, ClientTaskId clientTaskId, TaskListener listener) {
+	private TaskController(Client client, String name, ClientTaskId clientTaskId, TaskListener listener) {
 		this.client = client;
-		this.model = TaskModel.newTaskModel(typeName, clientTaskId);
+		this.model = TaskModel.newTaskModel(name, clientTaskId);
 		this.view = new TaskPanel(model, this);
 		this.listener = listener;
 	}

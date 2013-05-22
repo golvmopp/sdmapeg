@@ -24,6 +24,7 @@ public final class FindNextPrimeTask implements Task<Long>{
 		return Long.class;
 	}
 
+	@Override
 	public String getName() {
 		return name;
 	}

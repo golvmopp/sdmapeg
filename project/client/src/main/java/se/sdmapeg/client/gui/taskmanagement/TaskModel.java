@@ -15,13 +15,11 @@ public class TaskModel {
 	private Calendar timeStamp;
 
 	private String name;
-	private final String typeName;
 
-	private TaskModel(String typeName, ClientTaskId clientTaskId) {
-		this.typeName = typeName;
+	private TaskModel(String name, ClientTaskId clientTaskId) {
 		this.timeStamp = Calendar.getInstance();
 		this.state = TaskState.CREATED;
-		this.name = null;
+		this.name = name;
 		this.clientTaskId = clientTaskId;
 	}
 
@@ -43,10 +41,6 @@ public class TaskModel {
 
 	public String getName() {
 		return name;
-	}
-
-	public String getTypeName() {
-		return typeName;
 	}
 
 	public void setStartTime(long startTime) {

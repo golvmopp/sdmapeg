@@ -69,6 +69,11 @@ public final class ClientImpl implements Client {
 	}
 
 	@Override
+	public Task<?> getTask(ClientTaskId clientTaskId) {
+		return taskMap.get(clientTaskId);
+	}
+
+	@Override
 	public void start() {
 		serverListenerExecutor.execute(new Runnable() {
 			@Override

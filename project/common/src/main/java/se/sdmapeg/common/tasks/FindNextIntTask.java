@@ -24,6 +24,7 @@ public final class FindNextIntTask implements Task<Integer> {
 		return Integer.class;
 	}
 
+	@Override
 	public String getName() {
 		return name;
 	}

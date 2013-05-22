@@ -106,7 +106,9 @@ public class TaskListView extends JPanel {
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					TaskController task = TaskController.newTaskController(client, "PythonTaskView", clientTaskId, new TaskListener() {
+					TaskController task = TaskController
+							.newTaskController(client, client.getTask(clientTaskId).getName(), clientTaskId,
+							                   new TaskListener() {
 						@Override
 						public void showResultButtonPressed(ClientTaskId clientTaskId) {
 							JOptionPane.showMessageDialog(null, client.getResult(clientTaskId));

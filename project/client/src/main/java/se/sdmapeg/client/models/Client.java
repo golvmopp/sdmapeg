@@ -13,6 +13,8 @@ public interface Client extends Listenable<ClientListener> {
 
 	void sendTask(ClientTaskId clientTaskId);
 
+	Task<?> getTask(ClientTaskId clientTaskId);
+
 	void start();
 
 	void cancelTask(ClientTaskId clientTaskId);

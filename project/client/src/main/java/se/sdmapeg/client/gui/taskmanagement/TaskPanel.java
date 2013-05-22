@@ -50,7 +50,7 @@ public class TaskPanel extends JPanel implements ClientListener {
 		actionButtonPanel.setOpaque(false);
 		
 		
-		centerPanelText.add(new JLabel(model.getTypeName()));
+		centerPanelText.add(new JLabel(model.getName()));
 		centerPanelText.add(new JLabel("Created: " +
 				                               TimeFormatter.addLeadingZeros(
 						                               Integer.toString(model.getTimeStamp().get(Calendar.HOUR_OF_DAY)), 2) +

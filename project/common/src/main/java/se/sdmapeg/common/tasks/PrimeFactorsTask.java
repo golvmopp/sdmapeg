@@ -30,6 +30,7 @@ public final class PrimeFactorsTask implements Task<List<Long>> {
 		return RESULT_TYPE;
 	}
 
+	@Override
 	public String getName() {
 		return name;
 	}
