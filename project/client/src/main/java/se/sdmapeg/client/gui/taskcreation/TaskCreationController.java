@@ -1,10 +1,10 @@
-package se.sdmapeg.client.gui.TaskCreator;
+package se.sdmapeg.client.gui.taskcreation;
 
-import se.sdmapeg.client.Client;
-import se.sdmapeg.client.gui.ClientView;
+import se.sdmapeg.client.gui.listeners.TaskCreationListener;
+import se.sdmapeg.client.models.Client;
 import se.sdmapeg.common.tasks.Task;
 
-public class TaskCreationController implements TaskCreationView.TaskCreationListener {
+public class TaskCreationController implements TaskCreationListener {
 	private final Client model;
 	private final TaskCreationView view;
 

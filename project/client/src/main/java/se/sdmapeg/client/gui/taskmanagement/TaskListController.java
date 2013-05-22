@@ -1,12 +1,12 @@
-package se.sdmapeg.client.gui.TaskManager;
+package se.sdmapeg.client.gui.taskmanagement;
 
-import se.sdmapeg.client.Client;
-import se.sdmapeg.client.gui.TaskCreator.TaskCreationController;
-import se.sdmapeg.client.gui.TaskCreator.TaskCreationView;
+import se.sdmapeg.client.gui.listeners.TaskListViewListener;
+import se.sdmapeg.client.models.Client;
+import se.sdmapeg.client.gui.taskcreation.TaskCreationController;
 
 import javax.swing.*;
 
-public class TaskListController implements TaskListView.TaskListViewListener {
+public class TaskListController implements TaskListViewListener {
 	private final Client model;
 	private final TaskListView view;
 

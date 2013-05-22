@@ -1,8 +1,7 @@
 package se.sdmapeg.client.gui.tasks;
 
-import se.sdmapeg.client.gui.TaskCreator.TaskCreationView;
+import se.sdmapeg.client.gui.listeners.TaskCreationListener;
 import se.sdmapeg.common.tasks.PrimeFactorsTask;
-import se.sdmapeg.common.tasks.Task;
 
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -12,9 +11,9 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 
 public class PrimeFactorTaskView extends JPanel {
-	TaskCreationView.TaskCreationListener listener;
+	TaskCreationListener listener;
 
-	public PrimeFactorTaskView(TaskCreationView.TaskCreationListener listener){
+	public PrimeFactorTaskView(TaskCreationListener listener){
 		this.listener = listener;
 		
 		setLayout(new GridLayout(0, 1));

@@ -1,4 +1,4 @@
-package se.sdmapeg.client;
+package se.sdmapeg.client.models;
 
 import se.sdmapeg.common.listeners.Listenable;
 import se.sdmapeg.common.tasks.Result;

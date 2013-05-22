@@ -1,8 +1,7 @@
 package se.sdmapeg.client.gui;
 
-import se.sdmapeg.client.Client;
-import se.sdmapeg.client.gui.TaskManager.TaskListController;
-import se.sdmapeg.client.gui.TaskManager.TaskListView;
+import se.sdmapeg.client.models.Client;
+import se.sdmapeg.client.gui.taskmanagement.TaskListController;
 
 import javax.swing.*;
 

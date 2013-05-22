@@ -1,10 +1,12 @@
-package se.sdmapeg.client.gui.TaskManager;
+package se.sdmapeg.client.gui.taskmanagement;
 
-import se.sdmapeg.client.Client;
-import se.sdmapeg.client.ClientListener;
+import se.sdmapeg.client.gui.listeners.TaskListener;
+import se.sdmapeg.client.gui.listeners.TaskPanelListener;
+import se.sdmapeg.client.models.Client;
+import se.sdmapeg.client.models.ClientListener;
 import se.sdmapeg.serverclient.ClientTaskId;
 
-public class TaskController implements TaskPanel.TaskPanelListener, ClientListener {
+public class TaskController implements TaskPanelListener, ClientListener {
 	private final Client client;
 	private final TaskModel model;
 	private final TaskPanel view;
@@ -84,10 +86,5 @@ public class TaskController implements TaskPanel.TaskPanelListener, ClientListen
 			cancel();
 		}
 		listener.removed(model.getClientTaskId());
-	}
-
-	public interface TaskListener {
-		void showResultButtonPressed(ClientTaskId clientTaskId);
-		void removed(ClientTaskId clientTaskId);
 	}
 }

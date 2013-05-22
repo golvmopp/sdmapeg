@@ -1,4 +1,4 @@
-package se.sdmapeg.client.gui.TaskCreator;
+package se.sdmapeg.client.gui.taskcreation;
 
 import java.awt.BorderLayout;
 import java.awt.event.ItemEvent;
@@ -8,9 +8,9 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import se.sdmapeg.client.gui.listeners.TaskCreationListener;
 import se.sdmapeg.client.gui.tasks.PrimeFactorTaskView;
 import se.sdmapeg.client.gui.tasks.PythonTask.PythonTaskView;
-import se.sdmapeg.common.tasks.Task;
 
 public class TaskCreationView extends JFrame {
 	public enum TaskType {
@@ -68,9 +68,5 @@ public class TaskCreationView extends JFrame {
 			default:
 				return new JPanel();
 		}
-	}
-
-	public interface TaskCreationListener {
-		void taskFinished(Task<?> task);
 	}
 }

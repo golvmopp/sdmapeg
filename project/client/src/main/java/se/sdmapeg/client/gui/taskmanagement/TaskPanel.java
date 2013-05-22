@@ -1,4 +1,4 @@
-package se.sdmapeg.client.gui.TaskManager;
+package se.sdmapeg.client.gui.taskmanagement;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -11,7 +11,8 @@ import java.util.Calendar;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 
-import se.sdmapeg.client.ClientListener;
+import se.sdmapeg.client.gui.listeners.TaskPanelListener;
+import se.sdmapeg.client.models.ClientListener;
 import se.sdmapeg.common.TimeFormatter;
 import se.sdmapeg.serverclient.ClientTaskId;
 
@@ -138,11 +139,5 @@ public class TaskPanel extends JPanel implements ClientListener {
 		actionButton.setText("Show result");
 		timer.stop();
 	}
-	
-	public interface TaskPanelListener {
-		void sendButtonPressed();
-		void cancelButtonPressed();
-		void showResultButtonPressed();
-		void removeButtonPressed();
-	}
+
 }

@@ -1,4 +1,4 @@
-package se.sdmapeg.client;
+package se.sdmapeg.client.models;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -11,11 +11,9 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import se.sdmapeg.client.gui.ClientView;
 import se.sdmapeg.common.IdGenerator;
 import se.sdmapeg.common.communication.CommunicationException;
 import se.sdmapeg.common.communication.Connection;
-import se.sdmapeg.common.communication.ConnectionClosedException;
 import se.sdmapeg.common.communication.ConnectionImpl;
 import se.sdmapeg.common.listeners.Listenable;
 import se.sdmapeg.common.listeners.ListenerSupport;

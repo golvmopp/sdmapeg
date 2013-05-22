@@ -1,4 +1,4 @@
-package se.sdmapeg.client;
+package se.sdmapeg.client.models;
 
 import se.sdmapeg.serverclient.ClientTaskId;
 

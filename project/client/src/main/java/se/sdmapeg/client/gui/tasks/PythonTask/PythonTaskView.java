@@ -1,6 +1,6 @@
 package se.sdmapeg.client.gui.tasks.PythonTask;
 
-import se.sdmapeg.client.gui.TaskCreator.TaskCreationView;
+import se.sdmapeg.client.gui.listeners.TaskCreationListener;
 import se.sdmapeg.common.tasks.PythonTask;
 
 import javax.swing.*;
@@ -9,9 +9,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class PythonTaskView extends JPanel implements PythonEditor.PythonEditorListener {
-	TaskCreationView.TaskCreationListener listener;
+	TaskCreationListener listener;
 
-	public PythonTaskView(TaskCreationView.TaskCreationListener listener) {
+	public PythonTaskView(TaskCreationListener listener) {
 		this.listener = listener;
 
 		setLayout(new BorderLayout());

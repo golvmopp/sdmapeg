@@ -1,7 +1,6 @@
-package se.sdmapeg.client;
+package se.sdmapeg.client.models;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 import org.slf4j.Logger;
@@ -16,8 +15,6 @@ import se.sdmapeg.serverclient.communication.ClientToServerMessage;
 import se.sdmapeg.serverclient.communication.ClientToServerMessageFactory;
 import se.sdmapeg.serverclient.communication.ResultMessage;
 import se.sdmapeg.serverclient.communication.ServerToClientMessage;
-import se.sdmapeg.serverclient.communication.TaskCancellationMessage;
-import se.sdmapeg.serverclient.communication.TaskMessage;
 
 public final class ServerImpl implements Server {
 	private static final Logger LOG = LoggerFactory.getLogger(ServerImpl.class);

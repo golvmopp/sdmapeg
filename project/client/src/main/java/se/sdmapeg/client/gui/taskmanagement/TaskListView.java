@@ -1,4 +1,4 @@
-package se.sdmapeg.client.gui.TaskManager;
+package se.sdmapeg.client.gui.taskmanagement;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -9,8 +9,10 @@ import java.util.Map;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 
-import se.sdmapeg.client.Client;
-import se.sdmapeg.client.ClientListener;
+import se.sdmapeg.client.gui.listeners.TaskListViewListener;
+import se.sdmapeg.client.gui.listeners.TaskListener;
+import se.sdmapeg.client.models.Client;
+import se.sdmapeg.client.models.ClientListener;
 import se.sdmapeg.serverclient.ClientTaskId;
 
 public class TaskListView extends JPanel {
@@ -108,7 +110,7 @@ public class TaskListView extends JPanel {
 			SwingUtilities.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					TaskController task = TaskController.newTaskController(client, "PythonTaskView", clientTaskId, new TaskController.TaskListener() {
+					TaskController task = TaskController.newTaskController(client, "PythonTaskView", clientTaskId, new TaskListener() {
 						@Override
 						public void showResultButtonPressed(ClientTaskId clientTaskId) {
 							JOptionPane.showMessageDialog(null, client.getResult(clientTaskId));
@@ -142,7 +144,4 @@ public class TaskListView extends JPanel {
 		}
 	}
 
-	public interface TaskListViewListener {
-		void addButtonPressed();
-	}
 }
