@@ -27,7 +27,7 @@ public class TaskListView extends JPanel {
 	public TaskListView(Client client){
 		tasks = new HashMap<>();
 
-		setPreferredSize(new Dimension(290, 500));
+		setPreferredSize(new Dimension(500, 500));
 		this.client = client;
 
 		client.addListener(new ClientListenerImpl());

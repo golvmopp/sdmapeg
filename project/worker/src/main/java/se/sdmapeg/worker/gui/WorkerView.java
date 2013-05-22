@@ -150,9 +150,11 @@ public final class WorkerView extends JFrame implements TaskView.TaskViewCallbac
 		private TaskView createTaskView(TaskId taskId) {
 			String taskName = worker.getTaskName(taskId);
 			if(taskName != null && taskName != ""){
-				return new TaskView(WorkerView.this, taskName);
+				return new TaskView(WorkerView.this, taskName, 
+						worker.getTypeName(taskId));
 			}
-			return new TaskView(WorkerView.this, "Unnamed task with ID " + taskId);
+			return new TaskView(WorkerView.this, "Unnamed task with ID " + taskId, 
+					worker.getTypeName(taskId));
 		}
 
 		@Override

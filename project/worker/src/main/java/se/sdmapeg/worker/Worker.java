@@ -15,4 +15,6 @@ public interface Worker extends Listenable<WorkerListener> {
 	String getHost();
 	
 	String getTaskName(TaskId taskId);
+
+	String getTypeName(TaskId taskId);
 }

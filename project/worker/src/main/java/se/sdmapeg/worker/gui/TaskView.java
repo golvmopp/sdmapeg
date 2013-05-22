@@ -25,7 +25,7 @@ public class TaskView extends JPanel implements WorkerListener {
 	private static final Color CANCELLED = new Color(255, 91, 90);
 	private static final Color STOLEN = new Color(242, 130, 176);
 
-	public TaskView(TaskViewCallback callback, String name) {
+	public TaskView(TaskViewCallback callback, String name, String typeName) {
 		this.callback = callback;
 		this.removeButton = new JButton("X");
 		this.removeButton.setPreferredSize(new Dimension(25, 20));
@@ -35,7 +35,7 @@ public class TaskView extends JPanel implements WorkerListener {
 		setPreferredSize(new Dimension(200, 20));
 		setBorder(new LineBorder(Color.BLACK));
 		
-		JLabel nameLabel = new JLabel(name);
+		JLabel nameLabel = new JLabel(typeName + ": " + name);
 		add(nameLabel, BorderLayout.CENTER);
 
 		status = Status.RECEIVED;

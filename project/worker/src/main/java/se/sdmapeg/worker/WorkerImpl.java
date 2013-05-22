@@ -33,10 +33,10 @@ public final class WorkerImpl implements Worker {
 	private String host;
 	private final TaskPerformer taskPerformer;
 	private final int poolSize;
-	private final Map<TaskId, FutureTask<Void>> taskMap =
+	private final Map<TaskId, FutureTask<Void>> futureTaskMap =
 		new ConcurrentHashMap<>();
 	private final Map<Runnable, TaskId> idMap = new ConcurrentHashMap<>();
-	private final Map<TaskId, String> nameMap = new ConcurrentHashMap<>(); // TODO: Zarth, check this. 
+	private final Map<TaskId, Task> taskMap = new ConcurrentHashMap<>(); // TODO: Zarth, check this. 
 	
 
 	private WorkerImpl(int poolSize, Server server, String host,
@@ -53,11 +53,16 @@ public final class WorkerImpl implements Worker {
 	
 	@Override
 	public String getTaskName(TaskId taskId){
-		return nameMap.get(taskId);
+		return taskMap.get(taskId).getName();
+	}
+	
+	@Override
+	public String getTypeName(TaskId taskId){
+		return taskMap.get(taskId).getTypeName();
 	}
 
 	private void cancelTask(TaskId taskId) {
-		FutureTask<Void> futureTask = taskMap.remove(taskId);
+		FutureTask<Void> futureTask = futureTaskMap.remove(taskId);
 		idMap.remove(futureTask);
 		if(futureTask == null) {
 			return;
@@ -71,9 +76,9 @@ public final class WorkerImpl implements Worker {
 		FutureTask<Void> futureTask = new FutureTask<>(new TaskRunner(taskId,
 				task), null);
 		LOG.info("Queueing task {}", taskId);
-		taskMap.put(taskId, futureTask);
+		futureTaskMap.put(taskId, futureTask);
 		idMap.put(futureTask, taskId);
-		nameMap.put(taskId, task.getName()); 
+		taskMap.put(taskId, task); 
 		taskExecutor.submit(futureTask);
 		listeners.taskAdded(taskId);
 	}
@@ -84,9 +89,9 @@ public final class WorkerImpl implements Worker {
 	}
 
 	private void completeTask(TaskId taskId, Result<?> result) {
-	    FutureTask<Void> futureTask = taskMap.remove(taskId); 
+	    FutureTask<Void> futureTask = futureTaskMap.remove(taskId); 
 	    idMap.remove(futureTask);
-	    nameMap.remove(taskId); 
+	    taskMap.remove(taskId); 
 		server.taskCompleted(taskId, result);
 		listeners.taskFinished(taskId);
 	}
@@ -98,7 +103,7 @@ public final class WorkerImpl implements Worker {
 	    for (Runnable runnable : runnables) {
 			TaskId taskId = idMap.remove(runnable);
 			if (taskId != null) {
-				taskMap.remove(taskId);
+				futureTaskMap.remove(taskId);
 			    stolenTasks.add(taskId);
 				listeners.taskStolen(taskId);
 			}

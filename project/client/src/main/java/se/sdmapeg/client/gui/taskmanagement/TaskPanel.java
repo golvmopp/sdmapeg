@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.util.Calendar;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import javax.swing.border.LineBorder;
 
 import se.sdmapeg.client.gui.listeners.TaskPanelListener;
@@ -23,8 +24,7 @@ public class TaskPanel extends JPanel implements ClientListener {
 
 	private JLabel elapsedTimeLabel;
 	private JButton actionButton;
-	private JPanel actionButtonPanel;
-	private JCheckBox selectBox;
+	private JCheckBox checkBox;
 
 	private static final Color CREATED = Color.WHITE;
 	private static final Color SENT = new Color(195, 200, 72);
@@ -37,17 +37,15 @@ public class TaskPanel extends JPanel implements ClientListener {
 		this.listener = listener;
 		this.setLayout(new BorderLayout());
 		
-		setBorder(new LineBorder(Color.BLACK));
+		setBorder(new BevelBorder(2, Color.BLACK, Color.BLACK));
 		
-		JPanel centerPanel = new JPanel(new GridLayout(1, 2));
+		JPanel centerPanel = new JPanel(new BorderLayout());
 		centerPanel.setOpaque(false);
 		JPanel centerPanelText = new JPanel(new GridLayout(3, 1));
 		centerPanelText.setOpaque(false);
-		centerPanel.add(centerPanelText);
+		centerPanel.add(centerPanelText, BorderLayout.CENTER);
 		JPanel checkBoxPanel = new JPanel(new BorderLayout());
 		checkBoxPanel.setOpaque(false);
-		actionButtonPanel = new JPanel(new BorderLayout());
-		actionButtonPanel.setOpaque(false);
 		
 		
 		centerPanelText.add(new JLabel(model.getTypeName() +": "+ model.getName()));
@@ -58,7 +56,6 @@ public class TaskPanel extends JPanel implements ClientListener {
 				Integer.toString(model.getTimeStamp().get(Calendar.MINUTE)), 2)));
 		elapsedTimeLabel = new JLabel("Time: 00:00:00");
 		centerPanelText.add(elapsedTimeLabel);
-		centerPanel.add(actionButtonPanel, BorderLayout.CENTER);
 		
 		actionButton = new JButton("Send task");
 		actionButton.addActionListener(new ActionListener() {
@@ -73,12 +70,13 @@ public class TaskPanel extends JPanel implements ClientListener {
 				}
 			}
 		});
-		actionButton.setPreferredSize(new Dimension(100, 0));
-		actionButtonPanel.add(actionButton, BorderLayout.CENTER);
+		centerPanel.add(actionButton, BorderLayout.EAST);
 		
-		selectBox = new JCheckBox();
-		checkBoxPanel.add(selectBox, BorderLayout.CENTER);
+		checkBox = new JCheckBox();
+		checkBox.setOpaque(false);
+		checkBoxPanel.add(checkBox, BorderLayout.CENTER);
 		checkBoxPanel.add(Box.createRigidArea(new Dimension(10, 0)), BorderLayout.EAST);
+		checkBoxPanel.setOpaque(false);
 		this.add(checkBoxPanel, BorderLayout.WEST);
 		this.add(centerPanel, BorderLayout.CENTER);
 
@@ -109,7 +107,7 @@ public class TaskPanel extends JPanel implements ClientListener {
 	}
 
 	public boolean isChecked() {
-		return selectBox.isSelected();
+		return checkBox.isSelected();
 	}
 
 	@Override
@@ -119,7 +117,7 @@ public class TaskPanel extends JPanel implements ClientListener {
 	public void taskSent(ClientTaskId clientTaskId) {
 		setBackground(SENT);
 		actionButton.setText("Cancel");
-		selectBox.setSelected(false);
+		checkBox.setSelected(false);
 
 		timer.start();
 	}
@@ -127,8 +125,7 @@ public class TaskPanel extends JPanel implements ClientListener {
 	@Override
 	public void taskCancelled(ClientTaskId clientTaskId) {
 		setBackground(FAILED);
-		actionButtonPanel.removeAll();
-		selectBox.setSelected(false);
+		checkBox.setSelected(false);
 		timer.stop();
 		repaint();
 	}
