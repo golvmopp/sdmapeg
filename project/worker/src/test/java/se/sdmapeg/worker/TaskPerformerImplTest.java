@@ -18,7 +18,7 @@ public class TaskPerformerImplTest {
 
 	@Test
 	public void testPerformFindNextIntTask() {
-		FindNextIntTask testTask = FindNextIntTask.newNextIntTask(0);
+		FindNextIntTask testTask = FindNextIntTask.newNextIntTask(0, "Test");
 		TaskPerformerImpl instance = new TaskPerformerImpl();
 		Result<Integer> result = instance.performFindNextIntTask(testTask);
 		try {
@@ -30,7 +30,7 @@ public class TaskPerformerImplTest {
 	
 	@Test
 	public void testPerformFindNextIntTaskFailedTask() {
-		FindNextIntTask testTask = FindNextIntTask.newNextIntTask(Integer.MAX_VALUE);
+		FindNextIntTask testTask = FindNextIntTask.newNextIntTask(Integer.MAX_VALUE, "Test");
 		TaskPerformerImpl instance = new TaskPerformerImpl();
 		Result<Integer> result = instance.performFindNextIntTask(testTask);
 		try {
@@ -43,7 +43,7 @@ public class TaskPerformerImplTest {
 	
 	@Test
 	public void testPerformFindNextPrimeTask() {
-		FindNextPrimeTask testTask = FindNextPrimeTask.newFindNextPrimeTask(7);
+		FindNextPrimeTask testTask = FindNextPrimeTask.newFindNextPrimeTask(7, "Test");
 		TaskPerformerImpl instance = new TaskPerformerImpl();
 		Result<Long> result = instance.performFindNextPrimeTask(testTask);
 		try {
@@ -55,7 +55,7 @@ public class TaskPerformerImplTest {
 	
 	@Test
 	public void testPerformFindNextPrimeTaskFailedTask() {
-		FindNextPrimeTask testTask = FindNextPrimeTask.newFindNextPrimeTask(Long.MAX_VALUE);
+		FindNextPrimeTask testTask = FindNextPrimeTask.newFindNextPrimeTask(Long.MAX_VALUE, "Test");
 		TaskPerformerImpl instance = new TaskPerformerImpl();
 		Result<Long> result = instance.performFindNextPrimeTask(testTask);
 		try {
@@ -69,7 +69,7 @@ public class TaskPerformerImplTest {
 	@Test
 	public void testPerformPythonTask() {
 		String pythonCode = "result=2";
-		PythonTask testTask = PythonTask.newPythonTask(pythonCode);
+		PythonTask testTask = PythonTask.newPythonTask(pythonCode, "Test");
 		TaskPerformerImpl instance = new TaskPerformerImpl();
 		Result<String> result = instance.performPythonTask(testTask);
 		try {
@@ -82,7 +82,7 @@ public class TaskPerformerImplTest {
 	@Test
 	public void testPerformPythonTaskFailedTask() {
 		String pythonCode = "result = ";
-		PythonTask testTask = PythonTask.newPythonTask(pythonCode);
+		PythonTask testTask = PythonTask.newPythonTask(pythonCode, "Test");
 		TaskPerformerImpl instance = new TaskPerformerImpl();
 		Result<String> result = instance.performPythonTask(testTask);
 		try {
@@ -95,7 +95,7 @@ public class TaskPerformerImplTest {
 	
 	@Test
 	public void testFindPrimeFactors() {
-		PrimeFactorsTask testTask = PrimeFactorsTask.newPrimeFactorTask(10);
+		PrimeFactorsTask testTask = PrimeFactorsTask.newPrimeFactorTask(10, "Test");
 		TaskPerformerImpl instance = new TaskPerformerImpl();
 		Result<List<Long>> result = instance.findPrimeFactors(testTask);
 		try {
@@ -107,7 +107,7 @@ public class TaskPerformerImplTest {
 	
 	@Test
 	public void testFindPrimeFactorsFailedTask() {
-		PrimeFactorsTask testTask = PrimeFactorsTask.newPrimeFactorTask(-12);
+		PrimeFactorsTask testTask = PrimeFactorsTask.newPrimeFactorTask(-12, "Test");
 		TaskPerformerImpl instance = new TaskPerformerImpl();
 		Result<List<Long>> result = instance.findPrimeFactors(testTask);
 		try {
