@@ -3,11 +3,13 @@ package se.sdmapeg.common.tasks;
 public final class FindNextPrimeTask implements Task<Long>{
 	private static final long serialVersionUID = 4695270945487264731L;
 	private long firstPrime;
+	private String name;
 
-	private FindNextPrimeTask(long prime) {
-		this.firstPrime = prime;
+	private FindNextPrimeTask(long firstPrime, String name) {
+		this.firstPrime = firstPrime;
+		this.name = name;
 	}
-	
+
 	public long getFirstPrime() {
 		return firstPrime;
 	}
@@ -21,8 +23,12 @@ public final class FindNextPrimeTask implements Task<Long>{
 	public Class<Long> resultType() {
 		return Long.class;
 	}
-	
-	public static FindNextPrimeTask newFindNextPrimeTask(long prime) {
-		return new FindNextPrimeTask(prime);
+
+	public String getName() {
+		return name;
+	}
+
+	public static FindNextPrimeTask newFindNextPrimeTask(long prime, String name) {
+		return new FindNextPrimeTask(prime, name);
 	}
 }

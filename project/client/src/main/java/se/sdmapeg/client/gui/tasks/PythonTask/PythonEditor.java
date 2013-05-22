@@ -81,10 +81,10 @@ public class PythonEditor implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		frame.dispose();
-		listener.finnishedEditing(textArea.getText());
+		listener.finishedEditing(textArea.getText());
 	}
 
 	public interface PythonEditorListener {
-		void finnishedEditing(String pythonScript);
+		void finishedEditing(String pythonScript);
 	}
 }

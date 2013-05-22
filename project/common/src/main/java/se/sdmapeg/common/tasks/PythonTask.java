@@ -3,9 +3,11 @@ package se.sdmapeg.common.tasks;
 public final class PythonTask implements Task<String> {
 	private static final long serialVersionUID = -2539795844520824496L;
 	private String pythonCode;
+	private String name;
 
-	private PythonTask(String pythonCode) {
+	private PythonTask(String pythonCode, String name) {
 		this.pythonCode = pythonCode;
+		this.name = name;
 	}
 
 	public String getPythonCode() {
@@ -22,7 +24,11 @@ public final class PythonTask implements Task<String> {
 		return String.class;
 	}
 
-	public static PythonTask newPythonTask(String pythonCode) {
-		return new PythonTask(pythonCode);
+	public String getName() {
+		return name;
+	}
+
+	public static PythonTask newPythonTask(String pythonCode, String name) {
+		return new PythonTask(pythonCode, name);
 	}
 }

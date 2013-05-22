@@ -25,4 +25,11 @@ public interface Task<R> extends Serializable {
 	 * @return the type of result expected by this task.
 	 */
 	Class<R> resultType();
+
+	/**
+	 * Returns the name of this task.
+	 *
+	 * @returnthe name of this task.
+	 */
+	String getName();
 }

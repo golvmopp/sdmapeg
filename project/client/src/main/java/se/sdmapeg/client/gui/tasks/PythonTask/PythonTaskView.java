@@ -11,13 +11,21 @@ import java.awt.event.ActionListener;
 public class PythonTaskView extends JPanel implements PythonEditor.PythonEditorListener {
 	TaskCreationListener listener;
 
+	JTextField name;
+
 	public PythonTaskView(TaskCreationListener listener) {
 		this.listener = listener;
 
 		setLayout(new BorderLayout());
 
-		JPanel buttons = new JPanel(new GridLayout(2, 1, 10, 10));
+		JPanel buttons = new JPanel(new GridLayout(4, 1, 10, 10));
 		add(buttons, BorderLayout.NORTH);
+
+		JLabel nameLabel = new JLabel("Name:");
+		buttons.add(nameLabel);
+
+		name = new JTextField();
+		buttons.add(name);
 
 		JButton write = new JButton("Create Python script");
 		write.addActionListener(new ActionListener() {
@@ -41,7 +49,7 @@ public class PythonTaskView extends JPanel implements PythonEditor.PythonEditorL
 	}
 
 	@Override
-	public void finnishedEditing(String pythonScript) {
-		listener.taskFinished(PythonTask.newPythonTask(pythonScript));
+	public void finishedEditing(String pythonScript) {
+		listener.taskFinished(PythonTask.newPythonTask(pythonScript, name.getText()));
 	}
 }
