@@ -21,7 +21,6 @@ public class TaskListView extends JPanel {
 
 	private final JPanel taskListView;
 	private final JLabel connectionInfoLabel;
-	//private final JXHyperlink connectButton;
 
 	private final Map<ClientTaskId, TaskController> tasks;
 	
