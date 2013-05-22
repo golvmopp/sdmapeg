@@ -343,6 +343,11 @@ public class ClientManagerModelTest {
 				public Class<Void> resultType() {
 					return Void.TYPE;
 				}
+
+				@Override
+				public String getName() {
+					return "test";
+				}
 			});
 		}
 		instance.addListener(new ClientManagerListener() {
@@ -397,6 +402,11 @@ public class ClientManagerModelTest {
 				@Override
 				public Class<Void> resultType() {
 					return Void.TYPE;
+				}
+
+				@Override
+				public String getName() {
+					return "test";
 				}
 			});
 		final AtomicBoolean notified = new AtomicBoolean(false);
@@ -536,6 +546,11 @@ public class ClientManagerModelTest {
 				public Class<Void> resultType() {
 					return Void.TYPE;
 				}
+
+				@Override
+				public String getName() {
+					return "test";
+				}
 			});
 		assertTrue(notified.get());
 	}
@@ -559,6 +574,11 @@ public class ClientManagerModelTest {
 				@Override
 				public Class<Void> resultType() {
 					return Void.TYPE;
+				}
+
+				@Override
+				public String getName() {
+					return "test";
 				}
 			});
 		final AtomicBoolean notified = new AtomicBoolean(false);
@@ -599,6 +619,11 @@ public class ClientManagerModelTest {
 				@Override
 				public Class<Void> resultType() {
 					return Void.TYPE;
+				}
+
+				@Override
+				public String getName() {
+					return "test";
 				}
 			});
 		assertFalse(notified.get());
@@ -650,6 +675,11 @@ public class ClientManagerModelTest {
 				public Class<Void> resultType() {
 					return Void.TYPE;
 				}
+
+				@Override
+				public String getName() {
+					return "test";
+				}
 			});
 		assertFalse(notified.get());
 	}
@@ -676,6 +706,11 @@ public class ClientManagerModelTest {
 				@Override
 				public Class<Void> resultType() {
 					return Void.TYPE;
+				}
+
+				@Override
+				public String getName() {
+					return "test";
 				}
 			});
 		final AtomicBoolean notified = new AtomicBoolean(false);
