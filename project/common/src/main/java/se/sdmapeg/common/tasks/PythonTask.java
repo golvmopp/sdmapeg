@@ -24,6 +24,7 @@ public final class PythonTask implements Task<String> {
 		return String.class;
 	}
 
+	@Override
 	public String getName() {
 		return name;
 	}

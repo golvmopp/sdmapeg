@@ -16,8 +16,11 @@ public class PrimeFactorTaskView extends JPanel {
 	public PrimeFactorTaskView(TaskCreationListener listener){
 		this.listener = listener;
 		
-		setLayout(new GridLayout(0, 1));
+		setLayout(new GridLayout(0, 1, 0, 2));
 
+		final JLabel nameLabel = new JLabel("Task name:");
+		final JTextField taskName = new JTextField();
+		final JLabel inDataLabel = new JLabel("Number to factor:");
 		final JTextField inData = new JTextField();
 		inData.setPreferredSize(new Dimension(120, 25));
 		
@@ -28,7 +31,8 @@ public class PrimeFactorTaskView extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					long number = Long.parseLong(inData.getText());
-					PrimeFactorsTask task = PrimeFactorsTask.newPrimeFactorTask(number);
+					PrimeFactorsTask task = PrimeFactorsTask.newPrimeFactorTask(number, 
+							taskName.getText());
 					PrimeFactorTaskView.this.listener.taskFinished(task);
 				} catch(NumberFormatException ex) {
 					JOptionPane.showMessageDialog(PrimeFactorTaskView.this, "NaN");
@@ -37,6 +41,9 @@ public class PrimeFactorTaskView extends JPanel {
 			}
 		});
 
+		add(nameLabel);
+		add(taskName);
+		add(inDataLabel);
 		add(inData);
 		add(submitButton);
 	}
