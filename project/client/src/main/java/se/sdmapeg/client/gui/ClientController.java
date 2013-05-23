@@ -4,18 +4,24 @@ import se.sdmapeg.client.models.Client;
 import se.sdmapeg.client.gui.taskmanagement.TaskListController;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class ClientController {
 	private final Client model;
 	private final JFrame view;
 
-	private ClientController(Client model) {
+	private ClientController(Client model, String host) {
 		this.model = model;
 		this.view = ClientView.newView(model);
 		model.start();
 
+		StatisticsView statisticsView = new StatisticsView(host);
+		model.addListener(statisticsView);
+		view.add(statisticsView, BorderLayout.WEST);
+
 		TaskListController taskList = TaskListController.newTaskListController(model);
-		view.add(taskList.getView());
+		view.add(taskList.getView(), BorderLayout.EAST);
+
 		view.pack();
 	}
 
@@ -23,7 +29,7 @@ public class ClientController {
 		return view;
 	}
 
-	public static ClientController newClientController(Client model) {
-		return new ClientController(model);
+	public static ClientController newClientController(Client model, String host) {
+		return new ClientController(model, host);
 	}
 }

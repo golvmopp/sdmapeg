@@ -32,11 +32,12 @@ public class TaskPanel extends JPanel implements ClientListener {
 	private static final Color FAILED = new Color(255, 91, 90);
 	
 	
-	public TaskPanel(TaskModel model, TaskPanelListener listener) {
+	public TaskPanel(TaskModel model, TaskPanelListener listener, int width) {
 		this.model = model;
 		this.listener = listener;
 		this.setLayout(new BorderLayout());
-		
+
+		setPreferredSize(new Dimension(width, 40));
 		setBorder(new BevelBorder(2, Color.BLACK, Color.BLACK));
 		
 		JPanel centerPanel = new JPanel(new BorderLayout());
@@ -51,13 +52,17 @@ public class TaskPanel extends JPanel implements ClientListener {
 		centerPanelText.add(new JLabel(model.getTypeName() +": "+ model.getName()));
 		centerPanelText.add(new JLabel("Created: " +
 				                               TimeFormatter.addLeadingZeros(
-						                               Integer.toString(model.getTimeStamp().get(Calendar.HOUR_OF_DAY)), 2) +
+						                               Integer.toString(model.getTimeStamp().get(Calendar
+
+								                                                                         .HOUR_OF_DAY)),
+						                               2) +
 				                               ":" + TimeFormatter.addLeadingZeros(
 				Integer.toString(model.getTimeStamp().get(Calendar.MINUTE)), 2)));
 		elapsedTimeLabel = new JLabel("Time: 00:00:00");
 		centerPanelText.add(elapsedTimeLabel);
 		
 		actionButton = new JButton("Send task");
+		actionButton.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 		actionButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

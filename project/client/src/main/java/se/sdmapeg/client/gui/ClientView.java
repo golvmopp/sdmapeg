@@ -1,6 +1,6 @@
 package se.sdmapeg.client.gui;
 
-import java.awt.GridLayout;
+import java.awt.*;
 
 import javax.swing.JFrame;
 
@@ -16,7 +16,7 @@ public class ClientView extends JFrame {
 		this.client = client;
 
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setLayout(new GridLayout(1, 2));
+		setLayout(new BorderLayout(10, 0));
 
 		setVisible(true);
 	}
