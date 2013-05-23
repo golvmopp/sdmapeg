@@ -25,6 +25,6 @@ public final class Main {
 			JOptionPane.showMessageDialog(null, "Could not connect to server.");
 			return;
 		}
-		ClientController.newClientController(client);
+		ClientController.newClientController(client, host);
 	}
 }

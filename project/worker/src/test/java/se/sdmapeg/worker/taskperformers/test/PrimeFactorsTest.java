@@ -1,8 +1,10 @@
-package se.sdmapeg.worker.taskperformers;
+package se.sdmapeg.worker.taskperformers.test;
 
 import java.util.concurrent.ExecutionException;
 
 import org.junit.Test;
+
+import se.sdmapeg.worker.taskperformers.PrimeFactors;
 
 public class PrimeFactorsTest {
 

@@ -1,4 +1,4 @@
-package se.sdmapeg.worker;
+package se.sdmapeg.worker.test;
 
 import static org.junit.Assert.*;
 
@@ -13,6 +13,7 @@ import se.sdmapeg.common.tasks.FindNextPrimeTask;
 import se.sdmapeg.common.tasks.PrimeFactorsTask;
 import se.sdmapeg.common.tasks.PythonTask;
 import se.sdmapeg.common.tasks.Result;
+import se.sdmapeg.worker.TaskPerformerImpl;
 
 public class TaskPerformerImplTest {
 

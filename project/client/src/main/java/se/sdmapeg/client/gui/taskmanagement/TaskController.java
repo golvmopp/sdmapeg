@@ -13,10 +13,10 @@ public class TaskController implements TaskPanelListener, ClientListener {
 	private final TaskPanel view;
 	private final TaskListener listener;
 
-	private TaskController(Client client, Task<?> task, ClientTaskId clientTaskId, TaskListener listener) {
+	private TaskController(Client client, Task<?> task, ClientTaskId clientTaskId, TaskListener listener, int width) {
 		this.client = client;
 		this.model = TaskModel.newTaskModel(task, clientTaskId);
-		this.view = new TaskPanel(model, this);
+		this.view = new TaskPanel(model, this, width);
 		this.listener = listener;
 	}
 
@@ -38,8 +38,8 @@ public class TaskController implements TaskPanelListener, ClientListener {
 		client.cancelTask(model.getClientTaskId());
 	}
 
-	public static TaskController newTaskController(Client client, Task<?> task, ClientTaskId clientTaskId, TaskListener listener) {
-		return new TaskController(client, task, clientTaskId, listener);
+	public static TaskController newTaskController(Client client, Task<?> task, ClientTaskId clientTaskId, TaskListener listener, int width) {
+		return new TaskController(client, task, clientTaskId, listener, width);
 	}
 
 	@Override

@@ -20,10 +20,9 @@ public class TaskListView extends JPanel {
 	private TaskListViewListener listener;
 
 	private final JPanel taskListView;
-	private final JLabel connectionInfoLabel;
 
 	private final Map<ClientTaskId, TaskController> tasks;
-	
+
 	public TaskListView(Client client){
 		tasks = new HashMap<>();
 
@@ -33,12 +32,12 @@ public class TaskListView extends JPanel {
 		client.addListener(new ClientListenerImpl());
 
 		setLayout(new BorderLayout());
-		JPanel proxyPanel = new JPanel(); //For making a proper list in scrollpane. 
+		JPanel proxyPanel = new JPanel(); //For making a proper list in scrollpane.
 		JPanel centerList = new JPanel(new BorderLayout());
 		JLabel titleLabel = new JLabel("Tasks");
 		add(titleLabel, BorderLayout.NORTH);
 		add(centerList, BorderLayout.CENTER);
-		
+
 		taskListView = new JPanel(new GridLayout(0, 1, 0, 2));
 		JScrollPane taskList = new JScrollPane();
 		proxyPanel.add(taskListView);
@@ -46,7 +45,7 @@ public class TaskListView extends JPanel {
 		taskList.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		taskList.setBorder(new LineBorder(Color.BLACK));
 		centerList.add(taskList);
-		
+
 		JPanel buttonPanel = new JPanel(new GridLayout(1, 0));
 		BottomButton clearButton = new BottomButton("Clear", true);
 		BottomButton addButton = new BottomButton("Add");
@@ -56,7 +55,7 @@ public class TaskListView extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				listener.addButtonPressed();
-			}			
+			}
 		}
 		);
 		clearButton.addActionListener(new ActionListener() {
@@ -84,11 +83,6 @@ public class TaskListView extends JPanel {
 		buttonPanel.add(addButton);
 		buttonPanel.add(sendButton);
 		centerList.add(buttonPanel, BorderLayout.SOUTH);
-		
-		JPanel connectionBar = new JPanel(new BorderLayout());
-		add(connectionBar, BorderLayout.SOUTH);
-		connectionInfoLabel = new JLabel("Connected to: " + client.getHost());
-		connectionBar.add(connectionInfoLabel, BorderLayout.WEST);
 	}
 
 	private void removeTask(ClientTaskId clientTaskId) {
@@ -118,7 +112,7 @@ public class TaskListView extends JPanel {
 						public void removed(ClientTaskId clientTaskId) {
 							removeTask(clientTaskId);
 						}
-					});
+					}, (int) TaskListView.this.getPreferredSize().getWidth()-30);
 					tasks.put(clientTaskId, task);
 					taskListView.add(task.getView());
 					SwingUtilities.getRoot(taskListView).validate();

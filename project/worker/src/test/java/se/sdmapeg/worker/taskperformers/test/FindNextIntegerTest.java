@@ -1,4 +1,4 @@
-package se.sdmapeg.worker.taskperformers;
+package se.sdmapeg.worker.taskperformers.test;
 
 import static org.junit.Assert.*;
 
@@ -6,6 +6,8 @@ import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 import org.junit.Test;
+
+import se.sdmapeg.worker.taskperformers.FindNextInteger;
 
 public class FindNextIntegerTest {
 
