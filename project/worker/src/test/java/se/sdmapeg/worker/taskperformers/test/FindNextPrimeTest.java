@@ -1,4 +1,4 @@
-package se.sdmapeg.worker.taskperformers;
+package se.sdmapeg.worker.taskperformers.test;
 
 import java.util.Arrays;
 import java.util.Random;
@@ -6,6 +6,8 @@ import java.util.concurrent.ExecutionException;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+
+import se.sdmapeg.worker.taskperformers.FindNextPrime;
 
 public class FindNextPrimeTest {
 	private final int[] primes = generatePrimes(2000000);
