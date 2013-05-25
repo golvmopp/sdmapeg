@@ -59,7 +59,9 @@ public final class ClientManagerModel implements Listenable<ClientManagerListene
 	}
 
 	public void removeClient(Client client) {
-		addressMap.remove(client.getAddress());
+		if (addressMap.remove(client.getAddress()) == null) {
+			return;
+		} 
 		LOG.info("{} disconnected", client);
 		listeners.clientDisconnected(client.getAddress());
 		for (TaskId task : client.getActiveTasks()) {

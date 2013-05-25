@@ -227,7 +227,12 @@ public class ClientManagerModelTest {
 		final Client client = new MockClient(address);
 		ClientManagerCallback callback = EMPTY_CALLBACK;
 		ClientManagerModel instance = createClientManagerModel(callback);
+		SpecificNotificationListener listener =
+			SpecificNotificationListener.clientDisconnected(
+				IsEqual.equalTo(address));
+		instance.addListener(listener);
 		instance.removeClient(client);
+		assertFalse(listener.wasNotified());
 	}
 
 	@Test

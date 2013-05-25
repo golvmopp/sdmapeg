@@ -65,7 +65,9 @@ public final class WorkerCoordinatorModel implements Listenable<WorkerCoordinato
 	}
 
 	public void removeWorker(Worker worker) {
-		addressMap.remove(worker.getAddress());
+		if (addressMap.remove(worker.getAddress()) == null) {
+			return;
+		}
 		LOG.info("{} disconnected", worker);
 		listeners.workerDisconnected(worker.getAddress());
 		for (TaskId taskId : worker.getActiveTasks()) {
