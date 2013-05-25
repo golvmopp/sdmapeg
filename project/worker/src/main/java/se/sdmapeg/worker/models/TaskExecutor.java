@@ -1,4 +1,4 @@
-package se.sdmapeg.worker;
+package se.sdmapeg.worker.models;
 
 import java.util.HashSet;
 import java.util.Set;

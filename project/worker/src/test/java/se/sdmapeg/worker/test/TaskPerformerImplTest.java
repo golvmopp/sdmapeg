@@ -13,7 +13,7 @@ import se.sdmapeg.common.tasks.FindNextPrimeTask;
 import se.sdmapeg.common.tasks.PrimeFactorsTask;
 import se.sdmapeg.common.tasks.PythonTask;
 import se.sdmapeg.common.tasks.Result;
-import se.sdmapeg.worker.TaskPerformerImpl;
+import se.sdmapeg.worker.models.TaskPerformerImpl;
 
 public class TaskPerformerImplTest {
 

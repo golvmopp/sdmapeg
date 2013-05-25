@@ -2,9 +2,8 @@ package se.sdmapeg.worker.gui;
 
 import se.sdmapeg.common.TimeFormatter;
 import se.sdmapeg.serverworker.TaskId;
-import se.sdmapeg.worker.Worker;
-import se.sdmapeg.worker.WorkerImpl;
-import se.sdmapeg.worker.WorkerListener;
+import se.sdmapeg.worker.models.Worker;
+import se.sdmapeg.worker.models.WorkerListener;
 
 import javax.swing.*;
 import java.awt.*;

@@ -11,6 +11,7 @@ import se.sdmapeg.common.communication.ConnectionImpl;
 import se.sdmapeg.serverworker.communication.ServerToWorkerMessage;
 import se.sdmapeg.serverworker.communication.WorkerToServerMessage;
 import se.sdmapeg.worker.gui.WorkerView;
+import se.sdmapeg.worker.models.*;
 
 public final class Main {
 	private static final int SERVER_PORT = 6667;
@@ -35,7 +36,7 @@ public final class Main {
 		}
 		int poolSize = Runtime.getRuntime().availableProcessors();
 		Worker worker = WorkerImpl.newWorkerImpl(poolSize, server, host,
-												new TaskPerformerImpl());
+		                                         new TaskPerformerImpl());
 		worker.start();
 		WorkerView view = new WorkerView(worker);
 	}
