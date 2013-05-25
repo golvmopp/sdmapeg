@@ -1,4 +1,4 @@
-package se.sdmapeg.client.gui.tasks.PythonTask;
+package se.sdmapeg.client.gui.views.tasks.PythonTask;
 
 import se.sdmapeg.client.gui.listeners.TaskCreationListener;
 import se.sdmapeg.common.tasks.PythonTask;

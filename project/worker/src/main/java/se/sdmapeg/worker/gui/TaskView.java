@@ -1,7 +1,7 @@
 package se.sdmapeg.worker.gui;
 
 import se.sdmapeg.serverworker.TaskId;
-import se.sdmapeg.worker.WorkerListener;
+import se.sdmapeg.worker.models.WorkerListener;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;

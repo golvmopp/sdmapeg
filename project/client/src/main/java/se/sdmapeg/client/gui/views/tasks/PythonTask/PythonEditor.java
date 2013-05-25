@@ -1,4 +1,4 @@
-package se.sdmapeg.client.gui.tasks.PythonTask;
+package se.sdmapeg.client.gui.views.tasks.PythonTask;
 
 import java.awt.BorderLayout;
 import java.awt.Font;

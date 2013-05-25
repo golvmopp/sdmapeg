@@ -1,4 +1,4 @@
-package se.sdmapeg.worker;
+package se.sdmapeg.worker.models;
 
 import se.sdmapeg.common.communication.Connection;
 import se.sdmapeg.serverworker.communication.*;

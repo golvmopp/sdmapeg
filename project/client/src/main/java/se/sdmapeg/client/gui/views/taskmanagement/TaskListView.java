@@ -1,4 +1,4 @@
-package se.sdmapeg.client.gui.taskmanagement;
+package se.sdmapeg.client.gui.views.taskmanagement;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -11,6 +11,7 @@ import javax.swing.border.LineBorder;
 
 import se.sdmapeg.client.gui.listeners.TaskListViewListener;
 import se.sdmapeg.client.gui.listeners.TaskListener;
+import se.sdmapeg.client.gui.controllers.taskmanagement.TaskController;
 import se.sdmapeg.client.models.Client;
 import se.sdmapeg.client.models.ClientListener;
 import se.sdmapeg.serverclient.ClientTaskId;
@@ -21,7 +22,7 @@ public class TaskListView extends JPanel {
 
 	private final JPanel taskListView;
 
-	private final Map<ClientTaskId, TaskController> tasks;
+	private final Map<ClientTaskId, TaskPanel> tasks;
 
 	public TaskListView(Client client){
 		tasks = new HashMap<>();
@@ -62,7 +63,7 @@ public class TaskListView extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				for (ClientTaskId clientTaskId : tasks.keySet()) {
-					if (tasks.get(clientTaskId).isSelected()) {
+					if (tasks.get(clientTaskId).isChecked()) {
 						removeTask(clientTaskId);
 					}
 				}
@@ -72,8 +73,8 @@ public class TaskListView extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				for (ClientTaskId clientTaskId : tasks.keySet()) {
-					if (tasks.get(clientTaskId).isSelected()) {
-						tasks.get(clientTaskId).send();
+					if (tasks.get(clientTaskId).isChecked()) {
+						listener.taskSendButtonPressed(clientTaskId);
 					}
 				}
 			}
@@ -85,8 +86,19 @@ public class TaskListView extends JPanel {
 		centerList.add(buttonPanel, BorderLayout.SOUTH);
 	}
 
-	private void removeTask(ClientTaskId clientTaskId) {
-		taskListView.remove(tasks.get(clientTaskId).getView());
+	public void addTask(final ClientTaskId clientTaskId, final TaskPanel task) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				tasks.put(clientTaskId, task);
+				taskListView.add(task);
+				SwingUtilities.getRoot(taskListView).validate();
+			}
+		});
+	}
+
+	public void removeTask(ClientTaskId clientTaskId) {
+		taskListView.remove(tasks.get(clientTaskId));
 		revalidate();
 	}
 
@@ -96,28 +108,8 @@ public class TaskListView extends JPanel {
 
 	private final class ClientListenerImpl implements ClientListener {
 		@Override
-		public void taskCreated(final ClientTaskId clientTaskId) {
-			SwingUtilities.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					TaskController task = TaskController
-							.newTaskController(client, client.getTask(clientTaskId), clientTaskId,
-							                   new TaskListener() {
-						@Override
-						public void showResultButtonPressed(ClientTaskId clientTaskId) {
-							JOptionPane.showMessageDialog(null, client.getResult(clientTaskId));
-						}
-
-						@Override
-						public void removed(ClientTaskId clientTaskId) {
-							removeTask(clientTaskId);
-						}
-					}, (int) TaskListView.this.getPreferredSize().getWidth()-30);
-					tasks.put(clientTaskId, task);
-					taskListView.add(task.getView());
-					SwingUtilities.getRoot(taskListView).validate();
-				}
-			});
+		public void taskCreated(ClientTaskId clientTaskId) {
+			listener.taskCreated(clientTaskId);
 		}
 
 		@Override

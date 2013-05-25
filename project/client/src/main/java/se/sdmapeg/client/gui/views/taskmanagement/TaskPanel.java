@@ -1,4 +1,4 @@
-package se.sdmapeg.client.gui.taskmanagement;
+package se.sdmapeg.client.gui.views.taskmanagement;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -10,9 +10,9 @@ import java.util.Calendar;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
-import javax.swing.border.LineBorder;
 
 import se.sdmapeg.client.gui.listeners.TaskPanelListener;
+import se.sdmapeg.client.gui.models.TaskModel;
 import se.sdmapeg.client.models.ClientListener;
 import se.sdmapeg.common.TimeFormatter;
 import se.sdmapeg.serverclient.ClientTaskId;
@@ -36,6 +36,7 @@ public class TaskPanel extends JPanel implements ClientListener {
 		this.model = model;
 		this.listener = listener;
 		this.setLayout(new BorderLayout());
+		model.setStartTime(System.currentTimeMillis());
 
 		setPreferredSize(new Dimension(width, 40));
 		setBorder(new BevelBorder(2, Color.BLACK, Color.BLACK));
@@ -121,6 +122,7 @@ public class TaskPanel extends JPanel implements ClientListener {
 	@Override
 	public void taskSent(ClientTaskId clientTaskId) {
 		setBackground(SENT);
+		model.setState(TaskModel.TaskState.SENT);
 		actionButton.setText("Cancel");
 		checkBox.setSelected(false);
 
@@ -130,6 +132,7 @@ public class TaskPanel extends JPanel implements ClientListener {
 	@Override
 	public void taskCancelled(ClientTaskId clientTaskId) {
 		setBackground(FAILED);
+		model.setState(TaskModel.TaskState.FAILED);
 		checkBox.setSelected(false);
 		timer.stop();
 		repaint();
@@ -138,6 +141,7 @@ public class TaskPanel extends JPanel implements ClientListener {
 	@Override
 	public void resultReceived(ClientTaskId clientTaskId) {
 		setBackground(COMPLETED);
+		model.setState(TaskModel.TaskState.COMPLETED);
 		actionButton.setText("Show result");
 		timer.stop();
 	}

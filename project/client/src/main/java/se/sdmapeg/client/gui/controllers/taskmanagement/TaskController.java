@@ -1,7 +1,9 @@
-package se.sdmapeg.client.gui.taskmanagement;
+package se.sdmapeg.client.gui.controllers.taskmanagement;
 
 import se.sdmapeg.client.gui.listeners.TaskListener;
 import se.sdmapeg.client.gui.listeners.TaskPanelListener;
+import se.sdmapeg.client.gui.models.TaskModel;
+import se.sdmapeg.client.gui.views.taskmanagement.TaskPanel;
 import se.sdmapeg.client.models.Client;
 import se.sdmapeg.client.models.ClientListener;
 import se.sdmapeg.common.tasks.Task;
