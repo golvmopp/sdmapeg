@@ -36,6 +36,7 @@ public class TaskPanel extends JPanel implements ClientListener {
 		this.model = model;
 		this.listener = listener;
 		this.setLayout(new BorderLayout());
+		model.setStartTime(System.currentTimeMillis());
 
 		setPreferredSize(new Dimension(width, 40));
 		setBorder(new BevelBorder(2, Color.BLACK, Color.BLACK));
