@@ -11,6 +11,11 @@ import se.sdmapeg.common.communication.ConnectionImpl;
 import se.sdmapeg.serverworker.communication.ServerToWorkerMessage;
 import se.sdmapeg.serverworker.communication.WorkerToServerMessage;
 import se.sdmapeg.worker.gui.WorkerView;
+import se.sdmapeg.worker.models.Server;
+import se.sdmapeg.worker.models.ServerImpl;
+import se.sdmapeg.worker.models.TaskPerformerImpl;
+import se.sdmapeg.worker.models.Worker;
+import se.sdmapeg.worker.models.WorkerImpl;
 
 public final class Main {
 	private static final int SERVER_PORT = 6667;
