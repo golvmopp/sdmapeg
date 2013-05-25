@@ -1,4 +1,4 @@
-package se.sdmapeg.client.gui.taskmanagement;
+package se.sdmapeg.client.gui.views.taskmanagement;
 
 import javax.swing.*;
 import java.awt.*;

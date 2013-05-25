@@ -3,7 +3,7 @@ package se.sdmapeg.client;
 import javax.swing.JOptionPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import se.sdmapeg.client.gui.ClientController;
+import se.sdmapeg.client.gui.controllers.ClientController;
 import se.sdmapeg.client.models.Client;
 import se.sdmapeg.client.models.ClientImpl;
 import se.sdmapeg.common.communication.CommunicationException;

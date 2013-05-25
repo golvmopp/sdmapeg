@@ -1,4 +1,4 @@
-package se.sdmapeg.client.gui.taskcreation;
+package se.sdmapeg.client.gui.views;
 
 import java.awt.BorderLayout;
 import java.awt.event.ItemEvent;
@@ -9,9 +9,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import se.sdmapeg.client.gui.listeners.TaskCreationListener;
-import se.sdmapeg.client.gui.tasks.FindNextPrimeTaskView;
-import se.sdmapeg.client.gui.tasks.PrimeFactorTaskView;
-import se.sdmapeg.client.gui.tasks.PythonTask.PythonTaskView;
+import se.sdmapeg.client.gui.views.tasks.FindNextPrimeTaskView;
+import se.sdmapeg.client.gui.views.tasks.PrimeFactorTaskView;
+import se.sdmapeg.client.gui.views.tasks.PythonTask.PythonTaskView;
 import se.sdmapeg.common.tasks.FindNextPrimeTask;
 import se.sdmapeg.common.tasks.PrimeFactorsTask;
 import se.sdmapeg.common.tasks.PythonTask;

@@ -1,26 +1,30 @@
-package se.sdmapeg.client.gui.tasks;
-
-import se.sdmapeg.client.gui.listeners.TaskCreationListener;
-import se.sdmapeg.common.tasks.PrimeFactorsTask;
+package se.sdmapeg.client.gui.views.tasks;
 
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
-public class PrimeFactorTaskView extends JPanel {
+import se.sdmapeg.client.gui.listeners.TaskCreationListener;
+import se.sdmapeg.common.tasks.FindNextPrimeTask;
+
+public class FindNextPrimeTaskView extends JPanel{
 	TaskCreationListener listener;
-
-	public PrimeFactorTaskView(TaskCreationListener listener){
+	
+	public FindNextPrimeTaskView(TaskCreationListener listener){
 		this.listener = listener;
 		
 		setLayout(new GridLayout(0, 1, 0, 2));
 
 		final JLabel nameLabel = new JLabel("Task name:");
 		final JTextField taskName = new JTextField();
-		final JLabel inDataLabel = new JLabel("Number to factor:");
+		final JLabel inDataLabel = new JLabel("Prime number:");
 		final JTextField inData = new JTextField();
 		inData.setPreferredSize(new Dimension(120, 25));
 		
@@ -30,14 +34,13 @@ public class PrimeFactorTaskView extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-					long number = Long.parseLong(inData.getText());
-					PrimeFactorsTask task = PrimeFactorsTask.newPrimeFactorTask(number, 
+					long prime = Long.parseLong(inData.getText());
+					FindNextPrimeTask task = FindNextPrimeTask.newFindNextPrimeTask(prime, 
 							taskName.getText());
-					PrimeFactorTaskView.this.listener.taskFinished(task);
+					FindNextPrimeTaskView.this.listener.taskFinished(task);
 				} catch(NumberFormatException ex) {
-					JOptionPane.showMessageDialog(PrimeFactorTaskView.this, "NaN");
+					JOptionPane.showMessageDialog(FindNextPrimeTaskView.this, "NaN");
 				}
-
 			}
 		});
 
@@ -46,5 +49,6 @@ public class PrimeFactorTaskView extends JPanel {
 		add(inDataLabel);
 		add(inData);
 		add(submitButton);
+		
 	}
 }

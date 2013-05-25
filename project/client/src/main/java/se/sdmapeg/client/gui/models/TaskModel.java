@@ -1,4 +1,4 @@
-package se.sdmapeg.client.gui.taskmanagement;
+package se.sdmapeg.client.gui.models;
 
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.serverclient.ClientTaskId;

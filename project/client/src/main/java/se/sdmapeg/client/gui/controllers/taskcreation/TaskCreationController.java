@@ -1,6 +1,7 @@
-package se.sdmapeg.client.gui.taskcreation;
+package se.sdmapeg.client.gui.controllers.taskcreation;
 
 import se.sdmapeg.client.gui.listeners.TaskCreationListener;
+import se.sdmapeg.client.gui.views.TaskCreationView;
 import se.sdmapeg.client.models.Client;
 import se.sdmapeg.common.tasks.Task;
 

@@ -1,30 +1,26 @@
-package se.sdmapeg.client.gui.tasks;
+package se.sdmapeg.client.gui.views.tasks;
+
+import se.sdmapeg.client.gui.listeners.TaskCreationListener;
+import se.sdmapeg.common.tasks.PrimeFactorsTask;
 
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.*;
 
-import se.sdmapeg.client.gui.listeners.TaskCreationListener;
-import se.sdmapeg.common.tasks.FindNextPrimeTask;
-
-public class FindNextPrimeTaskView extends JPanel{
+public class PrimeFactorTaskView extends JPanel {
 	TaskCreationListener listener;
-	
-	public FindNextPrimeTaskView(TaskCreationListener listener){
+
+	public PrimeFactorTaskView(TaskCreationListener listener){
 		this.listener = listener;
 		
 		setLayout(new GridLayout(0, 1, 0, 2));
 
 		final JLabel nameLabel = new JLabel("Task name:");
 		final JTextField taskName = new JTextField();
-		final JLabel inDataLabel = new JLabel("Prime number:");
+		final JLabel inDataLabel = new JLabel("Number to factor:");
 		final JTextField inData = new JTextField();
 		inData.setPreferredSize(new Dimension(120, 25));
 		
@@ -34,13 +30,14 @@ public class FindNextPrimeTaskView extends JPanel{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-					long prime = Long.parseLong(inData.getText());
-					FindNextPrimeTask task = FindNextPrimeTask.newFindNextPrimeTask(prime, 
+					long number = Long.parseLong(inData.getText());
+					PrimeFactorsTask task = PrimeFactorsTask.newPrimeFactorTask(number, 
 							taskName.getText());
-					FindNextPrimeTaskView.this.listener.taskFinished(task);
+					PrimeFactorTaskView.this.listener.taskFinished(task);
 				} catch(NumberFormatException ex) {
-					JOptionPane.showMessageDialog(FindNextPrimeTaskView.this, "NaN");
+					JOptionPane.showMessageDialog(PrimeFactorTaskView.this, "NaN");
 				}
+
 			}
 		});
 
@@ -49,6 +46,5 @@ public class FindNextPrimeTaskView extends JPanel{
 		add(inDataLabel);
 		add(inData);
 		add(submitButton);
-		
 	}
 }
