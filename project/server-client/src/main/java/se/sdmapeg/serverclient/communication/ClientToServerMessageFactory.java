@@ -49,6 +49,7 @@ public final class ClientToServerMessageFactory {
 			this.clientTaskId = clientTaskId;
 		}
 
+		@Override
 		public ClientTaskId getTaskId() {
 			return clientTaskId;
 		}
@@ -78,6 +79,7 @@ public final class ClientToServerMessageFactory {
 		 * Returns the Task of this TaskMessage.
 		 * @return the Task of this TaskMessage
 		 */
+		@Override
 		public Task<?> getTask(){
 			return task;
 		}
@@ -86,6 +88,7 @@ public final class ClientToServerMessageFactory {
 		 * Returns the TaskId of this TaskMessage.
 		 * @return the TaskId of this TaskMessage
 		 */
+		@Override
 		public ClientTaskId getTaskId(){
 			return taskID;
 		}

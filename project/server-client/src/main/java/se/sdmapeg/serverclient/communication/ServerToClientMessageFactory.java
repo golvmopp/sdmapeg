@@ -31,6 +31,7 @@ public final class ServerToClientMessageFactory {
 		 * Returns the ClientTaskId of this ResultMessage.
 		 * @return the ClientTaskId of this ResultMessage
 		 */
+		@Override
 		public ClientTaskId getId() {
 			return id;
 		}
@@ -39,6 +40,7 @@ public final class ServerToClientMessageFactory {
 		 * Returns the Result of this ResultMessage.
 		 * @return the Result of this ResultMessage
 		 */
+		@Override
 		public Result<?> getResult() {
 			return result;
 		}
