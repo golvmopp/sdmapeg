@@ -10,17 +10,21 @@ import javax.swing.JPanel;
 
 import se.sdmapeg.client.gui.listeners.TaskCreationListener;
 import se.sdmapeg.client.gui.views.tasks.FindNextPrimeTaskView;
+import se.sdmapeg.client.gui.views.tasks.IdleTaskView;
 import se.sdmapeg.client.gui.views.tasks.PrimeFactorTaskView;
 import se.sdmapeg.client.gui.views.tasks.PythonTask.PythonTaskView;
 import se.sdmapeg.common.tasks.FindNextPrimeTask;
+import se.sdmapeg.common.tasks.IdleTask;
 import se.sdmapeg.common.tasks.PrimeFactorsTask;
 import se.sdmapeg.common.tasks.PythonTask;
 import se.sdmapeg.common.tasks.Task;
 
 public class TaskCreationView extends JFrame {
 	public enum TaskType {
-		PYTHON_TASK(PythonTask.newPythonTask(null, null)), PRIME_FACTOR_TASK(PrimeFactorsTask.newPrimeFactorTask(0, null)),
-		NEXT_PRIME_TASK(FindNextPrimeTask.newFindNextPrimeTask(0, null));
+		PYTHON_TASK(PythonTask.newPythonTask(null, null)), 
+		PRIME_FACTOR_TASK(PrimeFactorsTask.newPrimeFactorTask(0, null)),
+		NEXT_PRIME_TASK(FindNextPrimeTask.newFindNextPrimeTask(0, null)), 
+		IDLE_TASK(IdleTask.newIdleTask(null));
 
 		private final Task<?> task;
 
@@ -73,6 +77,8 @@ public class TaskCreationView extends JFrame {
 				return new PrimeFactorTaskView(listener);
 			case NEXT_PRIME_TASK:
 				return new FindNextPrimeTaskView(listener);
+			case IDLE_TASK:
+				return new IdleTaskView(listener);
 			default:
 				return new JPanel();
 		}

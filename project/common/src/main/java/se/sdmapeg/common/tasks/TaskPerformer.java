@@ -11,4 +11,5 @@ public interface TaskPerformer {
 	Result<Integer> performFindNextIntTask(FindNextIntTask nextIntTask);
 	Result<List<Long>> findPrimeFactors(PrimeFactorsTask primeFactorsTask);
 	Result<Long> performFindNextPrimeTask(FindNextPrimeTask findNextPrimeTask);
+	Result<String> performIdleTask(IdleTask idleTask);
 }
