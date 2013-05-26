@@ -2,7 +2,6 @@ package se.sdmapeg.server.clients;
 
 import se.sdmapeg.server.clients.models.ClientManagerState;
 import se.sdmapeg.server.clients.callbacks.ClientManagerListener;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import se.sdmapeg.common.listeners.Listenable;
 import se.sdmapeg.common.tasks.Result;
@@ -22,7 +21,8 @@ public interface ClientManager extends Listenable<ClientManagerListener> {
 	void handleResult(TaskId taskId, Result<?> result);
 
 	/**
-	 * Shuts down this ClientManager. By disconnecting all clients and stops listening to new connections.
+	 * Shuts down this ClientManager. By disconnecting all clients and stops
+	 * listening to new connections.
 	 */
 	void shutDown();
 

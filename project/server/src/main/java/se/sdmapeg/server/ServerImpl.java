@@ -68,8 +68,8 @@ public final class ServerImpl implements Server {
 			throw ex;
 		}
 		workerCoordinator = WorkerCoordinatorImpl.newWorkerCoordinator(
-				connectionThreadPool, workerConnectionHandler,
-				new WorkersCallback(), listenerExecutor);
+			connectionThreadPool, workerConnectionHandler,
+			new WorkersCallback(), listenerExecutor);
 	}
 
 	@Override

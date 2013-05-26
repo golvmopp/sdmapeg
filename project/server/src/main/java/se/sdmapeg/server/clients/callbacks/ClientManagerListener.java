@@ -1,6 +1,5 @@
 package se.sdmapeg.server.clients.callbacks;
 
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import se.sdmapeg.serverworker.TaskId;
 

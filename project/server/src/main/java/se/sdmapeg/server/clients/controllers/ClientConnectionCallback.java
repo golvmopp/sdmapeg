@@ -13,24 +13,37 @@ import se.sdmapeg.serverclient.communication.ServerToClientMessage;
 import se.sdmapeg.serverworker.TaskId;
 
 /**
- *
- * @author niclas
+ * A callback to handle new client connections.
  */
-public final class ClientConnectionCallback implements ConnectionAcceptorCallback<ServerToClientMessage, ClientToServerMessage> {
+public final class ClientConnectionCallback
+		implements ConnectionAcceptorCallback<ServerToClientMessage,
+			ClientToServerMessage> {
 	private final ClientManagerModel state;
 	private final ExecutorService connectionThreadPool;
 	private final IdGenerator<TaskId> taskIdGenerator;
 
+	/**
+	 * Creates a new ClientConnectionCallback, with the specified
+	 * ClientManagerModel to update, ExecutorService to execute new listener
+	 * tasks, and task ID generator to be used by the new clients to generate
+	 * task IDs.
+	 *
+	 * @param state the model to update with new clients
+	 * @param connectionThreadPool the thread pool to be used for listening to
+	 *                             new clients
+	 * @param taskIdGenerator the ID generator to be used by new clients
+	 */
 	public ClientConnectionCallback(ClientManagerModel state,
-									ExecutorService connectionThreadPool,
-									IdGenerator<TaskId> taskIdGenerator) {
+			ExecutorService connectionThreadPool,
+			IdGenerator<TaskId> taskIdGenerator) {
 		this.state = state;
 		this.connectionThreadPool = connectionThreadPool;
 		this.taskIdGenerator = taskIdGenerator;
 	}
 
 	@Override
-	public void connectionReceived(Connection<ServerToClientMessage, ClientToServerMessage> connection) {
+	public void connectionReceived(Connection<ServerToClientMessage,
+			ClientToServerMessage> connection) {
 		final Client client = ClientImpl.newClient(connection, taskIdGenerator);
 		try {
 			state.addClient(client);

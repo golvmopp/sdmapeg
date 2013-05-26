@@ -11,7 +11,8 @@ import se.sdmapeg.serverworker.TaskId;
 /**
  * Class for providing support for WorkerCoordinatorListeners.
  */
-public final class WorkerCoordinatorListenerSupport implements WorkerCoordinatorListener,
+public final class WorkerCoordinatorListenerSupport
+	implements WorkerCoordinatorListener,
 		Listenable<WorkerCoordinatorListener> {
 	private final ListenerSupport<WorkerCoordinatorListener> listenerSupport;
 

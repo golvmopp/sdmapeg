@@ -7,21 +7,26 @@ import se.sdmapeg.server.clients.models.ClientManagerModel;
 import se.sdmapeg.serverworker.TaskId;
 
 /**
- *
- * @author niclas
+ * A callback to handle client events.
  */
 final class ClientEventCallback implements ClientCallback {
 	private final ClientManagerModel state;
 	private final Client client;
 
+	/**
+	 * Creates a new ClientEventCallback to update the specified model when a
+	 * client event occurs.
+	 *
+	 * @param state the model to update
+	 * @param client the client to be used as the source for all events
+	 */
 	public ClientEventCallback(ClientManagerModel state, Client client) {
 		this.state = state;
 		this.client = client;
 	}
 
 	@Override
-	public void taskReceived(TaskId taskId,
-							 Task<?> task) {
+	public void taskReceived(TaskId taskId, Task<?> task) {
 		state.addTask(client, taskId, task);
 	}
 

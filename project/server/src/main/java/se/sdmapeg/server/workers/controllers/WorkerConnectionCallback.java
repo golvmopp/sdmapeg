@@ -18,8 +18,17 @@ public final class WorkerConnectionCallback implements
 	private final WorkerCoordinatorModel state;
 	private final ExecutorService connectionThreadPool;
 
+	/**
+	 * Creates a new WorkerConnectionCallback, with the specified
+	 * WorkerCoordinatorModel to update, and ExecutorService to execute new
+	 * listener tasks.
+	 *
+	 * @param state the model to update with new workers
+	 * @param connectionThreadPool the thread pool to be used for listening to
+	 *                             new workers
+	 */
 	public WorkerConnectionCallback(WorkerCoordinatorModel state,
-									ExecutorService connectionThreadPool) {
+			ExecutorService connectionThreadPool) {
 		this.state = state;
 		this.connectionThreadPool = connectionThreadPool;
 	}

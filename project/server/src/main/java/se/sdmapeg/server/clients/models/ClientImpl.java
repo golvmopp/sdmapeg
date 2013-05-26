@@ -37,7 +37,7 @@ public final class ClientImpl implements Client {
 	
 
 	private ClientImpl(Connection<ServerToClientMessage,
-								 ClientToServerMessage> connection,
+				ClientToServerMessage> connection,
 			IdGenerator<TaskId> taskIdGenerator) {
 		this.connection = connection;
 		this.taskIdGenerator = taskIdGenerator;
@@ -52,9 +52,10 @@ public final class ClientImpl implements Client {
 	public void listen(ClientCallback callback) {
 		LOG.info("Listening to {}", this);
 		ClientToServerMessage.Handler<Void> messageHandler = new MessageHandler(
-				callback);
+			callback);
 		try {
 			while (true) {
+				// Receive and handle messages until the connection is closed
 				ClientToServerMessage message = connection.receive();
 				handleMessage(message, messageHandler);
 			}
@@ -89,7 +90,7 @@ public final class ClientImpl implements Client {
 			connection.close();
 		} catch (IOException ex) {
 			LOG.warn("An error occurred while closing the connection to "
-					 + this, ex);
+				+ this, ex);
 		}
 	}
 
@@ -111,7 +112,7 @@ public final class ClientImpl implements Client {
 	}
 
 	private static void handleMessage(ClientToServerMessage message,
-							   Handler<Void> messageHandler) {
+			Handler<Void> messageHandler) {
 		message.accept(messageHandler);
 	}
 
@@ -119,14 +120,14 @@ public final class ClientImpl implements Client {
 	 * Creates a new client representation communicating over the specified
 	 * connection.
 	 *
-	 * @param connection		the Connection to be used for communicating with
-	 *							this client
-	 * @param taskIdGenerator	the IdGenerator to be used by this client for
-	 *							generating new TaskIds
+	 * @param connection the Connection to be used for communicating with this
+	 *                   client
+	 * @param taskIdGenerator the IdGenerator to be used by this client for
+	 *                        generating new TaskIds
 	 * @return the created Client
 	 */
 	public static Client newClient(Connection<ServerToClientMessage,
-								 ClientToServerMessage> connection,
+				ClientToServerMessage> connection,
 			IdGenerator<TaskId> taskIdGenerator) {
 		return new ClientImpl(connection, taskIdGenerator);
 	}

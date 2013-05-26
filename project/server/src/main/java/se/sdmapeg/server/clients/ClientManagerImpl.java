@@ -64,7 +64,7 @@ public final class ClientManagerImpl implements ClientManager {
 			connectionHandler.close();
 		} catch (IOException ex) {
 			LOG.warn("An error occurred while closing the connection handler",
-					 ex);
+				ex);
 		}
 	}
 
