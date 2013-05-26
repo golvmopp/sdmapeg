@@ -53,6 +53,7 @@ public final class WorkerToServerMessageFactory {
 			return handler.handle(this);
 		}
 
+		@Override
 		public Set<TaskId> getStolenTasks() {
 			return Collections.unmodifiableSet(stolenIds);
 		}
@@ -78,6 +79,7 @@ public final class WorkerToServerMessageFactory {
 		 * @return	the number of tasks that the worker identifying itself is
 		 *			capable of performing in parallel
 		 */
+		@Override
 		public int getParallelWorkCapacity() {
 			return parallelWorkCapacity;
 		}
@@ -102,6 +104,7 @@ public final class WorkerToServerMessageFactory {
 		 * Returns the ClientTaskId of this ResultMessage.
 		 * @return the ClientTaskId of this ResultMessage
 		 */
+		@Override
 		public TaskId getId() {
 			return id;
 		}
@@ -110,6 +113,7 @@ public final class WorkerToServerMessageFactory {
 		 * Returns the Result of this ResultMessage.
 		 * @return the Result of this ResultMessage
 		 */
+		@Override
 		public Result<?> getResult() {
 			return result;
 		}

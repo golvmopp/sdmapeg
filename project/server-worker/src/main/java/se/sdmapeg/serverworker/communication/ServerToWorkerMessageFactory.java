@@ -40,6 +40,7 @@ public final class ServerToWorkerMessageFactory {
 			this.taskId = taskId;
 		}
 
+		@Override
 		public TaskId getTaskId() {
 			return taskId;
 		}
@@ -69,6 +70,7 @@ public final class ServerToWorkerMessageFactory {
 		 * Returns the Task of this TaskMessage.
 		 * @return the Task of this TaskMessage
 		 */
+		@Override
 		public Task<?> getTask(){
 			return task;
 		}
@@ -77,6 +79,7 @@ public final class ServerToWorkerMessageFactory {
 		 * Returns the TaskId of this TaskMessage.
 		 * @return the TaskId of this TaskMessage
 		 */
+		@Override
 		public TaskId getTaskId(){
 			return taskID;
 		}
@@ -94,6 +97,7 @@ public final class ServerToWorkerMessageFactory {
 			return handler.handle(this);
 		}
 
+		@Override
 		public int getDesired() {
 			return desired;
 		}
