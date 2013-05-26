@@ -195,10 +195,14 @@ public final class WorkerCoordinatorModel implements Listenable<WorkerCoordinato
 	}
 
 	public void reassignTask(TaskId taskId) {
-		LOG.info("Reassigning task {}", taskId);
 		Task<?> task = taskMap.get(taskId);
-		cancelTask(taskId);
-		handleTask(taskId, task);
+		if (task != null) {
+			LOG.info("Reassigning task {}", taskId);
+			cancelTask(taskId);
+			handleTask(taskId, task);
+		} else {
+			LOG.warn("Attempted to reassign unassigned task {}", taskId);
+		}
 	}
 
 	private List<WorkerLoadSnapshot> createLoadSnapshotList() {
