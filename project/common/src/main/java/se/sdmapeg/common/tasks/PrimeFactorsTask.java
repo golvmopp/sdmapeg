@@ -4,14 +4,16 @@ import java.util.List;
 
 public final class PrimeFactorsTask implements Task<List<Long>> {
 	private long number;
+	private String name;
 	
 	private static final long serialVersionUID = -4992273066048325517L;
 	@SuppressWarnings("unchecked")
 	private static final Class<List<Long>> RESULT_TYPE = (Class<List<Long>>) (Class<?>) List.class;
 
 	
-	private PrimeFactorsTask(long number) {
+	private PrimeFactorsTask(long number, String name) {
 		this.number = number;
+		this.name = name;
 	}
 	
 	public long getNumber() {
@@ -27,8 +29,18 @@ public final class PrimeFactorsTask implements Task<List<Long>> {
 	public Class<List<Long>> resultType() {
 		return RESULT_TYPE;
 	}
-	
-	public static PrimeFactorsTask newPrimeFactorTask(long number) {
-		return new PrimeFactorsTask(number);
+
+	@Override
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public String getTypeName() {
+		return "Prime Factorization Task";
+	}
+
+	public static PrimeFactorsTask newPrimeFactorTask(long number, String name) {
+		return new PrimeFactorsTask(number, name);
 	}
 }

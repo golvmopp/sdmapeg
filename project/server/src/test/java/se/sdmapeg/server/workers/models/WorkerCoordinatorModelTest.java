@@ -5,17 +5,15 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicBoolean;
-import org.junit.Test;
-import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
-import se.sdmapeg.common.tasks.FindNextIntTask;
+import static org.junit.Assert.*;
+import org.junit.Test;
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.SimpleFailure;
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.server.test.CurrentThreadExecutor;
+import se.sdmapeg.server.test.MockTask;
 import se.sdmapeg.server.workers.callbacks.WorkerCoordinatorCallback;
-import se.sdmapeg.server.workers.callbacks.WorkerCoordinatorListener;
 import se.sdmapeg.server.workers.callbacks.WorkerCoordinatorListenerSupport;
 import se.sdmapeg.server.workers.exceptions.WorkerRejectedException;
 import se.sdmapeg.serverworker.TaskId;
@@ -270,7 +268,7 @@ public class WorkerCoordinatorModelTest {
 			"remotehost", 1337));
 		TaskIdGenerator taskIdGenerator = new TaskIdGenerator();
 		Set<TaskId> taskIds = generateTaskIds(10, taskIdGenerator);
-		Task<?> task = FindNextIntTask.newNextIntTask(2);
+		Task<?> task = new MockTask();
 		WorkerCoordinatorCallback callback = EMPTY_CALLBACK;
 		WorkerCoordinatorModel instance = createWorkerCoordinatorModel(callback);
 		instance.addWorker(firstWorker);
@@ -354,7 +352,7 @@ public class WorkerCoordinatorModelTest {
 		Worker worker = new MockWorker(address);
 		TaskIdGenerator taskIdGenerator = new TaskIdGenerator();
 		TaskId taskId = taskIdGenerator.newId();
-		Task<?> task = FindNextIntTask.newNextIntTask(2);
+		Task<?> task = new MockTask();
 		WorkerCoordinatorCallback callback = EMPTY_CALLBACK;
 		WorkerCoordinatorModel instance = createWorkerCoordinatorModel(callback);
 		instance.addWorker(worker);
@@ -369,7 +367,7 @@ public class WorkerCoordinatorModelTest {
 		Worker worker = new MockWorker(address);
 		TaskIdGenerator taskIdGenerator = new TaskIdGenerator();
 		TaskId taskId = taskIdGenerator.newId();
-		Task<?> task = FindNextIntTask.newNextIntTask(2);
+		Task<?> task = new MockTask();
 		WorkerCoordinatorCallback callback = EMPTY_CALLBACK;
 		WorkerCoordinatorModel instance = createWorkerCoordinatorModel(callback);
 		instance.addWorker(worker);
@@ -385,7 +383,7 @@ public class WorkerCoordinatorModelTest {
 	public void testHandleTaskNoWorkersAvailable() throws Exception {
 		TaskIdGenerator taskIdGenerator = new TaskIdGenerator();
 		TaskId taskId = taskIdGenerator.newId();
-		Task<?> task = FindNextIntTask.newNextIntTask(2);
+		Task<?> task = new MockTask();
 		NoWorkersCallback callback = new NoWorkersCallback(taskId);
 		WorkerCoordinatorModel instance = createWorkerCoordinatorModel(callback);
 		SpecificNotificationListener listener =
@@ -403,7 +401,7 @@ public class WorkerCoordinatorModelTest {
 		Worker worker = new MockWorker(address);
 		TaskIdGenerator taskIdGenerator = new TaskIdGenerator();
 		TaskId taskId = taskIdGenerator.newId();
-		Task<?> task = FindNextIntTask.newNextIntTask(2);
+		Task<?> task = new MockTask();
 		NoWorkersCallback callback = new NoWorkersCallback(taskId);
 		WorkerCoordinatorModel instance = createWorkerCoordinatorModel(callback);
 		SpecificNotificationListener listener =
@@ -427,7 +425,7 @@ public class WorkerCoordinatorModelTest {
 		Set<TaskId> taskIds = generateTaskIds(
 				firstWorker.getParallellWorkCapacity() + 5, taskIdGenerator);
 		TaskId rejectedTaskId = taskIdGenerator.newId();
-		Task<?> task = FindNextIntTask.newNextIntTask(2);
+		Task<?> task = new MockTask();
 		NoWorkersCallback callback = new NoWorkersCallback(rejectedTaskId);
 		WorkerCoordinatorModel instance = createWorkerCoordinatorModel(callback);
 		instance.addWorker(firstWorker);
@@ -458,7 +456,7 @@ public class WorkerCoordinatorModelTest {
 		setRandomWorkCapacity(availableWorkers, rng);
 		setRandomWorkCapacity(unavailableWorkers, rng);
 		TaskIdGenerator taskIdGenerator = new TaskIdGenerator();
-		Task<?> task = FindNextIntTask.newNextIntTask(2);
+		Task<?> task = new MockTask();
 		WorkerCoordinatorCallback callback = EMPTY_CALLBACK;
 		WorkerCoordinatorModel instance = createWorkerCoordinatorModel(callback);
 		for (Worker worker : availableWorkers) {
@@ -489,7 +487,7 @@ public class WorkerCoordinatorModelTest {
 		Set<MockWorker> workers = createMockWorkers(10, address, startPort);
 		TaskIdGenerator taskIdGenerator = new TaskIdGenerator();
 		TaskId taskId = taskIdGenerator.newId();
-		Task<?> task = FindNextIntTask.newNextIntTask(2);
+		Task<?> task = new MockTask();
 		Result<?> result = SimpleFailure.newSimpleFailure(
 			new ExecutionException(null));
 		SpecificResultCallback callback = new SpecificResultCallback(taskId,
@@ -549,7 +547,7 @@ public class WorkerCoordinatorModelTest {
 		Set<MockWorker> workers = createMockWorkers(10, address, startPort);
 		TaskIdGenerator taskIdGenerator = new TaskIdGenerator();
 		TaskId taskId = taskIdGenerator.newId();
-		Task<?> task = FindNextIntTask.newNextIntTask(2);
+		Task<?> task = new MockTask();
 		WorkerCoordinatorCallback callback = EMPTY_CALLBACK;
 		WorkerCoordinatorModel instance = createWorkerCoordinatorModel(callback);
 		for (Worker worker : workers) {
@@ -603,7 +601,7 @@ public class WorkerCoordinatorModelTest {
 		TaskIdGenerator taskIdGenerator = new TaskIdGenerator();
 		Set<TaskId> taskIds = generateTaskIds(
 				worker.getParallellWorkCapacity() + 21, taskIdGenerator);
-		Task<?> task = FindNextIntTask.newNextIntTask(2);
+		Task<?> task = new MockTask();
 		WorkerCoordinatorCallback callback = EMPTY_CALLBACK;
 		WorkerCoordinatorModel instance = createWorkerCoordinatorModel(callback);
 		instance.addWorker(worker);
@@ -627,7 +625,7 @@ public class WorkerCoordinatorModelTest {
 				firstWorker.getParallellWorkCapacity()
 				+ secondWorker.getParallellWorkCapacity() + 16,
 				taskIdGenerator);
-		Task<?> task = FindNextIntTask.newNextIntTask(2);
+		Task<?> task = new MockTask();
 		WorkerCoordinatorCallback callback = EMPTY_CALLBACK;
 		WorkerCoordinatorModel instance = createWorkerCoordinatorModel(callback);
 		instance.addWorker(firstWorker);
@@ -651,7 +649,7 @@ public class WorkerCoordinatorModelTest {
 		TaskIdGenerator taskIdGenerator = new TaskIdGenerator();
 		Set<TaskId> taskIds = generateTaskIds(
 				worker.getParallellWorkCapacity() + 5, taskIdGenerator);
-		Task<?> task = FindNextIntTask.newNextIntTask(2);
+		Task<?> task = new MockTask();
 		WorkerCoordinatorCallback callback = EMPTY_CALLBACK;
 		WorkerCoordinatorModel instance = createWorkerCoordinatorModel(callback);
 		instance.addWorker(worker);
@@ -691,7 +689,7 @@ public class WorkerCoordinatorModelTest {
 		TaskId reassignedTaskId = taskIdGenerator.newId();
 		Set<TaskId> taskIds = generateTaskIds(
 				firstWorker.getParallellWorkCapacity() + 10, taskIdGenerator);
-		Task<?> task = FindNextIntTask.newNextIntTask(2);
+		Task<?> task = new MockTask();
 		WorkerCoordinatorCallback callback = EMPTY_CALLBACK;
 		WorkerCoordinatorModel instance = createWorkerCoordinatorModel(callback);
 		instance.addWorker(firstWorker);
@@ -717,7 +715,7 @@ public class WorkerCoordinatorModelTest {
 		TaskId unassignedTaskId = taskIdGenerator.newId();
 		Set<TaskId> taskIds = generateTaskIds(
 				firstWorker.getParallellWorkCapacity() + 10, taskIdGenerator);
-		Task<?> task = FindNextIntTask.newNextIntTask(2);
+		Task<?> task = new MockTask();
 		WorkerCoordinatorCallback callback = EMPTY_CALLBACK;
 		WorkerCoordinatorModel instance = createWorkerCoordinatorModel(callback);
 		instance.addWorker(firstWorker);

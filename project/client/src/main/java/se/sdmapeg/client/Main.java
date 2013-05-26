@@ -3,7 +3,9 @@ package se.sdmapeg.client;
 import javax.swing.JOptionPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import se.sdmapeg.client.gui.ClientView;
+import se.sdmapeg.client.gui.controllers.ClientController;
+import se.sdmapeg.client.models.Client;
+import se.sdmapeg.client.models.ClientImpl;
 import se.sdmapeg.common.communication.CommunicationException;
 
 public final class Main {
@@ -23,7 +25,6 @@ public final class Main {
 			JOptionPane.showMessageDialog(null, "Could not connect to server.");
 			return;
 		}
-		ClientView view = ClientView.newView(client);
-		client.start();
+		ClientController.newClientController(client, host);
 	}
 }

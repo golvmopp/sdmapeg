@@ -78,7 +78,7 @@ public final class TimeFormatter {
 	}
 
 	public static String addLeadingZeros(String string, int length) {
-		return string.length() == length ? string : addLeadingZeros(0 + string, length);
+		return string.length() < length ? addLeadingZeros(0 + string, length) : string;
 	}
 }
 

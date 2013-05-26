@@ -17,6 +17,11 @@ public final class SimpleListResult<R extends Serializable> implements Result<Li
 	public List<R> get() {
 		return Collections.unmodifiableList(list);
 	}
+
+	@Override
+	public String toString() {
+		return "Result [list=" + list.toString() + "]";
+	}
 	
 	/**
 	 * Creates a new SimpleListResult with the specified content.

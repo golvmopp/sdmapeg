@@ -10,17 +10,16 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import static org.hamcrest.CoreMatchers.*;
 import org.hamcrest.Matcher;
-import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Test;
 import se.sdmapeg.common.communication.CommunicationException;
 import se.sdmapeg.common.communication.Connection;
-import se.sdmapeg.common.tasks.FindNextIntTask;
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.SimpleFailure;
 import se.sdmapeg.common.tasks.Task;
 import se.sdmapeg.server.test.MockConnection;
+import se.sdmapeg.server.test.MockTask;
 import se.sdmapeg.server.test.PairIterator;
-import se.sdmapeg.server.workers.callbacks.WorkerCallback;
 import se.sdmapeg.server.workers.exceptions.TaskRejectedException;
 import se.sdmapeg.serverworker.TaskId;
 import se.sdmapeg.serverworker.TaskIdGenerator;
@@ -74,7 +73,7 @@ public class WorkerImplTest {
 		MockConnection<ServerToWorkerMessage, WorkerToServerMessage> mockConnection =
 			mockConnection(DUMMY_ADDRESS);
 		TaskIdGenerator taskIdGenerator = new TaskIdGenerator();
-		final Task<?> task = FindNextIntTask.newNextIntTask(2);
+		final Task<?> task = new MockTask();
 		final TaskId taskId = taskIdGenerator.newId();
 		Worker instance = WorkerImpl.newWorker(mockConnection);
 		instance.assignTask(taskId, task);
@@ -92,7 +91,7 @@ public class WorkerImplTest {
 		MockConnection<ServerToWorkerMessage, WorkerToServerMessage> mockConnection =
 			mockConnection(DUMMY_ADDRESS);
 		TaskIdGenerator taskIdGenerator = new TaskIdGenerator();
-		final Task<?> task = FindNextIntTask.newNextIntTask(2);
+		final Task<?> task = new MockTask();
 		final TaskId taskId = taskIdGenerator.newId();
 		Worker instance = WorkerImpl.newWorker(mockConnection);
 		mockConnection.addSendDisconnection();
@@ -107,7 +106,7 @@ public class WorkerImplTest {
 		MockConnection<ServerToWorkerMessage, WorkerToServerMessage> mockConnection =
 			mockConnection(DUMMY_ADDRESS);
 		TaskIdGenerator taskIdGenerator = new TaskIdGenerator();
-		final Task<?> task = FindNextIntTask.newNextIntTask(2);
+		final Task<?> task = new MockTask();
 		final TaskId taskId = taskIdGenerator.newId();
 		Worker instance = WorkerImpl.newWorker(mockConnection);
 		new WorkerInteractionTester(instance, mockConnection)
@@ -135,7 +134,7 @@ public class WorkerImplTest {
 		TaskIdGenerator taskIdGenerator = new TaskIdGenerator();
 		TaskId taskId = taskIdGenerator.newId();
 		Set<TaskId> otherTaskIds = generateTaskIds(taskIdGenerator, 5);
-		Task<?> task = FindNextIntTask.newNextIntTask(2);
+		Task<?> task = new MockTask();
 		Worker instance = WorkerImpl.newWorker(mockConnection);
 		instance.assignTask(taskId, task);
 		mockConnection.getSent().accept(VerifyingMessageHandler.anyTaskMessage());
@@ -160,7 +159,7 @@ public class WorkerImplTest {
 		TaskIdGenerator taskIdGenerator = new TaskIdGenerator();
 		TaskId taskId = taskIdGenerator.newId();
 		Set<TaskId> otherTaskIds = generateTaskIds(taskIdGenerator, 5);
-		Task<?> task = FindNextIntTask.newNextIntTask(2);
+		Task<?> task = new MockTask();
 		Worker instance = WorkerImpl.newWorker(mockConnection);
 		for (TaskId otherTaskId : otherTaskIds) {
 			instance.assignTask(otherTaskId, task);
@@ -201,7 +200,7 @@ public class WorkerImplTest {
 		TaskId firsTaskId = taskIdGenerator.newId();
 		TaskId secondTaskId = taskIdGenerator.newId();
 		TaskId thirdTaskId = taskIdGenerator.newId();
-		Task<?> task = FindNextIntTask.newNextIntTask(2);
+		Task<?> task = new MockTask();
 		Set<TaskId> tasksShadow = new HashSet<>();
 		assertEquals(tasksShadow, instance.getActiveTasks());
 		assignShadowedTask(instance, firsTaskId, task, tasksShadow);
@@ -247,7 +246,7 @@ public class WorkerImplTest {
 		TaskIdGenerator taskIdGenerator = new TaskIdGenerator();
 		Worker instance = WorkerImpl.newWorker(mockConnection);
 		TaskId taskId = taskIdGenerator.newId();
-		Task<?> task = FindNextIntTask.newNextIntTask(2);
+		Task<?> task = new MockTask();
 		Set<TaskId> first = instance.getActiveTasks();
 		instance.assignTask(taskId, task);
 		Set<TaskId> second = instance.getActiveTasks();
@@ -265,7 +264,7 @@ public class WorkerImplTest {
 		Worker instance = WorkerImpl.newWorker(mockConnection);
 		int expectedLoad = - instance.getParallellWorkCapacity();
 		assertEquals(expectedLoad, instance.getLoad());
-		Task<?> task = FindNextIntTask.newNextIntTask(2);
+		Task<?> task = new MockTask();
 		for (TaskId taskId : generateTaskIds(taskIdGenerator, 200)) {
 			expectedLoad++;
 			instance.assignTask(taskId, task);
@@ -333,7 +332,7 @@ public class WorkerImplTest {
 		MockConnection<ServerToWorkerMessage, WorkerToServerMessage> mockConnection =
 			mockConnection(DUMMY_ADDRESS);
 		TaskIdGenerator taskIdGenerator = new TaskIdGenerator();
-		Task<?> task = FindNextIntTask.newNextIntTask(2);
+		Task<?> task = new MockTask();
 		Worker instance = WorkerImpl.newWorker(mockConnection);
 		TaskId firstId = taskIdGenerator.newId();
 		TaskId secondId = taskIdGenerator.newId();
@@ -380,7 +379,7 @@ public class WorkerImplTest {
 		Worker instance = WorkerImpl.newWorker(mockConnection);
 		new WorkerInteractionTester(instance, mockConnection)
 				.addSuccessfulTaskAssignment(taskIdGenerator.newId(),
-					FindNextIntTask.newNextIntTask(2))
+					new MockTask())
 				.expectDisconnection()
 				.runTest();
 	}
@@ -394,7 +393,7 @@ public class WorkerImplTest {
 		Worker instance = WorkerImpl.newWorker(mockConnection);
 		new WorkerInteractionTester(instance, mockConnection)
 				.addSuccessfulTaskAssignment(taskIdGenerator.newId(),
-					FindNextIntTask.newNextIntTask(2))
+					new MockTask())
 				.expectDisconnection()
 				.runTest();
 	}

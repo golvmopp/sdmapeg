@@ -2,7 +2,6 @@ package se.sdmapeg.worker;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 import javax.swing.JOptionPane;
 
@@ -12,6 +11,11 @@ import se.sdmapeg.common.communication.ConnectionImpl;
 import se.sdmapeg.serverworker.communication.ServerToWorkerMessage;
 import se.sdmapeg.serverworker.communication.WorkerToServerMessage;
 import se.sdmapeg.worker.gui.WorkerView;
+import se.sdmapeg.worker.models.Server;
+import se.sdmapeg.worker.models.ServerImpl;
+import se.sdmapeg.worker.models.TaskPerformerImpl;
+import se.sdmapeg.worker.models.Worker;
+import se.sdmapeg.worker.models.WorkerImpl;
 
 public final class Main {
 	private static final int SERVER_PORT = 6667;
@@ -35,8 +39,8 @@ public final class Main {
 			throw new CommunicationException();
 		}
 		int poolSize = Runtime.getRuntime().availableProcessors();
-		Worker worker = WorkerImpl.newWorkerImpl(poolSize, server, host,
-												new TaskPerformerImpl());
+		Worker worker = WorkerImpl.newWorkerImpl(poolSize, server, host, 
+				new TaskPerformerImpl());
 		worker.start();
 		WorkerView view = new WorkerView(worker);
 	}

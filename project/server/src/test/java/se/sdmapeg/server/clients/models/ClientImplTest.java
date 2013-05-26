@@ -1,5 +1,6 @@
 package se.sdmapeg.server.clients.models;
 
+import se.sdmapeg.server.test.MockTask;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,7 +16,6 @@ import org.junit.Test;
 import se.sdmapeg.common.IdGenerator;
 import se.sdmapeg.common.communication.CommunicationException;
 import se.sdmapeg.common.communication.Connection;
-import se.sdmapeg.common.tasks.FindNextIntTask;
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.SimpleFailure;
 import se.sdmapeg.common.tasks.Task;
@@ -77,9 +77,9 @@ public class ClientImplTest {
 		MockConnection<ServerToClientMessage, ClientToServerMessage> mockConnection =
 			mockConnection(DUMMY_ADDRESS);
 		ClientTaskIdGenerator clientTaskIdGenerator = new ClientTaskIdGenerator();
-		Task<?> firstTask = FindNextIntTask.newNextIntTask(2);
+		Task<?> firstTask = new MockTask();
 		ClientTaskId firstId = clientTaskIdGenerator.newId();
-		Task<?> secondTask = FindNextIntTask.newNextIntTask(3);
+		Task<?> secondTask = new MockTask();
 		ClientTaskId secondId = clientTaskIdGenerator.newId();
 		Client instance = ClientImpl.newClient(mockConnection,
 			createIdGenerator());
@@ -103,7 +103,7 @@ public class ClientImplTest {
 		MockConnection<ServerToClientMessage, ClientToServerMessage> mockConnection =
 			mockConnection(DUMMY_ADDRESS);
 		ClientTaskIdGenerator clientTaskIdGenerator = new ClientTaskIdGenerator();
-		Task<?> task = FindNextIntTask.newNextIntTask(2);
+		Task<?> task = new MockTask();
 		Result<?> result = SimpleFailure.newSimpleFailure(
 				new ExecutionException(new AssertionError()));
 		Client instance = ClientImpl.newClient(mockConnection,
@@ -198,7 +198,7 @@ public class ClientImplTest {
 		MockConnection<ServerToClientMessage, ClientToServerMessage> mockConnection =
 			mockConnection(DUMMY_ADDRESS);
 		ClientTaskIdGenerator clientTaskIdGenerator = new ClientTaskIdGenerator();
-		Task<?> task = FindNextIntTask.newNextIntTask(2);
+		Task<?> task = new MockTask();
 		final Result<?> result = SimpleFailure.newSimpleFailure(
 				new ExecutionException(new AssertionError()));
 		final ClientTaskId taskId = clientTaskIdGenerator.newId();
@@ -229,7 +229,7 @@ public class ClientImplTest {
 		MockConnection<ServerToClientMessage, ClientToServerMessage> mockConnection =
 			mockConnection(DUMMY_ADDRESS);
 		ClientTaskIdGenerator clientTaskIdGenerator = new ClientTaskIdGenerator();
-		Task<?> task = FindNextIntTask.newNextIntTask(2);
+		Task<?> task = new MockTask();
 		Result<?> result = SimpleFailure.newSimpleFailure(
 				new ExecutionException(new AssertionError()));
 		ClientTaskId clientTaskId = clientTaskIdGenerator.newId();
@@ -255,7 +255,7 @@ public class ClientImplTest {
 		MockConnection<ServerToClientMessage, ClientToServerMessage> mockConnection =
 			mockConnection(DUMMY_ADDRESS);
 		ClientTaskIdGenerator clientTaskIdGenerator = new ClientTaskIdGenerator();
-		Task<?> task = FindNextIntTask.newNextIntTask(2);
+		Task<?> task = new MockTask();
 		Result<?> result = SimpleFailure.newSimpleFailure(
 				new ExecutionException(new AssertionError()));
 		ClientTaskId clientTaskId = clientTaskIdGenerator.newId();
@@ -278,7 +278,7 @@ public class ClientImplTest {
 		MockConnection<ServerToClientMessage, ClientToServerMessage> mockConnection =
 			mockConnection(DUMMY_ADDRESS);
 		ClientTaskIdGenerator clientTaskIdGenerator = new ClientTaskIdGenerator();
-		Task<?> task = FindNextIntTask.newNextIntTask(2);
+		Task<?> task = new MockTask();
 		Result<?> result = SimpleFailure.newSimpleFailure(
 				new ExecutionException(new AssertionError()));
 		ClientTaskId clientTaskId = clientTaskIdGenerator.newId();
@@ -310,11 +310,11 @@ public class ClientImplTest {
 		assertTrue(noActiveTasks.isEmpty());
 		Result<?> result = SimpleFailure.newSimpleFailure(
 				new ExecutionException(new AssertionError()));
-		Task<?> firstTask = FindNextIntTask.newNextIntTask(2);
+		Task<?> firstTask = new MockTask();
 		ClientTaskId firstId = clientTaskIdGenerator.newId();
-		Task<?> secondTask = FindNextIntTask.newNextIntTask(3);
+		Task<?> secondTask = new MockTask();
 		ClientTaskId secondId = clientTaskIdGenerator.newId();
-		Task<?> thirdTask = FindNextIntTask.newNextIntTask(6);
+		Task<?> thirdTask = new MockTask();
 		ClientTaskId thirdId = clientTaskIdGenerator.newId();
 		new ClientInteractionTester(instance, mockConnection)
 			.addReceived(ClientToServerMessageFactory.newTaskMessage(firstTask,
