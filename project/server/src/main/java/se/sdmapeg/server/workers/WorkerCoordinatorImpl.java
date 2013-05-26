@@ -66,7 +66,7 @@ public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 			connectionHandler.close();
 		} catch (IOException ex) {
 			LOG.warn("An error occurred while closing the connection handler",
-					 ex);
+				ex);
 		}
 	}
 
@@ -128,7 +128,7 @@ public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 	 *
 	 * @param connectionThreadPool a thread pool for handling connections
 	 * @param connectionHandler a connection handler for dealing with new
-	 *							connections
+	 *                          connections
 	 * @param callback a callback to be notified of events
 	 * @param listenerExecutor an Executor to be used for notifying listeners
 	 * @return the created ClientManager
@@ -140,6 +140,6 @@ public final class WorkerCoordinatorImpl implements WorkerCoordinator {
 			WorkerCoordinatorCallback callback,
 			Executor listenerExecutor) {
 		return new WorkerCoordinatorImpl(connectionThreadPool,
-				connectionHandler, callback, listenerExecutor);
+			connectionHandler, callback, listenerExecutor);
 	}
 }

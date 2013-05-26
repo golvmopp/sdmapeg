@@ -27,7 +27,8 @@ import se.sdmapeg.serverworker.TaskId;
 /**
  * Class representing the internal state of a worker coordinator.
  */
-public final class WorkerCoordinatorModel implements Listenable<WorkerCoordinatorListener> {
+public final class WorkerCoordinatorModel
+		implements Listenable<WorkerCoordinatorListener> {
 	private static final Logger LOG = LoggerFactory.getLogger(WorkerCoordinatorModel.class);
 	private final WorkerCoordinatorListenerSupport listeners;
 	private final WorkerCoordinatorCallback callback;
@@ -38,31 +39,64 @@ public final class WorkerCoordinatorModel implements Listenable<WorkerCoordinato
 	private final ConcurrentMap<InetSocketAddress, Worker> addressMap =
 		new ConcurrentHashMap<>();
 
+	/**
+	 * Creates a new WorkerCoordinatorModel with the specified listener support
+	 * and callback.
+	 *
+	 * @param listeners listener support to be used by this model
+	 * @param callback callback to be notified of events
+	 */
 	public WorkerCoordinatorModel(WorkerCoordinatorListenerSupport listeners,
 			WorkerCoordinatorCallback callback) {
 		this.listeners = listeners;
 		this.callback = callback;
 	}
 
+	/**
+	 * Adds the specified worker to this model. The worker must have a unique
+	 * address.
+	 *
+	 * @param worker the worker to be added
+	 * @throws WorkerRejectedException if a worker with the same address was
+	 *                                 already present
+	 */
 	public void addWorker(Worker worker) throws WorkerRejectedException {
 		if (addressMap.putIfAbsent(worker.getAddress(), worker) == null) {
 			LOG.info("{} connected", worker);
 			listeners.workerConnected(worker.getAddress());
 		} else {
 			LOG.warn("Connection refused: {} attempted to connect, but was"
-						+ " already connected", worker);
+				+ " already connected", worker);
 			throw new WorkerRejectedException();
 		}
 	}
 
+	/**
+	 * Returns the worker with the specified address, or {@code null} if no
+	 * worker with said address was present.
+	 *
+	 * @param workerAddress the address of the worker
+	 * @return the worker with the specified address, or {@code null} if no
+	 *         worker with said address was present
+	 */
 	public Worker getWorker(InetSocketAddress workerAddress) {
 		return addressMap.get(workerAddress);
 	}
 
+	/**
+	 * Returns an unmodifiable snapshot of all workers currently present.
+	 *
+	 * @return an unmodifiable snapshot of all workers currently present
+	 */
 	public Set<Worker> getWorkers() {
 		return Collections.unmodifiableSet(new HashSet<>(addressMap.values()));
 	}
 
+	/**
+	 * Removes the specified worker from this model.
+	 *
+	 * @param worker the worker to remove
+	 */
 	public void removeWorker(Worker worker) {
 		if (addressMap.remove(worker.getAddress()) == null) {
 			return;
@@ -85,6 +119,12 @@ public final class WorkerCoordinatorModel implements Listenable<WorkerCoordinato
 		listeners.removeListener(listener);
 	}
 
+	/**
+	 * Handles the specified task by delegating it to an available worker.
+	 *
+	 * @param taskId the ID of the task to handle
+	 * @param task the task to handle
+	 */
 	public void handleTask(TaskId taskId, Task<?> task) {
 		taskMap.put(taskId, task);
 		try {
@@ -98,6 +138,12 @@ public final class WorkerCoordinatorModel implements Listenable<WorkerCoordinato
 		}
 	}
 
+	/**
+	 * Completes the task with the specified ID.
+	 *
+	 * @param taskId the ID of the completed task
+	 * @param result the result of the completed task
+	 */
 	public void completeTask(TaskId taskId, Result<?> result) {
 		taskMap.remove(taskId);
 		Worker worker = taskAssignmentMap.remove(taskId);
@@ -111,6 +157,11 @@ public final class WorkerCoordinatorModel implements Listenable<WorkerCoordinato
 		}
 	}
 
+	/**
+	 * Cancels the task with the specified ID.
+	 *
+	 * @param taskId the ID of the task to cancel
+	 */
 	public void cancelTask(TaskId taskId) {
 		taskMap.remove(taskId);
 		Worker worker = taskAssignmentMap.remove(taskId);
@@ -132,8 +183,7 @@ public final class WorkerCoordinatorModel implements Listenable<WorkerCoordinato
 				assignTask(taskId, task, worker);
 				// Task successfully assigned
 				return worker;
-			}
-			catch (TaskRejectedException ex) {
+			} catch (TaskRejectedException ex) {
 				// Task was rejected, keep trying
 			}
 		}
@@ -144,8 +194,7 @@ public final class WorkerCoordinatorModel implements Listenable<WorkerCoordinato
 		taskAssignmentMap.put(taskId, worker);
 		try {
 			worker.assignTask(taskId, task);
-		}
-		catch (TaskRejectedException ex) {
+		} catch (TaskRejectedException ex) {
 			taskAssignmentMap.remove(taskId);
 			throw ex;
 		}
@@ -171,6 +220,12 @@ public final class WorkerCoordinatorModel implements Listenable<WorkerCoordinato
 		return selected;
 	}
 
+	/**
+	 * Requests the desired number of tasks to be stolen from the queues of
+	 * workers with heavier load and reassigned to workers with lighter load.
+	 *
+	 * @param desired the desired number of tasks to steal
+	 */
 	public void stealTasks(int desired) {
 		List<WorkerLoadSnapshot> snapshots = createLoadSnapshotList();
 		Collections.sort(snapshots, WorkerLoadSnapshot.descendingComparator());
@@ -194,6 +249,12 @@ public final class WorkerCoordinatorModel implements Listenable<WorkerCoordinato
 		return tasksToSteal;
 	}
 
+	/**
+	 * Cancels the task with the specified TaskId from the worker currently
+	 * performing it and attempts to assign it to a new worker.
+	 *
+	 * @param taskId the task to be reassigned
+	 */
 	public void reassignTask(TaskId taskId) {
 		Task<?> task = taskMap.get(taskId);
 		if (task != null) {
@@ -211,7 +272,7 @@ public final class WorkerCoordinatorModel implements Listenable<WorkerCoordinato
 		 * slightly larger initial capacity.
 		 */
 		List<WorkerLoadSnapshot> snapshots = new ArrayList<>(
-				addressMap.size() + 5);
+			addressMap.size() + 5);
 		for (Worker worker : addressMap.values()) {
 			snapshots.add(WorkerLoadSnapshot.newSnapshot(worker));
 		}

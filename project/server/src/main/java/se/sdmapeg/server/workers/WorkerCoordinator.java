@@ -16,7 +16,7 @@ public interface WorkerCoordinator extends Listenable<WorkerCoordinatorListener>
 	 * Handles the task.
 	 *
 	 * @param taskId Unique id paired to a task
-	 * @param task   Task to be handled
+	 * @param task Task to be handled
 	 */
 	void handleTask(TaskId taskId, Task<?> task);
 
@@ -28,7 +28,8 @@ public interface WorkerCoordinator extends Listenable<WorkerCoordinatorListener>
 	void cancelTask(TaskId taskId);
 
 	/**
-	 * Shuts down this WorkerCoordinator. By disconnecting all workers and stops listening to new connections.
+	 * Shuts down this WorkerCoordinator. By disconnecting all workers and stops
+	 * listening to new connections.
 	 */
 	void shutDown();
 

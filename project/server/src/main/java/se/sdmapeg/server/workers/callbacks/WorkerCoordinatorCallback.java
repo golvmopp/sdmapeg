@@ -14,6 +14,4 @@ public interface WorkerCoordinatorCallback {
 	 * @param result Result to task represented by the TaskId
 	 */
 	void handleResult(TaskId taskId, Result<?> result);
-
-
 }

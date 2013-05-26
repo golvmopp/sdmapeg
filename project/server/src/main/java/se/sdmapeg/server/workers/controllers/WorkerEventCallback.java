@@ -13,6 +13,13 @@ public final class WorkerEventCallback implements WorkerCallback {
 	private final WorkerCoordinatorModel state;
 	private final Worker worker;
 
+	/**
+	 * Creates a new WorkerEventCallback to update the specified model when a
+	 * worker event occurs.
+	 *
+	 * @param state the model to update
+	 * @param worker the worker to be used as the source for all events
+	 */
 	public WorkerEventCallback(WorkerCoordinatorModel state, Worker worker) {
 		this.state = state;
 		this.worker = worker;

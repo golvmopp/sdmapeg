@@ -32,7 +32,7 @@ public final class ConnectionHandlerImpl<S extends Message, R extends Message>
 
 	@Override
 	public Connection<S, R> accept() throws CommunicationException,
-											SocketException {
+			SocketException {
 		try {
 			return ConnectionImpl.newConnection(serverSocket.accept());
 		} catch (SocketException e) {

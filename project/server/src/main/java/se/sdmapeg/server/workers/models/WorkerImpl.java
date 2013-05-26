@@ -25,15 +25,16 @@ import se.sdmapeg.serverworker.communication.*;
  */
 public final class WorkerImpl implements Worker {
 	private static final Logger LOG = LoggerFactory.getLogger(WorkerImpl.class);
-	private final Connection<ServerToWorkerMessage, WorkerToServerMessage> connection;
+	private final Connection<ServerToWorkerMessage,
+			WorkerToServerMessage> connection;
 	private final Set<TaskId> activeTasks = Collections.newSetFromMap(
-			new ConcurrentHashMap<TaskId, Boolean>());
+		new ConcurrentHashMap<TaskId, Boolean>());
 	private final Object taskAssignmentLock = new Object();
 	private volatile boolean acceptingWork = true;
 	private volatile WorkerData workerData = WorkerData.getDefaultWorkerData();
 
 	private WorkerImpl(Connection<ServerToWorkerMessage,
-								 WorkerToServerMessage> connection) {
+				WorkerToServerMessage> connection) {
 		this.connection = connection;
 	}
 
@@ -101,7 +102,7 @@ public final class WorkerImpl implements Worker {
 	public void listen(WorkerCallback callback) {
 		LOG.info("Listening to {}", this);
 		WorkerToServerMessage.Handler<Void> messageHandler = new MessageHander(
-				callback);
+			callback);
 		try {
 			while (true) {
 				WorkerToServerMessage message = connection.receive();
@@ -159,7 +160,8 @@ public final class WorkerImpl implements Worker {
 		callback.workRequested();
 	}
 
-	private static WorkerData extractWorkerData(WorkerIdentificationMessage message) {
+	private static WorkerData extractWorkerData(
+			WorkerIdentificationMessage message) {
 		return new WorkerData(message.getParallelWorkCapacity());
 	}
 
@@ -167,12 +169,12 @@ public final class WorkerImpl implements Worker {
 	 * Creates a new worker representation communicating over the specified
 	 * connection.
 	 *
-	 * @param connection		the Connection to be used for communicating with
-	 *							this worker
-	 * @return the created Worker
+	 * @param connection the Connection to be used for communicating with
+	 *                   this worker
+	 * @return the newly created Worker
 	 */
 	public static Worker newWorker(Connection<ServerToWorkerMessage,
-								 WorkerToServerMessage> connection) {
+			WorkerToServerMessage> connection) {
 		return new WorkerImpl(connection);
 	}
 
