@@ -1,10 +1,5 @@
 package se.sdmapeg.server.workers.models;
 
-import se.sdmapeg.server.workers.exceptions.TaskRejectedException;
-import se.sdmapeg.server.workers.exceptions.WorkerRejectedException;
-import se.sdmapeg.server.workers.exceptions.NoWorkersAvailableException;
-import se.sdmapeg.server.workers.callbacks.WorkerCoordinatorCallback;
-import se.sdmapeg.server.workers.callbacks.WorkerCoordinatorListener;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,7 +16,12 @@ import se.sdmapeg.common.listeners.Listenable;
 import se.sdmapeg.common.tasks.Result;
 import se.sdmapeg.common.tasks.SimpleFailure;
 import se.sdmapeg.common.tasks.Task;
+import se.sdmapeg.server.workers.callbacks.WorkerCoordinatorCallback;
+import se.sdmapeg.server.workers.callbacks.WorkerCoordinatorListener;
 import se.sdmapeg.server.workers.callbacks.WorkerCoordinatorListenerSupport;
+import se.sdmapeg.server.workers.exceptions.NoWorkersAvailableException;
+import se.sdmapeg.server.workers.exceptions.TaskRejectedException;
+import se.sdmapeg.server.workers.exceptions.WorkerRejectedException;
 import se.sdmapeg.serverworker.TaskId;
 
 /**
@@ -32,14 +32,14 @@ public final class WorkerCoordinatorModel implements Listenable<WorkerCoordinato
 	private final WorkerCoordinatorListenerSupport listeners;
 	private final WorkerCoordinatorCallback callback;
 	private final Map<TaskId, Task<?>> taskMap =
-									   new ConcurrentHashMap<>();
+		new ConcurrentHashMap<>();
 	private final Map<TaskId, Worker> taskAssignmentMap =
-									  new ConcurrentHashMap<>();
+		new ConcurrentHashMap<>();
 	private final ConcurrentMap<InetSocketAddress, Worker> addressMap =
-													 new ConcurrentHashMap<>();
+		new ConcurrentHashMap<>();
 
 	public WorkerCoordinatorModel(WorkerCoordinatorListenerSupport listeners,
-									 WorkerCoordinatorCallback callback) {
+			WorkerCoordinatorCallback callback) {
 		this.listeners = listeners;
 		this.callback = callback;
 	}
@@ -48,8 +48,7 @@ public final class WorkerCoordinatorModel implements Listenable<WorkerCoordinato
 		if (addressMap.putIfAbsent(worker.getAddress(), worker) == null) {
 			LOG.info("{} connected", worker);
 			listeners.workerConnected(worker.getAddress());
-		}
-		else {
+		} else {
 			LOG.warn("Connection refused: {} attempted to connect, but was"
 						+ " already connected", worker);
 			throw new WorkerRejectedException();
@@ -65,7 +64,9 @@ public final class WorkerCoordinatorModel implements Listenable<WorkerCoordinato
 	}
 
 	public void removeWorker(Worker worker) {
-		addressMap.remove(worker.getAddress());
+		if (addressMap.remove(worker.getAddress()) == null) {
+			return;
+		}
 		LOG.info("{} disconnected", worker);
 		listeners.workerDisconnected(worker.getAddress());
 		for (TaskId taskId : worker.getActiveTasks()) {
@@ -84,8 +85,7 @@ public final class WorkerCoordinatorModel implements Listenable<WorkerCoordinato
 		listeners.removeListener(listener);
 	}
 
-	public void handleTask(TaskId taskId,
-						   Task<?> task) {
+	public void handleTask(TaskId taskId, Task<?> task) {
 		taskMap.put(taskId, task);
 		try {
 			Worker worker = assignTask(taskId, task);
@@ -98,13 +98,17 @@ public final class WorkerCoordinatorModel implements Listenable<WorkerCoordinato
 		}
 	}
 
-	public void completeTask(TaskId taskId,
-							 Result<?> result) {
-		Worker worker = taskAssignmentMap.remove(taskId);
+	public void completeTask(TaskId taskId, Result<?> result) {
 		taskMap.remove(taskId);
-		LOG.info("Task {} completed by {}", taskId, worker);
-		listeners.resultReceived(taskId, worker.getAddress());
-		callback.handleResult(taskId, result);
+		Worker worker = taskAssignmentMap.remove(taskId);
+		if (worker != null) {
+			LOG.info("Task {} completed by {}", taskId, worker);
+			listeners.resultReceived(taskId, worker.getAddress());
+			callback.handleResult(taskId, result);
+		} else {
+			LOG.warn("Attempted to complete task {}, which was not assigned" +
+					 " to any worker", taskId);
+		}
 	}
 
 	public void cancelTask(TaskId taskId) {
@@ -114,15 +118,14 @@ public final class WorkerCoordinatorModel implements Listenable<WorkerCoordinato
 			worker.cancelTask(taskId);
 			LOG.info("Task {} cancelled", taskId);
 			listeners.taskAborted(taskId, worker.getAddress());
-		}
-		else {
+		} else {
 			LOG.warn("Attempted to cancel task {}, which was not assigned" +
 					 " to any worker", taskId);
 		}
 	}
 
-	private Worker assignTask(TaskId taskId,
-							  Task<?> task) throws NoWorkersAvailableException {
+	private Worker assignTask(TaskId taskId, Task<?> task)
+			throws NoWorkersAvailableException {
 		while (true) {
 			Worker worker = leastLoadedAvailableWorker();
 			try {
@@ -192,10 +195,14 @@ public final class WorkerCoordinatorModel implements Listenable<WorkerCoordinato
 	}
 
 	public void reassignTask(TaskId taskId) {
-		LOG.info("Reassigning task {}", taskId);
 		Task<?> task = taskMap.get(taskId);
-		cancelTask(taskId);
-		handleTask(taskId, task);
+		if (task != null) {
+			LOG.info("Reassigning task {}", taskId);
+			cancelTask(taskId);
+			handleTask(taskId, task);
+		} else {
+			LOG.warn("Attempted to reassign unassigned task {}", taskId);
+		}
 	}
 
 	private List<WorkerLoadSnapshot> createLoadSnapshotList() {
@@ -210,5 +217,4 @@ public final class WorkerCoordinatorModel implements Listenable<WorkerCoordinato
 		}
 		return snapshots;
 	}
-	
 }
