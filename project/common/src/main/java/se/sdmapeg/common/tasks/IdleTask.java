@@ -27,7 +27,7 @@ public class IdleTask implements Task<String> {
 
     @Override
     public String getTypeName() {
-	return "Idle Task:";
+	return "Idle Task";
     }
 
     public static IdleTask newIdleTask(String name) {

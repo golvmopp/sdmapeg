@@ -98,6 +98,7 @@ public final class WorkerView extends JFrame implements TaskView.TaskViewCallbac
 		JPanel proxyPanel = new JPanel(); // For making a proper list in scrollpane
 		JScrollPane workListScrollPane = new JScrollPane(proxyPanel);
 		proxyPanel.add(workList);
+		proxyPanel.setPreferredSize(new Dimension(300, 130));
 		content.add(workListScrollPane);
 
 		pack();
