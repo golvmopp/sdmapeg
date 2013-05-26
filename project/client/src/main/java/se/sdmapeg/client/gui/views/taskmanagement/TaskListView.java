@@ -12,6 +12,7 @@ import javax.swing.border.LineBorder;
 import se.sdmapeg.client.gui.listeners.TaskListViewListener;
 import se.sdmapeg.client.gui.listeners.TaskListener;
 import se.sdmapeg.client.gui.controllers.taskmanagement.TaskController;
+import se.sdmapeg.client.gui.views.StatisticsView;
 import se.sdmapeg.client.models.Client;
 import se.sdmapeg.client.models.ClientListener;
 import se.sdmapeg.serverclient.ClientTaskId;
@@ -24,7 +25,7 @@ public class TaskListView extends JPanel {
 
 	private final Map<ClientTaskId, TaskPanel> tasks;
 
-	public TaskListView(Client client){
+	public TaskListView(Client client, StatisticsView statistics){
 		tasks = new HashMap<>();
 
 		setPreferredSize(new Dimension(500, 500));
@@ -35,8 +36,6 @@ public class TaskListView extends JPanel {
 		setLayout(new BorderLayout());
 		JPanel proxyPanel = new JPanel(); //For making a proper list in scrollpane.
 		JPanel centerList = new JPanel(new BorderLayout());
-		JLabel titleLabel = new JLabel("Tasks");
-		add(titleLabel, BorderLayout.NORTH);
 		add(centerList, BorderLayout.CENTER);
 
 		taskListView = new JPanel(new GridLayout(0, 1, 0, 2));
@@ -44,8 +43,22 @@ public class TaskListView extends JPanel {
 		proxyPanel.add(taskListView);
 		taskList.setViewportView(proxyPanel);
 		taskList.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		taskList.setBorder(new LineBorder(Color.BLACK));
+		taskList.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
 		centerList.add(taskList);
+
+		JButton addPanel = new JButton("+ Create a new Task");
+		addPanel.setPreferredSize(new Dimension(getPreferredSize().width-30, 60));
+		addPanel.setFont(new Font(null, 0, 25));
+		addPanel.setForeground(Color.DARK_GRAY);
+		addPanel.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
+		addPanel.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				listener.addButtonPressed();
+			}
+		});
+		taskListView.add(addPanel);
 
 		JPanel buttonPanel = new JPanel(new GridLayout(1, 0));
 		BottomButton clearButton = new BottomButton("Clear", true);
@@ -57,8 +70,7 @@ public class TaskListView extends JPanel {
 			public void actionPerformed(ActionEvent arg0) {
 				listener.addButtonPressed();
 			}
-		}
-		);
+		});
 		clearButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -83,7 +95,12 @@ public class TaskListView extends JPanel {
 		buttonPanel.add(clearButton);
 		buttonPanel.add(addButton);
 		buttonPanel.add(sendButton);
-		centerList.add(buttonPanel, BorderLayout.SOUTH);
+
+		JPanel buttonAndStatisticsPanel = new JPanel(new BorderLayout());
+		buttonAndStatisticsPanel.add(statistics, BorderLayout.NORTH);
+		buttonAndStatisticsPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+		centerList.add(buttonAndStatisticsPanel, BorderLayout.SOUTH);
 	}
 
 	public void addTask(final ClientTaskId clientTaskId, final TaskPanel task) {

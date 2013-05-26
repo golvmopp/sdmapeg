@@ -16,6 +16,7 @@ public class ClientView extends JFrame {
 		this.client = client;
 
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setTitle("SDMAPeG Client");
 		setLayout(new BorderLayout(10, 0));
 
 		setVisible(true);

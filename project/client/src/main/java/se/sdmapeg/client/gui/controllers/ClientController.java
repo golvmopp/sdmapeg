@@ -19,10 +19,9 @@ public class ClientController {
 
 		StatisticsView statisticsView = new StatisticsView(host);
 		model.addListener(statisticsView);
-		view.add(statisticsView, BorderLayout.WEST);
 
-		TaskListController taskList = TaskListController.newTaskListController(model);
-		view.add(taskList.getView(), BorderLayout.EAST);
+		TaskListController taskList = TaskListController.newTaskListController(model, statisticsView);
+		view.add(taskList.getView(), BorderLayout.CENTER);
 
 		view.pack();
 	}
