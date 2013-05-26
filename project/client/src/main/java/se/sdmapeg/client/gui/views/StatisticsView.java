@@ -25,62 +25,29 @@ public class StatisticsView extends JPanel implements ClientListener {
 
 	public StatisticsView(String host) {
 		startTime = System.currentTimeMillis();
-		setLayout(new BorderLayout());
-
-		JPanel panel = new JPanel(new BorderLayout());
-		add(panel, BorderLayout.NORTH);
-
-		JPanel titles = new JPanel(new GridLayout(0, 1));
-		JPanel values = new JPanel(new GridLayout(0, 1));
-		panel.add(titles, BorderLayout.WEST);
-		panel.add(values, BorderLayout.EAST);
-
-		titles.add(new JPanel());
-		titles.add(new JPanel());
-		titles.add(new JPanel());
-		titles.add(new JPanel());
-		values.add(new JPanel());
-		values.add(new JPanel());
-		values.add(new JPanel());
-		values.add(new JPanel());
-		titles.add(new JPanel());
-		titles.add(new JPanel());
-		titles.add(new JPanel());
-		titles.add(new JPanel());
-		values.add(new JPanel());
-		values.add(new JPanel());
-		values.add(new JPanel());
-		values.add(new JPanel());
+		setLayout(new GridLayout(2, 4));
 
 		JLabel timerTitle = new JLabel("Time since startup: ");
 		timerLabel = new JLabel("00:00:00");
-		titles.add(timerTitle);
-		values.add(timerLabel);
+		add(timerTitle);
+		add(timerLabel);
 
 		JLabel connectedToTitle = new JLabel("Connected to: ");
 		connectedToLabel = new JLabel(host);
-		titles.add(connectedToTitle);
-		values.add(connectedToLabel);
+		add(connectedToTitle);
+		add(connectedToLabel);
 
-		JLabel tasksTitle = new JLabel("Total tasks: ");
-		tasksLabel = new JLabel(Integer.toString(tasks));
-		titles.add(tasksTitle);
-		values.add(tasksLabel);
+		tasksLabel = new JLabel("Tasks: 0");
+		add(tasksLabel);
 
-		JLabel sentTitle = new JLabel("Tasks sent: ");
-		sentLabel = new JLabel(Integer.toString(tasksSent));
-		titles.add(sentTitle);
-		values.add(sentLabel);
+		sentLabel = new JLabel("Sent: 0");
+		add(sentLabel);
 
-		JLabel receivedTitle = new JLabel("Results received: ");
-		receivedLabel = new JLabel(Integer.toString(resultsReceived));
-		titles.add(receivedTitle);
-		values.add(receivedLabel);
+		receivedLabel = new JLabel("Done: 0");
+		add(receivedLabel);
 
-		JLabel cancelledTitle = new JLabel("Tasks cancelled: ");
-		cancelledLabel = new JLabel(Integer.toString(tasksCancelled));
-		titles.add(cancelledTitle);
-		values.add(cancelledLabel);
+		cancelledLabel = new JLabel("Cancelled: 0");
+		add(cancelledLabel);
 
 		new Timer(1000, new ActionListener() {
 			@Override
@@ -96,10 +63,10 @@ public class StatisticsView extends JPanel implements ClientListener {
 	}
 
 	private void updateStatistics() {
-		tasksLabel.setText(Integer.toString(tasks));
-		sentLabel.setText(Integer.toString(tasksSent));
-		receivedLabel.setText(Integer.toString(resultsReceived));
-		cancelledLabel.setText(Integer.toString(tasksCancelled));
+		tasksLabel.setText("Tasks: " + Integer.toString(tasks));
+		sentLabel.setText("Sent: " + Integer.toString(tasksSent));
+		receivedLabel.setText("Done: " + Integer.toString(resultsReceived));
+		cancelledLabel.setText("Cancelled: " + Integer.toString(tasksCancelled));
 	}
 
 	@Override

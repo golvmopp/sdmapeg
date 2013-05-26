@@ -23,13 +23,14 @@ public class TaskPanel extends JPanel implements ClientListener {
 	private Timer timer;
 
 	private JLabel elapsedTimeLabel;
+	private JLabel statusLabel;
 	private JButton actionButton;
 	private JCheckBox checkBox;
 
 	private static final Color CREATED = Color.WHITE;
-	private static final Color SENT = new Color(195, 200, 72);
-	private static final Color COMPLETED = new Color(118, 217, 101);
-	private static final Color FAILED = new Color(255, 91, 90);
+	private static final Color SENT = new Color(234, 250, 168);
+	private static final Color COMPLETED = new Color(169, 236, 168);
+	private static final Color FAILED = new Color(255, 134, 134);
 	
 	
 	public TaskPanel(TaskModel model, TaskPanelListener listener, int width) {
@@ -38,12 +39,12 @@ public class TaskPanel extends JPanel implements ClientListener {
 		this.setLayout(new BorderLayout());
 		model.setStartTime(System.currentTimeMillis());
 
-		setPreferredSize(new Dimension(width, 40));
+		setPreferredSize(new Dimension(width, 60));
 		setBorder(new BevelBorder(2, Color.BLACK, Color.BLACK));
 		
 		JPanel centerPanel = new JPanel(new BorderLayout());
 		centerPanel.setOpaque(false);
-		JPanel centerPanelText = new JPanel(new GridLayout(3, 1));
+		JPanel centerPanelText = new JPanel(new GridLayout(4, 1));
 		centerPanelText.setOpaque(false);
 		centerPanel.add(centerPanelText, BorderLayout.CENTER);
 		JPanel checkBoxPanel = new JPanel(new BorderLayout());
@@ -61,6 +62,9 @@ public class TaskPanel extends JPanel implements ClientListener {
 				Integer.toString(model.getTimeStamp().get(Calendar.MINUTE)), 2)));
 		elapsedTimeLabel = new JLabel("Time: 00:00:00");
 		centerPanelText.add(elapsedTimeLabel);
+
+		statusLabel = new JLabel("Status: Created");
+		centerPanelText.add(statusLabel);
 		
 		actionButton = new JButton("Send task");
 		actionButton.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -122,6 +126,7 @@ public class TaskPanel extends JPanel implements ClientListener {
 	@Override
 	public void taskSent(ClientTaskId clientTaskId) {
 		setBackground(SENT);
+		statusLabel.setText("Status: Sent");
 		model.setState(TaskModel.TaskState.SENT);
 		actionButton.setText("Cancel");
 		checkBox.setSelected(false);
@@ -132,6 +137,7 @@ public class TaskPanel extends JPanel implements ClientListener {
 	@Override
 	public void taskCancelled(ClientTaskId clientTaskId) {
 		setBackground(FAILED);
+		statusLabel.setText("Status: Cancelled");
 		model.setState(TaskModel.TaskState.FAILED);
 		checkBox.setSelected(false);
 		timer.stop();
@@ -141,6 +147,7 @@ public class TaskPanel extends JPanel implements ClientListener {
 	@Override
 	public void resultReceived(ClientTaskId clientTaskId) {
 		setBackground(COMPLETED);
+		statusLabel.setText("Status: Done");
 		model.setState(TaskModel.TaskState.COMPLETED);
 		actionButton.setText("Show result");
 		timer.stop();
