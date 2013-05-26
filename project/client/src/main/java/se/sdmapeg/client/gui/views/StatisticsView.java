@@ -24,10 +24,12 @@ public class StatisticsView extends JPanel implements ClientListener {
 	private JLabel timerLabel;
 
 	public StatisticsView(String host) {
-		startTime = System.currentTimeMillis();
-		setLayout(new GridLayout(2, 4));
+		setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-		JLabel timerTitle = new JLabel("Time since startup: ");
+		startTime = System.currentTimeMillis();
+		setLayout(new GridLayout(2, 4, 0, 5));
+
+		JLabel timerTitle = new JLabel("Uptime: ");
 		timerLabel = new JLabel("00:00:00");
 		add(timerTitle);
 		add(timerLabel);

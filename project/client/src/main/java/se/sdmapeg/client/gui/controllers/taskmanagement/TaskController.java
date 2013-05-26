@@ -26,10 +26,6 @@ public class TaskController implements TaskPanelListener, ClientListener {
 		return view;
 	}
 
-	public boolean isSelected() {
-		return view.isChecked();
-	}
-
 	public void send() {
 		if (model.getState() == TaskModel.TaskState.CREATED) {
 			client.sendTask(model.getClientTaskId());
