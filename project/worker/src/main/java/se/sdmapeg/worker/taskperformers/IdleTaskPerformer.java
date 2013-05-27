@@ -10,7 +10,7 @@ public class IdleTaskPerformer {
 	
 	public static String idle() throws ExecutionException {
 		try {
-			Thread.sleep(60000);
+			Thread.sleep(3*60*1000);
 			return "Success!";
 		} catch (InterruptedException e) {
 			throw new ExecutionException(e);

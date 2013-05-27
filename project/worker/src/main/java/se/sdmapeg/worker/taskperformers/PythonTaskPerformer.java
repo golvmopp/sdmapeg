@@ -113,7 +113,7 @@ public final class PythonTaskPerformer {
 	private static String getResult(FutureTask<PyObject> task,
 			Thread interpreterThread) throws ExecutionException {
 		try {
-			String result = Objects.toString(task.get(1, TimeUnit.MINUTES),
+			String result = Objects.toString(task.get(30, TimeUnit.MINUTES),
 				"None");
 			return result;
 		} catch (TimeoutException | InterruptedException ex) {
